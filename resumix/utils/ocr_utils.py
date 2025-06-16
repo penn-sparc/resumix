@@ -2,7 +2,7 @@ import os
 import time
 import tempfile
 import fitz  # PyMuPDF
-from utils.logger import logger
+from resumix.utils.logger import logger
 from io import BytesIO
 from resumix.utils.timeit import timeit
 from typing import Union

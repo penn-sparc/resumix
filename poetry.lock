@@ -257,6 +257,21 @@ tests = ["cloudpickle ; platform_python_implementation == \"CPython\"", "hypothe
 tests-mypy = ["mypy (>=1.11.1) ; platform_python_implementation == \"CPython\" and python_version >= \"3.10\"", "pytest-mypy-plugins ; platform_python_implementation == \"CPython\" and python_version >= \"3.10\""]
 
 [[package]]
+name = "babel"
+version = "2.17.0"
+description = "Internationalization utilities"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "babel-2.17.0-py3-none-any.whl", hash = "sha256:4d0b53093fdfb4b21c92b5213dba5a1b23885afa8383709427046b21c366e5f2"},
+    {file = "babel-2.17.0.tar.gz", hash = "sha256:0c54cffb19f690cdcc52a3b50bcbf71e07a808d1c80d549f2459b9d2cf0afb9d"},
+]
+
+[package.extras]
+dev = ["backports.zoneinfo ; python_version < \"3.9\"", "freezegun (>=1.0,<2.0)", "jinja2 (>=3.0)", "pytest (>=6.0)", "pytest-cov", "pytz", "setuptools", "tzdata ; sys_platform == \"win32\""]
+
+[[package]]
 name = "beautifulsoup4"
 version = "4.13.4"
 description = "Screen-scraping library"
@@ -557,6 +572,26 @@ test = ["pytest (>=6,!=8.1.*)", "types-backports"]
 type = ["pytest-mypy"]
 
 [[package]]
+name = "courlan"
+version = "1.3.2"
+description = "Clean, filter and sample URLs to optimize data collection – includes spam, content type and language filters."
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "courlan-1.3.2-py3-none-any.whl", hash = "sha256:d0dab52cf5b5b1000ee2839fbc2837e93b2514d3cb5bb61ae158a55b7a04c6be"},
+    {file = "courlan-1.3.2.tar.gz", hash = "sha256:0b66f4db3a9c39a6e22dd247c72cfaa57d68ea660e94bb2c84ec7db8712af190"},
+]
+
+[package.dependencies]
+babel = ">=2.16.0"
+tld = ">=0.13"
+urllib3 = ">=1.26,<3"
+
+[package.extras]
+dev = ["black", "flake8", "mypy", "pytest", "pytest-cov", "types-urllib3"]
+
+[[package]]
 name = "cssselect"
 version = "1.3.0"
 description = "cssselect parses CSS3 Selectors and translates them to XPath 1.0"
@@ -618,6 +653,29 @@ files = [
 [package.dependencies]
 marshmallow = ">=3.18.0,<4.0.0"
 typing-inspect = ">=0.4.0,<1"
+
+[[package]]
+name = "dateparser"
+version = "1.2.1"
+description = "Date parsing library designed to parse dates from HTML pages"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "dateparser-1.2.1-py3-none-any.whl", hash = "sha256:bdcac262a467e6260030040748ad7c10d6bacd4f3b9cdb4cfd2251939174508c"},
+    {file = "dateparser-1.2.1.tar.gz", hash = "sha256:7e4919aeb48481dbfc01ac9683c8e20bfe95bb715a38c1e9f6af889f4f30ccc3"},
+]
+
+[package.dependencies]
+python-dateutil = ">=2.7.0"
+pytz = ">=2024.2"
+regex = ">=2015.06.24,<2019.02.19 || >2019.02.19,<2021.8.27 || >2021.8.27"
+tzlocal = ">=0.2"
+
+[package.extras]
+calendars = ["convertdate (>=2.2.1)", "hijridate"]
+fasttext = ["fasttext (>=0.9.1)", "numpy (>=1.19.3,<2)"]
+langdetect = ["langdetect (>=1.0.0)"]
 
 [[package]]
 name = "decorator"
@@ -1155,6 +1213,30 @@ files = [
 tests = ["pytest"]
 
 [[package]]
+name = "htmldate"
+version = "1.9.3"
+description = "Fast and robust extraction of original and updated publication dates from URLs and web pages."
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "htmldate-1.9.3-py3-none-any.whl", hash = "sha256:3fadc422cf3c10a5cdb5e1b914daf37ec7270400a80a1b37e2673ff84faaaff8"},
+    {file = "htmldate-1.9.3.tar.gz", hash = "sha256:ac0caf4628c3ded4042011e2d60dc68dfb314c77b106587dd307a80d77e708e9"},
+]
+
+[package.dependencies]
+charset_normalizer = ">=3.4.0"
+dateparser = ">=1.1.2"
+lxml = {version = ">=5.3.0,<6", markers = "platform_system != \"Darwin\" or python_version > \"3.8\""}
+python-dateutil = ">=2.9.0.post0"
+urllib3 = ">=1.26,<3"
+
+[package.extras]
+all = ["htmldate[dev]", "htmldate[speed]"]
+dev = ["black", "flake8", "mypy", "pytest", "pytest-cov", "types-dateparser", "types-lxml", "types-python-dateutil", "types-urllib3"]
+speed = ["backports-datetime-fromisoformat ; python_version < \"3.11\"", "faust-cchardet (>=2.1.19)", "urllib3[brotli]"]
+
+[[package]]
 name = "httpcore"
 version = "1.0.9"
 description = "A minimal low-level HTTP client."
@@ -1533,6 +1615,21 @@ files = [
 
 [package.dependencies]
 referencing = ">=0.31.0"
+
+[[package]]
+name = "justext"
+version = "3.0.2"
+description = "Heuristic based boilerplate removal tool"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "justext-3.0.2-py2.py3-none-any.whl", hash = "sha256:62b1c562b15c3c6265e121cc070874243a443bfd53060e869393f09d6b6cc9a7"},
+    {file = "justext-3.0.2.tar.gz", hash = "sha256:13496a450c44c4cd5b5a75a5efcd9996066d2a189794ea99a49949685a0beb05"},
+]
+
+[package.dependencies]
+lxml = {version = ">=4.4.2", extras = ["html-clean"]}
 
 [[package]]
 name = "keybert"
@@ -2107,12 +2204,30 @@ files = [
     {file = "lxml-5.4.0.tar.gz", hash = "sha256:d12832e1dbea4be280b22fd0ea7c9b87f0d8fc51ba06e92dc62d52f804f78ebd"},
 ]
 
+[package.dependencies]
+lxml_html_clean = {version = "*", optional = true, markers = "extra == \"html-clean\""}
+
 [package.extras]
 cssselect = ["cssselect (>=0.7)"]
 html-clean = ["lxml_html_clean"]
 html5 = ["html5lib"]
 htmlsoup = ["BeautifulSoup4"]
 source = ["Cython (>=3.0.11,<3.1.0)"]
+
+[[package]]
+name = "lxml-html-clean"
+version = "0.4.2"
+description = "HTML cleaner from lxml project"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "lxml_html_clean-0.4.2-py3-none-any.whl", hash = "sha256:74ccfba277adcfea87a1e9294f47dd86b05d65b4da7c5b07966e3d5f3be8a505"},
+    {file = "lxml_html_clean-0.4.2.tar.gz", hash = "sha256:91291e7b5db95430abf461bc53440964d58e06cc468950f9e47db64976cebcb3"},
+]
+
+[package.dependencies]
+lxml = "*"
 
 [[package]]
 name = "markdown-it-py"
@@ -3994,20 +4109,42 @@ windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "pymupdf"
-version = "1.26.0"
-description = "A high performance Python library for data extraction, analysis, conversion & manipulation of PDF (and other) documents."
+version = "1.22.1"
+description = "Python bindings for the PDF toolkit and renderer MuPDF"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.7"
 groups = ["main"]
 files = [
-    {file = "pymupdf-1.26.0-cp39-abi3-macosx_10_9_x86_64.whl", hash = "sha256:86195673a5f2b3fbf0f75c73c40975a893fc42bf3d5c2a7cce9fb160704d9997"},
-    {file = "pymupdf-1.26.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:26c5df128a0ed7c38b80a1e7ddd792dd4d8b264839b6b8b6b6b768b13c0bb60e"},
-    {file = "pymupdf-1.26.0-cp39-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:84a4dc96144a6bdf13f7d78c21500b3d1bef14d658156afd479acb3995f650c3"},
-    {file = "pymupdf-1.26.0-cp39-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:a3f6a45fcf8177763a2629a2ab2cad326e8950a0d120b174b56369365355a2a7"},
-    {file = "pymupdf-1.26.0-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:b5d4751696ba888ab1a91c6a0208c5d31724ee0bebe406f7a83067a08214f88b"},
-    {file = "pymupdf-1.26.0-cp39-abi3-win32.whl", hash = "sha256:eeb04a439355e2077f7675b8ad9377263d81990fc507748f2254a87d771d682b"},
-    {file = "pymupdf-1.26.0-cp39-abi3-win_amd64.whl", hash = "sha256:e39cc74ff030d773c4e76b9e5c5919cc4683895b73bd63bfd7a349a53ab5e8d7"},
-    {file = "pymupdf-1.26.0.tar.gz", hash = "sha256:ffe023f820379c84a0ddae38b0d07ea4016e1de84929491c34415520c629bcce"},
+    {file = "PyMuPDF-1.22.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:6bda7a64a1263f1c2b6421ae8803db50d4c8a67de95e05d7a38c313de913b0de"},
+    {file = "PyMuPDF-1.22.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:b5f62ad244b04b7aa5e7d50b06b8bbc582b2f1d0f2c66013051463d63dfe6c5e"},
+    {file = "PyMuPDF-1.22.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:ce633b9d522528959988647dfbd2c9144ad5422dd75e89e60039da36a412fd3c"},
+    {file = "PyMuPDF-1.22.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:733e7b87765ea55202b042b7c84c6b94185ee29fe3a2bd2ee02681c0fd584033"},
+    {file = "PyMuPDF-1.22.1-cp310-cp310-win32.whl", hash = "sha256:701499f0a17ccc8dd80707dbeb3a2e60657a6bdc05be7c8c69fa60eb134e1805"},
+    {file = "PyMuPDF-1.22.1-cp310-cp310-win_amd64.whl", hash = "sha256:81fa90d157ef7b2ecd72eedafe9db56d3b0f8c3b392d7a2057f659bfcc1f7cad"},
+    {file = "PyMuPDF-1.22.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:4edac1dd8e5c35b55420925b5486bec4427b07a073cd03f6081b7234ed37217e"},
+    {file = "PyMuPDF-1.22.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:7744b9853fc55df75f6d37a376432eddd450c1d2072f6ef66b392b7229bccdc6"},
+    {file = "PyMuPDF-1.22.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:711adc70d664cdd5d361154bb3485546eaa5e8a90827db6abf9c42ca292aa9e1"},
+    {file = "PyMuPDF-1.22.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a1d77a3057ad7fc3e2e02e5fedd53199206a49c4b4c5e3ee75458c17d6b739cb"},
+    {file = "PyMuPDF-1.22.1-cp311-cp311-win32.whl", hash = "sha256:b5eca48ea55eafcea68b14669a9f5030c15056431b10710d863de9f9a6b1a0ce"},
+    {file = "PyMuPDF-1.22.1-cp311-cp311-win_amd64.whl", hash = "sha256:8e0bfbd6195f45326f9182fff04ac2af9568d78fc1f32dcfa15f84a302d8aafe"},
+    {file = "PyMuPDF-1.22.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:440efca115e70c8cdfc492e98b182e24c565d8e68f26754e28e61cf108a915d9"},
+    {file = "PyMuPDF-1.22.1-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a70ab2d38b366c7237adce7d54f3028a7825f165a73c137a1746a6b592d26bb2"},
+    {file = "PyMuPDF-1.22.1-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7e4a924ffecb8046fbfe7dff9b69f9938389f094dccab07a378850bf9f889c62"},
+    {file = "PyMuPDF-1.22.1-cp37-cp37m-win32.whl", hash = "sha256:24e66c2ff4d6cfee5b082c3e2c92b40214799888bf2efcca1f70108c3dfedddb"},
+    {file = "PyMuPDF-1.22.1-cp37-cp37m-win_amd64.whl", hash = "sha256:51504bfa2ee207c5c1a38d47b4b91af1bacbd8937b959d947d81fc8f7e023bd8"},
+    {file = "PyMuPDF-1.22.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:219337a3be00df2bf65071d5e4e1e6759afd06310d4ec7b1c9694a5b03b5d8d6"},
+    {file = "PyMuPDF-1.22.1-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:050719cb42a8847d564af1d8509d7290176e7c4fde6da7be5751303fa8237aed"},
+    {file = "PyMuPDF-1.22.1-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5871b9e38e68b92533fb7c6fbe3eb7b059f5071d4c2e3ff51cedcc73c994afbc"},
+    {file = "PyMuPDF-1.22.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a5a0332d6dac4ebf32cb7f0c8639b22b56c9475cb87bc0a0361f9cdc9c2d08a1"},
+    {file = "PyMuPDF-1.22.1-cp38-cp38-win32.whl", hash = "sha256:127985812c4a2f0106375c4f4916ca68c1559d6b224a050ce75393e454333995"},
+    {file = "PyMuPDF-1.22.1-cp38-cp38-win_amd64.whl", hash = "sha256:99764c46fb8df253a3ea9fbb13b132f205561d6227b0d00e673998b18d7280eb"},
+    {file = "PyMuPDF-1.22.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:fdb21332d28567e278008dd6130564ac0f5de8aff364a1e7809a70a0f969df26"},
+    {file = "PyMuPDF-1.22.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:88202e42d957a41deff212dcb1d8e16e469d21d09a72ab372ee2f173a22112c8"},
+    {file = "PyMuPDF-1.22.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:36b7fd85f5813045f10b65caf4cbdad03b51b07076f07b205853a1e44c898e34"},
+    {file = "PyMuPDF-1.22.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:45e601f7b1ee2a0c1a261bb0179eba4a9899117404eccf0a573e6497ed507ea8"},
+    {file = "PyMuPDF-1.22.1-cp39-cp39-win32.whl", hash = "sha256:c610acdbd2f2d994130341559f26c098df546a1fc187adee3b63a0f489310808"},
+    {file = "PyMuPDF-1.22.1-cp39-cp39-win_amd64.whl", hash = "sha256:af1e6d5dd122c097f23a7e89f8c2197310e85a4c8e8f63ff94444188d9bc0a4e"},
+    {file = "PyMuPDF-1.22.1.tar.gz", hash = "sha256:ad34bba78ce147cee50e1dc30fa16f29135a4c3d6a2b1c1b0403ebbcc9fbe4be"},
 ]
 
 [[package]]
@@ -4299,6 +4436,27 @@ html = ["html5rdf (>=1.2,<2)"]
 lxml = ["lxml (>=4.3,<6.0)"]
 networkx = ["networkx (>=2,<4)"]
 orjson = ["orjson (>=3.9.14,<4)"]
+
+[[package]]
+name = "readability-lxml"
+version = "0.8.4.1"
+description = "fast html to text parser (article readability tool) with python 3 support"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "readability_lxml-0.8.4.1-py3-none-any.whl", hash = "sha256:874c0cea22c3bf2b78c7f8df831bfaad3c0a89b7301d45a188db581652b4b465"},
+    {file = "readability_lxml-0.8.4.1.tar.gz", hash = "sha256:9d2924f5942dd7f37fb4da353263b22a3e877ccf922d0e45e348e4177b035a53"},
+]
+
+[package.dependencies]
+chardet = "*"
+cssselect = "*"
+lxml = {version = "*", extras = ["html-clean"]}
+lxml-html-clean = {version = "*", markers = "python_version < \"3.11\""}
+
+[package.extras]
+speed = ["cchardet"]
 
 [[package]]
 name = "referencing"
@@ -5725,6 +5883,18 @@ requests = ">=2.26.0"
 blobfile = ["blobfile (>=2)"]
 
 [[package]]
+name = "tld"
+version = "0.13.1"
+description = "Extract the top-level domain (TLD) from the URL given."
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "tld-0.13.1-py2.py3-none-any.whl", hash = "sha256:a2d35109433ac83486ddf87e3c4539ab2c5c2478230e5d9c060a18af4b03aa7c"},
+    {file = "tld-0.13.1.tar.gz", hash = "sha256:75ec00936cbcf564f67361c41713363440b6c4ef0f0c1592b5b0fbe72c17a350"},
+]
+
+[[package]]
 name = "tokenizers"
 version = "0.19.1"
 description = ""
@@ -6004,6 +6174,31 @@ slack = ["slack-sdk"]
 telegram = ["requests"]
 
 [[package]]
+name = "trafilatura"
+version = "1.12.2"
+description = "Python package and command-line tool designed to gather text on the Web, includes all necessary discovery and text processing components to perform web crawling, downloads, scraping, and extraction of main texts, metadata and comments."
+optional = false
+python-versions = ">=3.6"
+groups = ["main"]
+files = [
+    {file = "trafilatura-1.12.2-py3-none-any.whl", hash = "sha256:6df5b666f625c9579a50d7cc715005f450fa75606696aceab73eeda0a76dbe96"},
+    {file = "trafilatura-1.12.2.tar.gz", hash = "sha256:4c9cb1434f7e13ef0b16cb44ee1d44e84523ec7268940b9559c374e7effc9a96"},
+]
+
+[package.dependencies]
+certifi = "*"
+charset-normalizer = {version = ">=3.2.0", markers = "python_version >= \"3.7\""}
+courlan = ">=1.2.0"
+htmldate = ">=1.8.1"
+justext = ">=3.0.1"
+lxml = {version = ">=5.2.2", markers = "platform_system != \"Darwin\" or python_version > \"3.8\""}
+urllib3 = {version = ">=1.26,<3", markers = "python_version >= \"3.7\""}
+
+[package.extras]
+all = ["brotli", "cchardet (>=2.1.7) ; python_version < \"3.11\"", "faust-cchardet (>=2.1.19) ; python_version >= \"3.11\"", "htmldate[speed] (>=1.8.1)", "py3langid (>=0.2.2)", "pycurl (>=7.45.3)", "urllib3[socks]", "zstandard (>=0.20.0)"]
+gui = ["Gooey (>=1.0.1)"]
+
+[[package]]
 name = "traits"
 version = "7.0.2"
 description = "Observable typed attributes for Python classes"
@@ -6203,6 +6398,37 @@ files = [
 
 [package.dependencies]
 typing-extensions = ">=4.12.0"
+
+[[package]]
+name = "tzdata"
+version = "2025.2"
+description = "Provider of IANA time zone data"
+optional = false
+python-versions = ">=2"
+groups = ["main"]
+markers = "platform_system == \"Windows\""
+files = [
+    {file = "tzdata-2025.2-py2.py3-none-any.whl", hash = "sha256:1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8"},
+    {file = "tzdata-2025.2.tar.gz", hash = "sha256:b60a638fcc0daffadf82fe0f57e53d06bdec2f36c4df66280ae79bce6bd6f2b9"},
+]
+
+[[package]]
+name = "tzlocal"
+version = "5.3.1"
+description = "tzinfo object for the local timezone"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "tzlocal-5.3.1-py3-none-any.whl", hash = "sha256:eb1a66c3ef5847adf7a834f1be0800581b683b5608e74f86ecbcef8ab91bb85d"},
+    {file = "tzlocal-5.3.1.tar.gz", hash = "sha256:cceffc7edecefea1f595541dbd6e990cb1ea3d19bf01b2809f362a03dd7921fd"},
+]
+
+[package.dependencies]
+tzdata = {version = "*", markers = "platform_system == \"Windows\""}
+
+[package.extras]
+devenv = ["check-manifest", "pytest (>=4.3)", "pytest-cov", "pytest-mock (>=3.3)", "zest.releaser"]
 
 [[package]]
 name = "ujson"
@@ -6524,5 +6750,5 @@ type = ["pytest-mypy"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.9.13,<4.0"
-content-hash = "91abb6dd60efab50ad9ec75821093cb66495422261bda3555acefabfb80ea700"
+python-versions = ">=3.9.12,<4.0"
+content-hash = "c89d63e753142db13db76d2fe3f5d34a3e7c102b026e17ab11887540c22275f7"

@@ -1,7 +1,7 @@
 import streamlit as st
-from job_parser.resume_parser import ResumeParser
-from utils.logger import logger
-from .display_card import display_card  # Import your shared template
+from resumix.job_parser.resume_parser import ResumeParser
+from resumix.utils.logger import logger
+from resumix.components.cards.display_card import display_card  # Import your shared template
 
 
 def polish_card(text: str, llm_model, show_scores: bool = False):
@@ -42,8 +42,11 @@ def polish_card(text: str, llm_model, show_scores: bool = False):
 def _generate_polish_content(sections: dict, llm_model):
     """Generate the polish suggestions content"""
     with st.expander("查看AI润色建议", expanded=True):
-        for section, content in sections.items():
-            if not content.strip():
+        for section, section_obj in sections.items():
+            # Get raw text from section object
+            section_text = section_obj.raw_text if hasattr(section_obj, 'raw_text') else str(section_obj)
+            
+            if not section_text.strip():
                 continue
 
             prompt = f"""请为以下简历段落提供改进建议，重点关注：
@@ -52,7 +55,7 @@ def _generate_polish_content(sections: dict, llm_model):
 3. 与行业标准的符合程度
 
 需要润色的内容：
-\"\"\"{content}\"\"\"
+\"\"\"{section_text}\"\"\"
 
 请按以下格式提供建议：
 - 主要问题分析

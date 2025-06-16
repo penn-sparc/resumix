@@ -1,10 +1,10 @@
 import streamlit as st
-from utils.logger import logger
+from resumix.utils.logger import logger
 from job_parser.resume_parser import ResumeParser
 from components.cards.score_card import display_score_card
 import re
 from typing import Dict
-from section.section_base import SectionBase
+from resumix.section.section_base import SectionBase
 
 
 def score_resume_section(section_name, content, jd_content, llm_model):

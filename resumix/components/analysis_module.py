@@ -1,6 +1,6 @@
 import streamlit as st
 from job_parser.resume_parser import ResumeParser
-from utils.logger import logger
+from resumix.utils.logger import logger
 
 
 def analysis_card(text):

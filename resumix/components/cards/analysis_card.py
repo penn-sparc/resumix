@@ -1,7 +1,7 @@
 # analysis_card.py
 import streamlit as st
-from job_parser.resume_parser import ResumeParser
-from utils.logger import logger
+from resumix.job_parser.resume_parser import ResumeParser
+from resumix.utils.logger import logger
 from resumix.components.cards.display_card import display_card
 
 

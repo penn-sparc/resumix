@@ -1,5 +1,5 @@
 # dispatcher/prompt_dispatcher.py
-from resumix.prompt.prompt_templates import PROMPT_MAP, SCORE_PROMPT_MAP
+from prompt.prompt_templates import PROMPT_MAP, SCORE_PROMPT_MAP
 from resumix.section.section_base import SectionBase
 
 

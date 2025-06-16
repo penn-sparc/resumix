@@ -10,10 +10,10 @@ import os
 from pathlib import Path
 from langchain.agents import initialize_agent, AgentType
 from tool.tool import tool_list
-from utils.llm_client import LLMWrapper, LLMClient
+from resumix.utils.llm_client import LLMWrapper, LLMClient
 from resumix.rewriter.resume_rewriter import ResumeRewriter
 
-from config.config import Config
+from resumix.config.config import Config
 
 from streamlit_option_menu import option_menu
 
@@ -27,15 +27,14 @@ from resumix.components.cards.score_card import (
 from resumix.components.cards.compare_card import compare_resume_sections
 
 # Import utilities
-from utils.ocr_utils import OCRUtils
-from utils.llm_client import LLMClient, LLMWrapper
-from utils.session_utils import SessionUtils
+from resumix.utils.ocr_utils import OCRUtils
+from resumix.utils.llm_client import LLMClient, LLMWrapper
+from resumix.utils.session_utils import SessionUtils
 
 import concurrent.futures
-from utils.i18n import LANGUAGES
-from job_parser.resume_rewriter import ResumeRewriter
-from job_parser.jd_parser import JDParser
-from tool.tool import tool_list
+from resumix.utils.i18n import LANGUAGES
+from resumix.job_parser.resume_rewriter import ResumeRewriter
+from resumix.job_parser.jd_parser import JDParser
 from resumix.utils.logger import logger
 from resumix.components.score_page import ScorePage
 

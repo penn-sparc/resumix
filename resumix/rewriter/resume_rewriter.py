@@ -1,7 +1,7 @@
 from typing import Dict
 from loguru import logger
 from prompt.prompt_dispatcher import PromptDispatcher
-from section.section_base import SectionBase
+from resumix.section.section_base import SectionBase
 
 
 class ResumeRewriter:

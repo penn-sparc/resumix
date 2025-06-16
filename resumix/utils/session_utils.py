@@ -1,4 +1,4 @@
-from utils.ocr_utils import OCRUtils
+from resumix.utils.ocr_utils import OCRUtils
 import streamlit as st
 from paddleocr import PaddleOCR
 from resumix.section_parser.vector_parser import VectorParser

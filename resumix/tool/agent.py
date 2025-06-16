@@ -1,6 +1,6 @@
 from langchain.agents import initialize_agent, AgentType
 from tool import tool_list
-from utils.llm_client import LLMWrapper, LLMClient
+from resumix.utils.llm_client import LLMWrapper, LLMClient
 
 client = LLMClient()
 

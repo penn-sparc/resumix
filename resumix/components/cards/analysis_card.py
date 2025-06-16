@@ -1,11 +1,10 @@
 # file: components/cards/analysis_card.py
 import streamlit as st
-from job_parser.resume_parser import ResumeParser
-from utils.logger import logger
 from typing import Dict
 from components.cards.base_card import BaseCard
 from typing import Optional 
-
+from resumix.job_parser.resume_parser import ResumeParser
+from resumix.utils.logger import logger
 
 class AnalysisCard(BaseCard):
     def __init__(

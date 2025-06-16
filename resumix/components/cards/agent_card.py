@@ -1,9 +1,8 @@
 import streamlit as st
-from job_parser.resume_parser import ResumeParser
-from utils.logger import logger
 from typing import Dict, Optional
 from components.cards.base_card import BaseCard
-
+from resumix.job_parser.resume_parser import ResumeParser
+from resumix.utils.logger import logger
 
 class AgentCard(BaseCard):
     def __init__(

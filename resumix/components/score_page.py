@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.logger import logger
+from resumix.utils.logger import logger
 from typing import Dict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from resumix.section.section_base import SectionBase

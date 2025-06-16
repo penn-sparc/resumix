@@ -1,5 +1,5 @@
 import re
-from resumix.section.section_base import SectionBase
+from .section_base import SectionBase
 
 
 class EducationSection(SectionBase):

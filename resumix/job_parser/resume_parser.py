@@ -1,12 +1,12 @@
 from typing import Dict, List, Union
 import re
 
-from section.education_section import EducationSection
-from section.experience_section import ExperienceSection
-from section.info_section import PersonalInfoSection
-from section.projects_section import ProjectsSection
-from section.skills_section import SkillsSection
-from section.section_base import SectionBase
+from resumix.section.education_section import EducationSection
+from resumix.section.experience_section import ExperienceSection
+from resumix.section.info_section import PersonalInfoSection
+from resumix.section.projects_section import ProjectsSection
+from resumix.section.skills_section import SkillsSection
+from resumix.section.section_base import SectionBase
 
 import sys
 import os

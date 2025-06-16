@@ -71,3 +71,6 @@ Thumbs.db
 # Test files
 test.pdf
 *.tmp
+
+# config
+resumix/config/config.yaml

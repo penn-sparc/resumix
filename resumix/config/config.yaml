@@ -1,5 +1,5 @@
 llm:
-  use_model: "local"
+  use_model: "deepseek"
   deepseek:
     model: "deepseek-chat"
     url: "https://api.deepseek.com/v1/chat/completions"

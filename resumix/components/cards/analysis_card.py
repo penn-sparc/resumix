@@ -20,27 +20,27 @@ class AnalysisCard(BaseCard):
             comment=comment,
             additional_content=additional_content
         )
-        self.parser = ResumeParser()
+        self.parser = ResumeParser()  # Make sure this is properly imported
         
     def render_section_content(self, section: str, content: str):
-        st.subheader(section.upper())
-        st.chat_message("Resumix").write(content)
+        with st.expander(section.upper()):
+            st.write(content)
     
     def render_analysis(self, text: str):
-        sections = self.parser.parse_resume(text)
-        for section, content in sections.items():
-            self.render_section_content(section, content)
+        try:
+            sections = self.parser.parse_resume(text)
+            if not sections:
+                st.warning("No sections could be parsed from the resume")
+                return
+                
+            for section, content in sections.items():
+                self.render_section_content(section, content)
+        except Exception as e:
+            st.error(f"Analysis failed: {str(e)}")
     
-    def render(self):
+    def render(self):  # Properly implement the abstract method
         self.render_header()
         if self.comment:
-            self.render_comment()
-        self.render_additional()
-
-
-def analysis_card(text: str):
-    """Legacy function wrapper for backward compatibility"""
-    logger.info("Handling Resume Analysis with provided resume text.")
-    card = AnalysisCard()
-    card.render()
-    card.render_analysis(text)
+            st.caption(self.comment)
+        return self  # Allows method chaining
+    

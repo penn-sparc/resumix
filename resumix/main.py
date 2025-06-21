@@ -1,7 +1,10 @@
+
+
 # from paddleocr import PaddleOCR
 import streamlit as st
 import concurrent.futures
 from pathlib import Path
+
 
 # Initialize session state
 if "lang" not in st.session_state:
@@ -50,15 +53,19 @@ ASSET_DIR = CURRENT_DIR / "assets" / "logo.png"
 T = LANGUAGES[st.session_state.lang]
 
 # Initialize LLM and agent
-llm_model = LLMClient()
-agent = initialize_agent(
-    tools=tool_list,
-    llm=LLMWrapper(client=llm_model),
-    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-    verbose=True,
-    handle_parsing_errors=True,
-    max_iterations=5,
-)
+try:
+    llm_model = LLMClient()
+    agent = initialize_agent(
+        tools=tool_list,
+        llm=LLMWrapper(client=llm_model),
+        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        verbose=True,
+        handle_parsing_errors=True,
+        max_iterations=5,
+    )
+except Exception as e:
+    st.error(f"⚠️ LLM Initialization Failed: {str(e)}")
+    st.stop()  # Prevent further execution
 
 RESUME_REWRITER = ResumeRewriter(llm_model)
 
@@ -170,8 +177,7 @@ if uploaded_file:
     with st.container():
         if selected_tab == tab_names[0]:  # Analysis
             analysis_card = AnalysisCard()
-            analysis_card.render()
-            analysis_card.render_analysis(text)
+            analysis_card(text).render()
 
         elif selected_tab == tab_names[1]:  # Polish
             polish_card = PolishCard()

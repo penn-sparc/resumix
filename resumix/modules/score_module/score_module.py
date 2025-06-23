@@ -4,7 +4,7 @@ from resumix.utils.llm_client import LLMClient
 from resumix.utils.logger import logger
 from typing import Dict
 import streamlit as st
-from resumix.components.cards.score_card import display_score_card
+from resumix.components.cards.display_score_card import display_score_card
 from resumix.utils.json_parser import JsonParser
 
 

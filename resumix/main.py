@@ -1,5 +1,3 @@
-
-
 # from paddleocr import PaddleOCR
 import streamlit as st
 import concurrent.futures
@@ -26,7 +24,7 @@ from streamlit_option_menu import option_menu
 from resumix.components.cards.analysis_card import analysis_card
 from resumix.components.cards.polish_card import polish_card
 from resumix.components.cards.agent_card import agent_card
-from resumix.components.cards.score_card import (
+from resumix.components.cards.display_score_card import (
     display_score_card,
 )
 from resumix.components.cards.compare_card import compare_resume_sections
@@ -176,18 +174,13 @@ if uploaded_file:
     # Tab routing with updated card components
     with st.container():
         if selected_tab == tab_names[0]:  # Analysis
-            analysis_card = AnalysisCard()
-            analysis_card(text).render()
+            analysis_card(text)
 
         elif selected_tab == tab_names[1]:  # Polish
-            polish_card = PolishCard()
-            polish_card.render()
-            polish_card.render_polishing(text, llm_model)
+            polish_card(text, llm_model)
 
         elif selected_tab == tab_names[2]:  # Agent
-            agent_card = AgentCard()
-            agent_card.render()
-            agent_card.render_agent_interaction(text, jd_content, agent)
+            agent_card(text, jd_content, agent)
 
         elif selected_tab == tab_names[3]:  # Score
             ScorePage().render()
@@ -197,8 +190,6 @@ if uploaded_file:
             #     score_card.render()
 
         elif selected_tab == tab_names[4]:  # Compare
-            compare_card = CompareCard()
-            compare_card.render()
-            compare_card.render_comparison(STRUCTED_SECTIONS, jd_content, RESUME_REWRITER)
+            compare_resume_sections(STRUCTED_SECTIONS, jd_content, RESUME_REWRITER)
 else:
     st.info(T["please_upload"])

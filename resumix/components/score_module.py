@@ -1,7 +1,7 @@
 import streamlit as st
 from resumix.utils.logger import logger
 from job_parser.resume_parser import ResumeParser
-from components.cards.score_card import display_score_card
+from components.cards.display_score_card import display_score_card
 import re
 from typing import Dict
 from resumix.section.section_base import SectionBase

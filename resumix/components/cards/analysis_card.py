@@ -43,4 +43,14 @@ class AnalysisCard(BaseCard):
         if self.comment:
             st.caption(self.comment)
         return self  # Allows method chaining
+
+
+def analysis_card(text: str):
+    """Modernized legacy function wrapper"""
+    logger.info("Initializing resume analysis")
+    card = AnalysisCard(
+        comment="AI-powered resume analysis",
+        additional_content="Detailed breakdown of your resume sections"
+    )
+    return card.render().render_analysis(text)
     

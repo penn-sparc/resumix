@@ -26,7 +26,24 @@ def extract_text_from_pdf(file):
             model_storage_directory=CONFIG.OCR.EASYOCR.DIRECTORY,
         )
     elif CONFIG.OCR.USE_MODEL == "paddleocr":
-        ocr_model = PaddleOCR(use_angle_cls=True, lang="ch")
+        try:
+            # Try with default parameters first
+            ocr_model = PaddleOCR(use_angle_cls=True, lang="ch")
+        except AttributeError as e:
+            if "set_mkldnn_cache_capacity" in str(e):
+                # Fallback to alternative initialization for compatibility
+                try:
+                    ocr_model = PaddleOCR(use_angle_cls=False, lang="ch", use_gpu=False)
+                except Exception as fallback_error:
+                    # If PaddleOCR still fails, fall back to EasyOCR
+                    print(f"PaddleOCR failed, falling back to EasyOCR: {fallback_error}")
+                    ocr_model = easyocr.Reader(
+                        ["ch_sim", "en"],
+                        gpu=False,
+                        model_storage_directory="resumix/models/easyocr",
+                    )
+            else:
+                raise e
 
     ocr = OCRUtils(ocr_model, dpi=50, keep_images=False)
 

@@ -10,7 +10,7 @@ from tool.tool import tool_list
 from components.cards.score_card import ScoreCard
 from components.cards.compare_card import CompareCard
 from resumix.job_parser.resume_rewriter import ResumeRewriter
-from resumix.section.section_base import SectionBase
+from section.section_base import SectionBase
 from resumix.utils.i18n import LANGUAGES
 # Sample text for testing
 sections = {

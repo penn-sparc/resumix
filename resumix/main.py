@@ -1,5 +1,3 @@
-
-
 # from paddleocr import PaddleOCR
 import streamlit as st
 import concurrent.futures
@@ -15,33 +13,33 @@ import os
 from pathlib import Path
 from langchain.agents import initialize_agent, AgentType
 from tool.tool import tool_list
-from resumix.utils.llm_client import LLMWrapper, LLMClient
-from resumix.rewriter.resume_rewriter import ResumeRewriter
+from utils.llm_client import LLMWrapper, LLMClient
+from rewriter.resume_rewriter import ResumeRewriter
 
-from resumix.config.config import Config
+from config.config import Config
 
 from streamlit_option_menu import option_menu
 
 # Import card components
-from resumix.components.cards.analysis_card import analysis_card
-from resumix.components.cards.polish_card import polish_card
-from resumix.components.cards.agent_card import agent_card
-from resumix.components.cards.score_card import (
+from components.cards.analysis_card import analysis_card
+from components.cards.polish_card import polish_card
+from components.cards.agent_card import agent_card
+from components.cards.display_score_card import (
     display_score_card,
 )
-from resumix.components.cards.compare_card import compare_resume_sections
+from components.cards.compare_card import compare_resume_sections
 
 # Import utilities
-from resumix.utils.ocr_utils import OCRUtils
-from resumix.utils.llm_client import LLMClient, LLMWrapper
-from resumix.utils.session_utils import SessionUtils
+from utils.ocr_utils import OCRUtils
+from utils.llm_client import LLMClient, LLMWrapper
+from utils.session_utils import SessionUtils
 
 import concurrent.futures
-from resumix.utils.i18n import LANGUAGES
-from resumix.job_parser.resume_rewriter import ResumeRewriter
-from resumix.job_parser.jd_parser import JDParser
-from resumix.utils.logger import logger
-from resumix.components.score_page import ScorePage
+from utils.i18n import LANGUAGES
+from job_parser.resume_rewriter import ResumeRewriter
+from job_parser.jd_parser import JDParser
+from utils.logger import logger
+from components.score_page import ScorePage
 from config.config import Config
 from langchain.agents import initialize_agent, AgentType
 
@@ -176,18 +174,13 @@ if uploaded_file:
     # Tab routing with updated card components
     with st.container():
         if selected_tab == tab_names[0]:  # Analysis
-            analysis_card = AnalysisCard()
-            analysis_card(text).render()
+            analysis_card(text)
 
         elif selected_tab == tab_names[1]:  # Polish
-            polish_card = PolishCard()
-            polish_card.render()
-            polish_card.render_polishing(text, llm_model)
+            polish_card(text, llm_model)
 
         elif selected_tab == tab_names[2]:  # Agent
-            agent_card = AgentCard()
-            agent_card.render()
-            agent_card.render_agent_interaction(text, jd_content, agent)
+            agent_card(text, jd_content, agent)
 
         elif selected_tab == tab_names[3]:  # Score
             ScorePage().render()
@@ -197,8 +190,6 @@ if uploaded_file:
             #     score_card.render()
 
         elif selected_tab == tab_names[4]:  # Compare
-            compare_card = CompareCard()
-            compare_card.render()
-            compare_card.render_comparison(STRUCTED_SECTIONS, jd_content, RESUME_REWRITER)
+            compare_resume_sections(STRUCTED_SECTIONS, jd_content, RESUME_REWRITER)
 else:
     st.info(T["please_upload"])

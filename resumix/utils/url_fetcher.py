@@ -2,7 +2,7 @@ import requests
 import chardet
 from readability import Document
 from bs4 import BeautifulSoup
-from resumix.utils.logger import logger
+from loguru import logger
 import trafilatura
 
 

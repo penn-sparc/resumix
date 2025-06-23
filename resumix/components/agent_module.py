@@ -1,6 +1,6 @@
 import streamlit as st
+from loguru import logger
 from job_parser.resume_parser import ResumeParser
-from resumix.utils.logger import logger
 
 
 def agent_card(text):

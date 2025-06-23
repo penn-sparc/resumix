@@ -1,14 +1,16 @@
-from resumix.utils.ocr_utils import OCRUtils
+from typing import Dict, Any, Optional
+from utils.ocr_utils import OCRUtils
+from section_parser.vector_parser import VectorParser
+from section_parser.jd_vector_parser import JDVectorParser
+from utils.llm_client import LLMClient
+from loguru import logger
+from utils.url_fetcher import UrlFetcher
+from pathlib import Path
 import streamlit as st
-from paddleocr import PaddleOCR
-from resumix.section_parser.vector_parser import VectorParser
-from resumix.section_parser.jd_vector_parser import JDVectorParser
-from resumix.utils.llm_client import LLMClient
-from resumix.utils.logger import logger
-from resumix.utils.url_fetcher import UrlFetcher
+from config.config import Config
 import easyocr
 
-from resumix.config.config import Config
+from paddleocr import PaddleOCR
 
 CONFIG = Config().config
 
@@ -26,7 +28,24 @@ def extract_text_from_pdf(file):
             model_storage_directory=CONFIG.OCR.EASYOCR.DIRECTORY,
         )
     elif CONFIG.OCR.USE_MODEL == "paddleocr":
-        ocr_model = PaddleOCR(use_angle_cls=True, lang="ch")
+        try:
+            # Try with default parameters first
+            ocr_model = PaddleOCR(use_angle_cls=True, lang="ch")
+        except AttributeError as e:
+            if "set_mkldnn_cache_capacity" in str(e):
+                # Fallback to alternative initialization for compatibility
+                try:
+                    ocr_model = PaddleOCR(use_angle_cls=False, lang="ch", use_gpu=False)
+                except Exception as fallback_error:
+                    # If PaddleOCR still fails, fall back to EasyOCR
+                    print(f"PaddleOCR failed, falling back to EasyOCR: {fallback_error}")
+                    ocr_model = easyocr.Reader(
+                        ["ch_sim", "en"],
+                        gpu=False,
+                        model_storage_directory="resumix/models/easyocr",
+                    )
+            else:
+                raise e
 
     ocr = OCRUtils(ocr_model, dpi=50, keep_images=False)
 
@@ -82,33 +101,6 @@ class SessionUtils:
             parser = VectorParser()
             st.session_state.resume_sections = parser.parse_resume(text)
         return st.session_state.resume_sections
-
-    # @staticmethod
-    # def get_jd_sections():
-    #     if "jd_sections" not in st.session_state:
-    #         url = st.session_state.get("jd_url", "").strip()
-    #         logger.info(f"URL: {url}")
-
-    #         if not url:
-    #             logger.warning("[SessionUtils] URL 未设置，跳过 JD 解析")
-    #             return {"overview": ["⚠️ 未提供岗位描述链接"]}
-
-    #         try:
-    #             parser = JDVectorParser()
-
-    #             text = UrlFetcher.fetch(url)
-    #             logger.info(f"jd text: {text}")
-
-    #             st.session_state.jd_sections = parser.parse(text)
-    #         except Exception as e:
-    #             logger.error(f"[SessionUtils] 解析 JD 失败: {e}")
-    #             st.session_state.jd_sections = {
-    #                 "overview": [f"❌ 无法解析 JD 内容：{e}"]
-    #             }
-    #     else:
-    #         logger.info("Loadiing JD Sections...")
-
-    #     return st.session_state.jd_sections
 
     @staticmethod
     def get_jd_sections():

@@ -1,33 +1,24 @@
-from resumix.section.section_base import SectionBase
+from section.section_base import SectionBase
+from pydantic import BaseModel
+from typing import List
 
 
-class ProjectsSection(SectionBase):
-    def parse(self):
-        entries = []
-        lines = self.raw_text.splitlines()
-        name, desc = "", ""
-        for line in lines:
-            if any(char.isdigit() for char in line):
-                if name:
-                    entries.append(
-                        {
-                            "name": name,
-                            "description": desc.strip(),
-                            "keywords": [],
-                            "url": "",
-                        }
-                    )
-                name = line.strip()
-                desc = ""
-            else:
-                desc += line.strip() + " "
-        if name:
-            entries.append(
-                {
-                    "name": name,
-                    "description": desc.strip(),
-                    "keywords": [],
-                    "url": "",
-                }
-            )
-        self.parsed_data = entries
+class ResponsibilityItem(BaseModel):
+    """Represents a single responsibility or duty."""
+
+    description: str
+
+
+class ResponsibilitiesSection(SectionBase):
+    """A section of a job description detailing responsibilities."""
+
+    items: List[ResponsibilityItem] = []
+
+    def parse_from_llm_response(self, response: List[str]):
+        """
+        Populates the section with a list of responsibilities from an LLM response.
+        """
+        self.items = [
+            ResponsibilityItem(description=item) for item in response
+        ]
+        self.structured_data = self.items

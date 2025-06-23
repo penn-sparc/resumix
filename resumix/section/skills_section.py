@@ -1,5 +1,6 @@
 import re
-from resumix.section.section_base import SectionBase
+from typing import List
+from section.section_base import SectionBase
 
 
 class SkillsSection(SectionBase):

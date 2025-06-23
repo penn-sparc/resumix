@@ -3,7 +3,9 @@ from abc import ABC, abstractmethod
 from sentence_transformers import SentenceTransformer, util
 import heapq
 from collections import defaultdict
-from resumix.utils.logger import logger
+from loguru import logger
+import os
+import sys
 
 
 class BaseParser(ABC):

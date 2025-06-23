@@ -1,8 +1,8 @@
-from resumix.rewriter.keyword_extractor import KeywordExtractor
-from resumix.utils.keywords_loader import KeywordsLoader
-from resumix.section_parser.jd_vector_parser import JDVectorParser
-from resumix.section_parser.vector_parser import VectorParser
-from resumix.modules.score_module.score_module import ScoreModule
+from rewriter.keyword_extractor import KeywordExtractor
+from utils.keywords_loader import KeywordsLoader
+from section_parser.jd_vector_parser import JDVectorParser
+from section_parser.vector_parser import VectorParser
+from modules.score_module.score_module import ScoreModule
 
 if __name__ == "__main__":
 

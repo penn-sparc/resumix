@@ -1,21 +1,22 @@
+from typing import Dict, Any, List
+from loguru import logger
+from pathlib import Path
+from section_parser.jd_section_labels import JDSectionLabels
+from section_parser.base_parser import BaseParser
+from utils.url_fetcher import UrlFetcher
+from concurrent.futures import ThreadPoolExecutor
+from utils.llm_client import LLMClient
+from loguru import logger
+from section.section_base import SectionBase
 import os
 import sys
 import re
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-
-
-from typing import Dict, List, Tuple, Union
-from resumix.section_parser.jd_section_labels import JDSectionLabels
-from resumix.section_parser.base_parser import BaseParser
-from resumix.utils.url_fetcher import UrlFetcher
 import requests
 import chardet
 from bs4 import BeautifulSoup
-from resumix.utils.llm_client import LLMClient
 import json
-from resumix.utils.logger import logger
-from resumix.section.section_base import SectionBase
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 
 class JDVectorParser(BaseParser):
@@ -259,13 +260,13 @@ Key job responsibilities
 
 A day in the life
 Inclusive Team Culture
-Here at Amazon, we embrace our differences. We are committed to furthering our culture of inclusion. We have ten employee-led affinity groups, reaching 40,000 employees in over 190 chapters globally. We have innovative benefit offerings, and host annual and ongoing learning experiences, including our Conversations on Race and Ethnicity (CORE) and AmazeCon (gender diversity) conferences. Amazon’s culture of inclusion is reinforced within our 14 Leadership Principles, which remind team members to seek diverse perspectives, learn and be curious, and earn trust.
+Here at Amazon, we embrace our differences. We are committed to furthering our culture of inclusion. We have ten employee-led affinity groups, reaching 40,000 employees in over 190 chapters globally. We have innovative benefit offerings, and host annual and ongoing learning experiences, including our Conversations on Race and Ethnicity (CORE) and AmazeCon (gender diversity) conferences. Amazon's culture of inclusion is reinforced within our 14 Leadership Principles, which remind team members to seek diverse perspectives, learn and be curious, and earn trust.
 
 Work/Life Balance
-Our team puts a high value on work-life balance. It isn’t about how many hours you spend at home or at work; it’s about the flow you establish that brings energy to both parts of your life. We believe striking the right balance between your personal and professional life is critical to life-long happiness and fulfillment. We offer flexibility in working hours and encourage you to find your own balance between your work and personal lives.
+Our team puts a high value on work-life balance. It isn't about how many hours you spend at home or at work; it's about the flow you establish that brings energy to both parts of your life. We believe striking the right balance between your personal and professional life is critical to life-long happiness and fulfillment. We offer flexibility in working hours and encourage you to find your own balance between your work and personal lives.
 
 Mentorship & Career Growth
-Our team is dedicated to supporting new members. We have a broad mix of experience levels and tenures, and we’re building an environment that celebrates knowledge sharing and mentorship. We care about your career growth and strive to assign opportunities based on what will help each team member develop into a better-rounded contributor.
+Our team is dedicated to supporting new members. We have a broad mix of experience levels and tenures, and we're building an environment that celebrates knowledge sharing and mentorship. We care about your career growth and strive to assign opportunities based on what will help each team member develop into a better-rounded contributor.
 
 About the team
 - Shape the future of AI for healthcare.
@@ -284,9 +285,9 @@ PREFERRED QUALIFICATIONS
 
 Amazon is an equal opportunity employer and does not discriminate on the basis of protected veteran status, disability, or other legally protected status.
 
-Los Angeles County applicants: Job duties for this position include: work safely and cooperatively with other employees, supervisors, and staff; adhere to standards of excellence despite stressful conditions; communicate effectively and respectfully with employees, supervisors, and staff to ensure exceptional customer service; and follow all federal, state, and local laws and Company policies. Criminal history may have a direct, adverse, and negative relationship with some of the material job duties of this position. These include the duties and responsibilities listed above, as well as the abilities to adhere to company policies, exercise sound judgment, effectively manage stress and work safely and respectfully with others, exhibit trustworthiness and professionalism, and safeguard business operations and the Company’s reputation. Pursuant to the Los Angeles County Fair Chance Ordinance, we will consider for employment qualified applicants with arrest and conviction records.
+Los Angeles County applicants: Job duties for this position include: work safely and cooperatively with other employees, supervisors, and staff; adhere to standards of excellence despite stressful conditions; communicate effectively and respectfully with employees, supervisors, and staff to ensure exceptional customer service; and follow all federal, state, and local laws and Company policies. Criminal history may have a direct, adverse, and negative relationship with some of the material job duties of this position. These include the duties and responsibilities listed above, as well as the abilities to adhere to company policies, exercise sound judgment, effectively manage stress and work safely and respectfully with others, exhibit trustworthiness and professionalism, and safeguard business operations and the Company's reputation. Pursuant to the Los Angeles County Fair Chance Ordinance, we will consider for employment qualified applicants with arrest and conviction records.
 
-Our inclusive culture empowers Amazonians to deliver the best results for our customers. If you have a disability and need a workplace accommodation or adjustment during the application and hiring process, including support for the interview or onboarding process, please visit https://amazon.jobs/content/en/how-we-hire/accommodations for more information. If the country/region you’re applying in isn’t listed, please contact your Recruiting Partner.
+Our inclusive culture empowers Amazonians to deliver the best results for our customers. If you have a disability and need a workplace accommodation or adjustment during the application and hiring process, including support for the interview or onboarding process, please visit https://amazon.jobs/content/en/how-we-hire/accommodations for more information. If the country/region you're applying in isn't listed, please contact your Recruiting Partner.
 
 Our compensation reflects the cost of labor across several US geographic markets. The base pay for this position ranges from $129,300/year in our lowest geographic market up to $223,600/year in our highest geographic market. Pay is based on a number of factors including market location and may vary depending on job-related knowledge, skills, and experience. Amazon is a total compensation company. Dependent on the position offered, equity, sign-on payments, and other forms of compensation may be provided as part of a total compensation package, in addition to a full range of medical, financial, and/or other benefits. For more information, please visit https://www.aboutamazon.com/workplace/employee-benefits. This position will remain posted until filled. Applicants should apply via our internal or external career site.
     """

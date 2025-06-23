@@ -13,33 +13,33 @@ import os
 from pathlib import Path
 from langchain.agents import initialize_agent, AgentType
 from tool.tool import tool_list
-from resumix.utils.llm_client import LLMWrapper, LLMClient
-from resumix.rewriter.resume_rewriter import ResumeRewriter
+from utils.llm_client import LLMWrapper, LLMClient
+from rewriter.resume_rewriter import ResumeRewriter
 
-from resumix.config.config import Config
+from config.config import Config
 
 from streamlit_option_menu import option_menu
 
 # Import card components
-from resumix.components.cards.analysis_card import analysis_card
-from resumix.components.cards.polish_card import polish_card
-from resumix.components.cards.agent_card import agent_card
-from resumix.components.cards.display_score_card import (
+from components.cards.analysis_card import analysis_card
+from components.cards.polish_card import polish_card
+from components.cards.agent_card import agent_card
+from components.cards.display_score_card import (
     display_score_card,
 )
-from resumix.components.cards.compare_card import compare_resume_sections
+from components.cards.compare_card import compare_resume_sections
 
 # Import utilities
-from resumix.utils.ocr_utils import OCRUtils
-from resumix.utils.llm_client import LLMClient, LLMWrapper
-from resumix.utils.session_utils import SessionUtils
+from utils.ocr_utils import OCRUtils
+from utils.llm_client import LLMClient, LLMWrapper
+from utils.session_utils import SessionUtils
 
 import concurrent.futures
-from resumix.utils.i18n import LANGUAGES
-from resumix.job_parser.resume_rewriter import ResumeRewriter
-from resumix.job_parser.jd_parser import JDParser
-from resumix.utils.logger import logger
-from resumix.components.score_page import ScorePage
+from utils.i18n import LANGUAGES
+from job_parser.resume_rewriter import ResumeRewriter
+from job_parser.jd_parser import JDParser
+from utils.logger import logger
+from components.score_page import ScorePage
 from config.config import Config
 from langchain.agents import initialize_agent, AgentType
 

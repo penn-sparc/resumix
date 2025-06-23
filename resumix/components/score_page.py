@@ -1,12 +1,13 @@
 import streamlit as st
-from resumix.utils.logger import logger
-from typing import Dict
+from loguru import logger
+from typing import Dict, Any
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from resumix.section.section_base import SectionBase
-from resumix.modules.score_module.score_module import ScoreModule
-from resumix.components.cards.score_card import ScoreCard
-from resumix.components.base_page import BasePage
-from resumix.utils.session_utils import SessionUtils
+from section.section_base import SectionBase
+from modules.score_module.score_module import ScoreModule
+from components.cards.score_card import ScoreCard
+from components.base_page import BasePage
+from utils.session_utils import SessionUtils
+from utils.i18n import LANGUAGES
 
 
 class ScorePage(BasePage):

@@ -1,4 +1,4 @@
-from resumix.section.section_base import SectionBase
+from section.section_base import SectionBase
 
 
 class ExperienceSection(SectionBase):

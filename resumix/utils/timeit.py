@@ -1,7 +1,8 @@
 # utils/timing.py
 import time
+import functools
+from loguru import logger
 from functools import wraps
-from resumix.utils.logger import logger
 
 
 def timeit(name: str = None):

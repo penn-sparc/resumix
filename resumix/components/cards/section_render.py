@@ -1,9 +1,9 @@
 import json
 import streamlit as st
 from typing import Any, Dict, List
-from resumix.section.section_base import SectionBase
+from section.section_base import SectionBase
 import re
-from resumix.utils.logger import logger
+from loguru import logger
 
 
 class SectionRender:

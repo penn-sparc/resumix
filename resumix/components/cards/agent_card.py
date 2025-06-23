@@ -1,8 +1,8 @@
 import streamlit as st
 from typing import Dict, Optional, Callable
 from components.cards.base_card import BaseCard
-from resumix.job_parser.resume_parser import ResumeParser
-from resumix.utils.logger import logger
+from job_parser.resume_parser import ResumeParser
+from loguru import logger
 
 class AgentCard(BaseCard):
     def __init__(
@@ -30,6 +30,23 @@ class AgentCard(BaseCard):
     def render_agent_interaction(self, text: str, jd_content: str, agent: Callable):
         """Improved agent interaction with error handling and progress tracking"""
         try:
+            # Ensure text and jd_content are strings
+            if isinstance(text, dict):
+                text = str(text)
+            if isinstance(jd_content, dict):
+                # Extract text from dictionary
+                if 'rawtext' in jd_content:
+                    jd_content = str(jd_content['rawtext'])
+                elif 'RawText' in jd_content:
+                    jd_content = str(jd_content['RawText'])
+                else:
+                    jd_content = str(jd_content)
+            elif hasattr(jd_content, 'raw_text'):
+                # Extract text from SectionBase object
+                jd_content = jd_content.raw_text
+            elif not isinstance(jd_content, str):
+                jd_content = str(jd_content)
+                
             if not text.strip() or not jd_content.strip():
                 st.warning("Please provide both resume content and job description")
                 return
@@ -46,7 +63,37 @@ class AgentCard(BaseCard):
             
             st.subheader("AI Optimization Suggestions")
             with st.expander("Job Description Summary", expanded=False):
-                st.write(jd_content[:500] + ("..." if len(jd_content) > 500 else ""))
+                # Display the actual text content in a readable format
+                if isinstance(jd_content, dict):
+                    # Extract readable content from dictionary structure
+                    if 'rawtext' in jd_content:
+                        display_text = jd_content['rawtext']
+                    elif 'Overview' in jd_content and jd_content['Overview']:
+                        # Format structured content nicely
+                        display_text = ""
+                        if jd_content.get('Overview'):
+                            display_text += f"**Overview:** {jd_content['Overview']}\n\n"
+                        if jd_content.get('Responsibilities'):
+                            display_text += f"**Responsibilities:**\n{jd_content['Responsibilities']}\n\n"
+                        if jd_content.get('Basic Qualifications') or jd_content.get('Requirements Basic'):
+                            basic_reqs = jd_content.get('Basic Qualifications') or jd_content.get('Requirements Basic')
+                            display_text += f"**Basic Qualifications:**\n{basic_reqs}\n\n"
+                        if jd_content.get('Preferred Qualifications') or jd_content.get('Requirements Preferred'):
+                            pref_reqs = jd_content.get('Preferred Qualifications') or jd_content.get('Requirements Preferred')
+                            display_text += f"**Preferred Qualifications:**\n{pref_reqs}"
+                    else:
+                        display_text = str(jd_content)
+                elif hasattr(jd_content, 'raw_text'):
+                    display_text = jd_content.raw_text
+                elif isinstance(jd_content, str):
+                    display_text = jd_content
+                else:
+                    display_text = str(jd_content)
+                
+                # Truncate and display
+                if len(display_text) > 1000:
+                    display_text = display_text[:1000] + "..."
+                st.markdown(display_text)
             
             for i, (section, content) in enumerate(sections.items()):
                 with st.container():
@@ -73,6 +120,11 @@ Provide:
 """
                         with st.spinner(f"Optimizing {section}..."):
                             result = agent(prompt)
+                            # Handle case where agent returns a dict instead of string
+                            if isinstance(result, dict):
+                                result = str(result.get('output', result))
+                            elif not isinstance(result, str):
+                                result = str(result)
                             self.render_agent_response(result, section)
                 
                 progress_bar.progress((i + 1) / total_sections)

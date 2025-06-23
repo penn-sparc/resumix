@@ -2,12 +2,12 @@
 from streamlit_option_menu import option_menu
 import streamlit as st
 from loguru import logger
-from typing import Dict, Optional, Callable
-from resumix.section.section_base import SectionBase
-from resumix.utils.i18n import LANGUAGES
-from resumix.job_parser.resume_rewriter import ResumeRewriter
-from resumix.components.cards.section_render import SectionRender
-from resumix.components.cards.base_card import BaseCard
+from typing import Dict, Optional, Callable, Any, List
+from section.section_base import SectionBase
+from utils.i18n import LANGUAGES
+from job_parser.resume_rewriter import ResumeRewriter
+from components.cards.section_render import SectionRender
+from components.cards.base_card import BaseCard
 from typing import Optional
 
 

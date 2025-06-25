@@ -1,5 +1,6 @@
 # file: components/cards/analysis_card.py
 import streamlit as st
+from loguru import logger
 from typing import Dict
 from components.cards.base_card import BaseCard
 from typing import Optional

@@ -2,6 +2,7 @@ import json
 import streamlit as st
 from typing import Any, Dict, List
 from section.section_base import SectionBase
+from section.section_base import SectionBase
 import re
 from resumix.utils.logger import logger
 from resumix.utils.json_parser import JsonParser

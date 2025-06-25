@@ -1,8 +1,8 @@
 import os
 from dotenv import load_dotenv
 from pathlib import Path
-from resumix.utils.logger import logger
-from resumix.config.config import Config
+from loguru import logger
+from config.config import Config
 
 
 CONFIG = Config().config

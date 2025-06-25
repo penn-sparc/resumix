@@ -15,7 +15,7 @@ from tools.tool import tool_list
 from resumix.utils.llm_client import LLMWrapper, LLMClient
 from resumix.rewriter.resume_rewriter import ResumeRewriter
 
-from resumix.config.config import Config
+from config.config import Config
 
 from streamlit_option_menu import option_menu
 
@@ -31,11 +31,11 @@ from resumix.utils.llm_client import LLMClient, LLMWrapper
 from resumix.utils.session_utils import SessionUtils
 
 import concurrent.futures
-from resumix.utils.i18n import LANGUAGES
-from resumix.job_parser.resume_rewriter import ResumeRewriter
-from resumix.job_parser.jd_parser import JDParser
-from resumix.utils.logger import logger
-from resumix.components.score_page import ScorePage
+from utils.i18n import LANGUAGES
+from job_parser.resume_rewriter import ResumeRewriter
+from job_parser.jd_parser import JDParser
+from utils.logger import logger
+from components.score_page import ScorePage
 from config.config import Config
 from langchain.agents import initialize_agent, AgentType
 
@@ -174,9 +174,7 @@ if uploaded_file:
             analysis_card.render_analysis(text)
 
         elif selected_tab == tab_names[1]:  # Polish
-            polish_card = PolishCard()
-            polish_card.render()
-            polish_card.render_polishing(text, llm_model)
+            polish_card(text, llm_model)
 
         elif selected_tab == tab_names[2]:  # Agent
             agent_card = AgentCard()

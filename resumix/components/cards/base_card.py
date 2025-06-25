@@ -28,7 +28,7 @@ class BaseCard(ABC):
 
     def render_header(self):
         st.markdown(f"### {self.icon} {self.title}")
-
+# 
     def render_additional(self):
         if self.additional_content:
             st.markdown("---")

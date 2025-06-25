@@ -1,9 +1,10 @@
 import json
 import streamlit as st
 from typing import Any, Dict, List
-from resumix.section.section_base import SectionBase
+from section.section_base import SectionBase
 import re
 from resumix.utils.logger import logger
+from resumix.utils.json_parser import JsonParser
 
 
 class SectionRender:
@@ -14,7 +15,10 @@ class SectionRender:
         section_name = section.name
         try:
             section_json = self._strip_markdown_code_fence(section_json)
-            data = json.loads(section_json)
+            logger.info(f"Section JSON: {section_json}")
+            data = JsonParser.parse(section_json)
+            # logger.info(f"Section JSON: {section_json}")
+            # data = json.loads(section_json)
         except json.JSONDecodeError:
             st.warning("⚠️ JSON 解析失败，原始数据如下：")
             st.code(section_json)
@@ -23,13 +27,13 @@ class SectionRender:
         if section_name == "personal_info":
             self._render_basics(data)
         elif section_name == "education":
-            self._render_education(data.get("education", []))
+            self._render_education(data.get("education", {}))
         elif section_name == "experience":
-            self._render_work(data.get("work", []))
+            self._render_work(data.get("work", {}))
         elif section_name == "projects":
-            self._render_projects(data.get("projects", []))
+            self._render_projects(data.get("projects", {}))
         elif section_name == "skills":
-            self._render_skills(data.get("skills", []))
+            self._render_skills(data.get("skills", {}))
         else:
             st.json(data)  # fallback
 

@@ -1,11 +1,11 @@
-from resumix.prompt.prompt_dispatcher import PromptDispatcher
-from resumix.section.section_base import SectionBase
-from resumix.utils.llm_client import LLMClient
-from resumix.utils.logger import logger
-from typing import Dict
+from prompt.prompt_dispatcher import PromptDispatcher
+from section.section_base import SectionBase
+from utils.llm_client import LLMClient
+from loguru import logger
+from typing import Dict, Any, List
 import streamlit as st
-from resumix.components.cards.score_card import display_score_card
-from resumix.utils.json_parser import JsonParser
+from components.cards.display_score_card import display_score_card
+from utils.json_parser import JsonParser
 
 
 class ScoreModule:

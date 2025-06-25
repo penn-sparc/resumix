@@ -3,9 +3,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
-from typing import Dict, Optional
-from resumix.components.cards.base_card import BaseCard
-from resumix.utils.logger import logger
+from typing import Dict, Any, Optional
+from components.cards.base_card import BaseCard
+from loguru import logger
 
 class ScoreCard(BaseCard):
     def __init__(self, section_name: str, scores: dict):

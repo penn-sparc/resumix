@@ -1,10 +1,7 @@
-
-
 # from paddleocr import PaddleOCR
 import streamlit as st
 import concurrent.futures
 from pathlib import Path
-
 
 # Initialize session state
 if "lang" not in st.session_state:
@@ -14,7 +11,7 @@ import sys
 import os
 from pathlib import Path
 from langchain.agents import initialize_agent, AgentType
-from tool.tool import tool_list
+from tools.tool import tool_list
 from resumix.utils.llm_client import LLMWrapper, LLMClient
 from resumix.rewriter.resume_rewriter import ResumeRewriter
 
@@ -23,16 +20,13 @@ from resumix.config.config import Config
 from streamlit_option_menu import option_menu
 
 # Import card components
-from resumix.components.cards.analysis_card import analysis_card
-from resumix.components.cards.polish_card import polish_card
-from resumix.components.cards.agent_card import agent_card
-from resumix.components.cards.score_card import (
-    display_score_card,
-)
-from resumix.components.cards.compare_card import compare_resume_sections
+from resumix.components.cards.analysis_card import AnalysisCard
+from resumix.components.cards.polish_card import PolishCard
+from resumix.components.cards.agent_card import AgentCard
+from resumix.components.cards.score_card import ScoreCard
+from resumix.components.cards.compare_card import CompareCard
 
 # Import utilities
-from resumix.utils.ocr_utils import OCRUtils
 from resumix.utils.llm_client import LLMClient, LLMWrapper
 from resumix.utils.session_utils import SessionUtils
 
@@ -53,19 +47,15 @@ ASSET_DIR = CURRENT_DIR / "assets" / "logo.png"
 T = LANGUAGES[st.session_state.lang]
 
 # Initialize LLM and agent
-try:
-    llm_model = LLMClient()
-    agent = initialize_agent(
-        tools=tool_list,
-        llm=LLMWrapper(client=llm_model),
-        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-        verbose=True,
-        handle_parsing_errors=True,
-        max_iterations=5,
-    )
-except Exception as e:
-    st.error(f"⚠️ LLM Initialization Failed: {str(e)}")
-    st.stop()  # Prevent further execution
+llm_model = LLMClient()
+agent = initialize_agent(
+    tools=tool_list,
+    llm=LLMWrapper(client=llm_model),
+    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    verbose=True,
+    handle_parsing_errors=True,
+    max_iterations=5,
+)
 
 RESUME_REWRITER = ResumeRewriter(llm_model)
 
@@ -133,6 +123,7 @@ with st.sidebar:
             st.session_state.lang = selected_lang
             st.rerun()
 
+
 def prefetch_resume_sections():
     try:
         st.session_state.resume_sections = SessionUtils.get_resume_sections()
@@ -140,12 +131,14 @@ def prefetch_resume_sections():
     except Exception as e:
         logger.warning(f"[后台] 提取 resume_sections 失败: {e}")
 
+
 def prefetch_jd_sections():
     try:
         st.session_state.jd_sections = SessionUtils.get_jd_sections()
         logger.info("[后台] JD section 提取完成")
     except Exception as e:
         logger.warning(f"[后台] 提取 jd_sections 失败: {e}")
+
 
 if uploaded_file:
     # Initialize session data if not exists
@@ -163,21 +156,22 @@ if uploaded_file:
     jd_content = SessionUtils.get_job_description_content()
 
     # Sample scores data (replace with your actual scoring logic)
-    sample_scores = {
-        "完整性": 8,
-        "清晰度": 7,
-        "匹配度": 6 if jd_content else 5,
-        "表达专业性": 8,
-        "成就导向": 7,
-        "数据支撑": 5,
-        "评语": "简历整体良好，但可增加更多量化成果",
-    }
+    # sample_scores = {
+    #     "完整性": 8,
+    #     "清晰度": 7,
+    #     "匹配度": 6 if jd_content else 5,
+    #     "表达专业性": 8,
+    #     "成就导向": 7,
+    #     "数据支撑": 5,
+    #     "评语": "简历整体良好，但可增加更多量化成果",
+    # }
 
     # Tab routing with updated card components
     with st.container():
         if selected_tab == tab_names[0]:  # Analysis
             analysis_card = AnalysisCard()
-            analysis_card(text).render()
+            analysis_card.render()
+            analysis_card.render_analysis(text)
 
         elif selected_tab == tab_names[1]:  # Polish
             polish_card = PolishCard()
@@ -187,7 +181,8 @@ if uploaded_file:
         elif selected_tab == tab_names[2]:  # Agent
             agent_card = AgentCard()
             agent_card.render()
-            agent_card.render_agent_interaction(text, jd_content, agent)
+            agent_card.redner_options()
+            # agent_card.render_agent_interaction(text, jd_content, agent)
 
         elif selected_tab == tab_names[3]:  # Score
             ScorePage().render()
@@ -199,6 +194,8 @@ if uploaded_file:
         elif selected_tab == tab_names[4]:  # Compare
             compare_card = CompareCard()
             compare_card.render()
-            compare_card.render_comparison(STRUCTED_SECTIONS, jd_content, RESUME_REWRITER)
+            compare_card.render_comparison(
+                STRUCTED_SECTIONS, jd_content, RESUME_REWRITER
+            )
 else:
     st.info(T["please_upload"])

@@ -2,7 +2,9 @@ from keybert import KeyBERT
 from typing import List, Tuple
 import re
 import threading
-from sentence_transformers import util, SentenceTransformer
+from sentence_transformers import util
+
+from resumix.utils.sentence_transformer_utils import SentenceTransformerUtils
 
 
 class KeywordExtractor:
@@ -22,7 +24,7 @@ class KeywordExtractor:
         初始化 KeyBERT 模型。只会在首次创建实例时执行。
         """
         self.model = KeyBERT(model_name)
-        self.embedder = SentenceTransformer(model_name)
+        self.embedder = SentenceTransformerUtils.get_instance(model_name)
 
     def extract_keywords(
         self,

@@ -3,6 +3,9 @@ from typing import Dict, Optional, Callable
 from components.cards.base_card import BaseCard
 from resumix.job_parser.resume_parser import ResumeParser
 from resumix.utils.logger import logger
+from streamlit_option_menu import option_menu
+from streamlit_tags import st_tags
+
 
 class AgentCard(BaseCard):
     def __init__(
@@ -16,92 +19,108 @@ class AgentCard(BaseCard):
             title=title,
             icon=icon,
             comment=comment,
-            additional_content=additional_content
+            additional_content=additional_content,
         )
         self.parser = ResumeParser()
-        
-    def render_agent_response(self, result: str, section: str):
-        """Enhanced response rendering with section context"""
-        with st.chat_message("assistant"):
-            st.markdown(f"**{section} Optimization**")
-            st.write(result)
-            st.markdown("---")
-        
-    def render_agent_interaction(self, text: str, jd_content: str, agent: Callable):
-        """Improved agent interaction with error handling and progress tracking"""
-        try:
-            if not text.strip() or not jd_content.strip():
-                st.warning("Please provide both resume content and job description")
-                return
-                
-            with st.spinner("Analyzing resume and job description..."):
-                sections = self.parser.parse_resume(text)
-                
-            if not sections:
-                st.error("Could not parse any sections from the resume")
-                return
-                
-            progress_bar = st.progress(0)
-            total_sections = len(sections)
-            
-            st.subheader("AI Optimization Suggestions")
-            with st.expander("Job Description Summary", expanded=False):
-                st.write(jd_content[:500] + ("..." if len(jd_content) > 500 else ""))
-            
-            for i, (section, content) in enumerate(sections.items()):
-                with st.container():
-                    col1, col2 = st.columns([1, 3])
-                    
-                    with col1:
-                        st.markdown(f"**{section}**")
-                        with st.expander("Original Content"):
-                            st.write(content)
-                    
-                    with col2:
-                        prompt = f"""As a resume optimization assistant, please improve this resume section based on the job description:
 
-Job Description:
-{jd_content[:2000]}... (truncated)
+    def render_agent_response(self, result: str):
+        st.chat_message("Resumix").write(result)
 
-Resume Section ({section}):
-{content}
+    def render_agent_interaction(self, text: str, jd_content: str, agent):
+        sections = self.parser.parse_resume(text)
+        for section, content in sections.items():
+            prompt = f"""你是一个简历优化助手。请参考以下岗位描述，并优化简历内容：
 
-Provide:
-1. Specific improvements matching the job requirements
-2. Quantifiable achievements where possible
-3. Keywords from the job description
+                岗位描述：{jd_content}
+
+                简历原文：
+\"\"\"{content}\"\"\"
+
+请按照如下格式作答：
+Thought: ...
+Action: local_llm_generate
+Action Input: \"\"\"优化后的内容\"\"\"
 """
-                        with st.spinner(f"Optimizing {section}..."):
-                            result = agent(prompt)
-                            self.render_agent_response(result, section)
-                
-                progress_bar.progress((i + 1) / total_sections)
-                
-            st.success("AI optimization complete!")
-            
-        except Exception as e:
-            logger.error(f"Agent interaction failed: {str(e)}")
-            st.error(f"An error occurred: {str(e)}")
-    
+            result = agent.run(prompt)
+            self.render_agent_response(result)
+
     def render(self):
         """Complete card rendering implementation"""
         self.render_header()
         
         if self.comment:
-            with st.container():
-                st.caption(self.comment)
-                
-        if self.additional_content:
-            self.render_additional()
-        
-        return self  # Enable method chaining
+            self.render_comment()
+        self.render_additional()
+
+    def redner_options(self):
+
+        # 技术栈多选
+        selected_tech_stacks = st.segmented_control(
+            "🛠️ 选择你掌握的技术栈",
+            options=[
+                "PyTorch",
+                "TensorFlow",
+                "Kubernetes",
+                "Docker",
+                "Spark",
+                "Redis",
+                "RabbitMQ",
+                "ONNX",
+                "PyTorch",
+                "TensorFlow",
+                "Kubernetes",
+                "Docker",
+                "Spark",
+                "Redis",
+                "RabbitMQ",
+                "Kafka",
+                "Elasticsearch",
+                "MySQL",
+                "PostgreSQL",
+                "MongoDB",
+                "Redis",
+                "RabbitMQ",
+            ],
+            selection_mode="multi",
+        )
+
+        # 职位多选
+        selected_job_positions = st.segmented_control(
+            "💼 选择你期望的职位类型",
+            options=[
+                "Backend",
+                "Frontend",
+                "Fullstack",
+                "DevOps",
+                "Data Engineer",
+                "Data Scientist",
+                "AI Engineer",
+                "ML Engineer",
+            ],
+            selection_mode="multi",
+        )
+
+        # 提交按钮
+        if st.button("✅ Submit"):
+            st.subheader("你选择的技术栈：")
+            st.write(selected_tech_stacks)
+
+            st.subheader("你期望的职位：")
+            st.write(selected_job_positions)
 
 
-def agent_card(text: str, jd_content: str, agent: Callable):
-    """Modernized agent interface"""
-    logger.info("Initializing AI Agent optimization")
-    card = AgentCard(
-        comment="AI-powered resume optimization based on job description",
-        additional_content="Suggestions provided by Resumix AI Agent"
+def agent_card(text: str):
+    """Legacy function wrapper for backward compatibility"""
+    logger.info("Handling Resume Agent with provided resume text.")
+    card = AgentCard()
+    card.render()
+
+
+def handle_agent(text: str, jd_content: str, agent):
+    """Legacy function wrapper for backward compatibility"""
+    logger.info(
+        "Handling AI Agent with provided resume text and job description content."
     )
-    return card.render().render_agent_interaction(text, jd_content, agent)
+    card = AgentCard()
+    card.render()
+    card.render_agent_interaction(text, jd_content, agent)

@@ -1,15 +1,14 @@
 from typing import List, Tuple
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sentence_transformers import SentenceTransformer, util
 import re
+
+from resumix.utils.sentence_transformer_utils import SentenceTransformerUtils
 
 
 class KeywordController:
     def __init__(self, use_embedding: bool = False):
         self.use_embedding = use_embedding
-        self.model = (
-            SentenceTransformer("paraphrase-MiniLM-L6-v2") if use_embedding else None
-        )
+        self.model = SentenceTransformerUtils.get_instance()
 
     def extract_keywords(self, text: str, top_k: int = 10) -> List[str]:
         # 简单提取关键词（可以换成 jieba, KeyBERT 等）

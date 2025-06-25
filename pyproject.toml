@@ -26,7 +26,13 @@ dependencies = [
     "langchain (==0.2.17)",
     "PyMuPDF (==1.22.1)",
     "readability-lxml (>=0.8.1,<0.9.0)",
-    "trafilatura (>=1.6.1,<2.0.0)"
+    "trafilatura (>=1.6.1,<2.0.0)",
+<<<<<<< HEAD
+    "streamlit-tags (>=1.2.8,<2.0.0)"
+=======
+    "requests (>=2.32.3,<3.0.0)",
+    "beautifulsoup4 (>=4.12.3,<5.0.0)"
+>>>>>>> 5ee3840fe882b2b17b2f60798ac96d20526458b8
 ]
 
 

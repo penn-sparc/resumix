@@ -1,11 +1,14 @@
 import os
+import sys
 import time
 import tempfile
 import fitz  # PyMuPDF
-from resumix.utils.logger import logger
+from typing import List, Optional
+from loguru import logger
+from pathlib import Path
+from utils.timeit import timeit
 from io import BytesIO
 from resumix.utils.timeit import timeit
-from typing import Union
 from PIL import Image
 import numpy as np
 

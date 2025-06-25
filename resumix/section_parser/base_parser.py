@@ -1,9 +1,12 @@
 from typing import Dict, List, Tuple, Union
 from abc import ABC, abstractmethod
-from sentence_transformers import SentenceTransformer, util
 import heapq
 from collections import defaultdict
 from resumix.utils.logger import logger
+from resumix.config.config import Config
+from resumix.utils.sentence_transformer_utils import SentenceTransformerUtils
+
+CONFIG = Config().config
 
 
 class BaseParser(ABC):
@@ -14,7 +17,7 @@ class BaseParser(ABC):
         threshold: float = 0.65,
     ):
         self.section_labels = section_labels
-        self.model = SentenceTransformer(model_name)
+        self.model = SentenceTransformerUtils.get_instance(model_name)
         self.threshold = threshold
         self.label_embeddings = {
             tag: self.model.encode(labels, convert_to_tensor=True)

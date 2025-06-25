@@ -1,5 +1,5 @@
 llm:
-  use_model: "deepseek"
+  use_model: "local"
   deepseek:
     model: "deepseek-chat"
     url: "https://api.deepseek.com/v1/chat/completions"
@@ -23,6 +23,10 @@ ocr:
     gpu: False
   paddle:
     model: "paddleocr"
+
+sentence_transformer:
+  use_model: "paraphrase-multilingual-MiniLM-L12-v2"
+  directory: "resumix/models/sentence_transformer"
 
   # use_easyocr: True
   # use_paddle: False

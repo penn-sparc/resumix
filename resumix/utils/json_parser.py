@@ -1,5 +1,6 @@
 import json
 import re
+import ast
 from typing import Union, Dict
 from loguru import logger
 
@@ -10,23 +11,25 @@ class JsonParser:
         """
         安全解析 LLM 响应中的 JSON 字符串。
 
-        支持如下格式：
-        1. 标准 JSON：{"a": 1}
-        2. 带 markdown 代码块的 JSON：```json\n{...}\n```
-
-        如果无法解析，返回 None。
+        优先使用 json.loads，失败时回退至 ast.literal_eval。
+        如果均失败，返回 None。
         """
+
+        logger.info(f"Parsing JSON: {response}")
 
         if not isinstance(response, str):
             logger.warning("LLM 响应不是字符串")
             return None
 
-        # 提取 json 块
+        # 移除 Final Answer 等前缀（支持中英文冒号）
+        response = re.sub(r"(?i)^final answer[:：]\s*", "", response.strip())
+
+        # 提取 markdown 中的 JSON
         pattern = r"```(?:json)?\s*(\{.*?\})\s*```"
         match = re.search(pattern, response, re.DOTALL)
         cleaned = match.group(1) if match else response.strip()
 
-        # 替换中文引号和奇怪字符为合法形式
+        # 替换常见中文标点为合法字符
         replacements = {
             "“": '"',
             "”": '"',
@@ -40,10 +43,18 @@ class JsonParser:
         # 去除非法控制字符
         cleaned = re.sub(r"[\x00-\x1F\x7F]", "", cleaned)
 
+        # 删除对象或数组中的尾部逗号： {"a": 1,} -> {"a": 1}
+        cleaned = re.sub(r",\s*([\]}])", r"\1", cleaned)
+
+        # 解析 JSON：先 json 再 ast
         try:
             return json.loads(cleaned)
-        except Exception as e:
+        except json.JSONDecodeError as e_json:
             logger.warning(
-                f"[safe_json_parse] JSON 解析失败: {e}, 原始响应: {response}"
+                f"[json.loads] 解析失败: {e_json}, 尝试 fallback ast.literal_eval"
             )
-            return None
+            try:
+                return ast.literal_eval(cleaned)
+            except Exception as e_ast:
+                logger.error(f"[ast.literal_eval] 解析仍失败: {e_ast}")
+                return None

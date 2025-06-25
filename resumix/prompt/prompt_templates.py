@@ -16,7 +16,6 @@ Your task is to rewrite the given CV. Follow these guidelines:
 
 Improved CV:
 """
-
 BASICS_PROMPT = """
 You are going to write a JSON resume section for an applicant applying for job posts.
 
@@ -33,7 +32,14 @@ interface Basics {
     address: string;
 }
 
-Write the basics section according to the Basic schema. On the response, include only the JSON.
+Instructions:
+- Return only valid JSON matching the schema above.
+- Do NOT include markdown code blocks, comments, or explanations.
+- Prefix the output with exactly: Final Answer:
+- Return in a single line.
+
+Example output:
+Final Answer: {"name": "John Doe", "email": "john@example.com", "phone": "1234567890", "website": "https://example.com", "address": "123 Main St"}
 """
 
 EDUCATION_PROMPT = """
@@ -59,7 +65,14 @@ interface Education {
     education: EducationItem[];
 }
 
-Write the education section according to the Education schema. On the response, include only the JSON.
+Instructions:
+- Return only valid JSON matching the schema above.
+- Do NOT include markdown code blocks, comments, or explanations.
+- Prefix the output with exactly: Final Answer:
+- Return in a single line.
+
+Example output:
+Final Answer: {"education":[{"institution":"Harvard University","area":"Computer Science","additionalAreas":[],"studyType":"Bachelor","startDate":"2015-09","endDate":"2019-06","score":"3.9/4.0","location":"Cambridge, MA"}]}
 """
 
 WORK_PROMPT = """
@@ -83,7 +96,17 @@ interface Work {
     work: WorkItem[];
 }
 
-Write a work section for the candidate according to the Work schema. Include only the work experience and not the project experience. For each work experience, provide  a company name, position name, start and end date, and bullet point for the highlights. Follow the Harvard Extension School Resume guidelines and phrase the highlights with the STAR methodology
+Instructions:
+- Write only the work experience section (exclude projects).
+- Use STAR methodology in highlights (Situation, Task, Action, Result).
+- Follow Harvard Extension School Resume standards.
+- Return only valid JSON matching the schema above.
+- Do NOT include markdown code blocks, comments, or explanations.
+- Prefix the output with exactly: Final Answer:
+- Return in a single line.
+
+Example output:
+Final Answer: {"work":[{"company":"Google","position":"Software Engineer","startDate":"2020-01","endDate":"2022-12","location":"Mountain View, CA","highlights":["Led redesign of search interface, improving user engagement by 15%.","Implemented A/B testing pipeline reducing experimentation time by 30%."]}]}
 """
 
 PROJECTS_PROMPT = """
@@ -105,7 +128,15 @@ interface Projects {
     projects: ProjectItem[];
 }
 
-Write the projects section according to the Projects schema. Include all projects, but only the ones present in the CV. On the response, include only the JSON.
+Instructions:
+- Include only projects present in the CV.
+- Return only valid JSON matching the schema above.
+- Do NOT include markdown code blocks, comments, or explanations.
+- Prefix the output with exactly: Final Answer:
+- Return in a single line.
+
+Example output:
+Final Answer: {"projects":[{"name":"Resume AI","description":"Built a resume parser using NLP and LLM.","keywords":["NLP","LLM","Python"],"url":"https://github.com/example/resume-ai"}]}
 """
 
 SKILLS_PROMPT = """
@@ -129,7 +160,16 @@ interface Skills {
     skills: SkillItem[];
 }
 
-Write the skills section according to the Skills schema. Include only up to the top 4 skill names that are present in the CV and related with the education and work experience. On the response, include only the JSON.
+Instructions:
+- Include up to the top 4 relevant skills present in the CV.
+- Prioritize those related to work and education background.
+- Return only valid JSON matching the schema above.
+- Do NOT include markdown code blocks, comments, or explanations.
+- Prefix the output with exactly: Final Answer:
+- Return in a single line.
+
+Example output:
+Final Answer: {"skills":[{"name":"Programming Languages","keywords":["Python","C++"]},{"name":"Frameworks","keywords":["React","PyTorch"]}]}
 """
 
 PROMPT_MAP = {

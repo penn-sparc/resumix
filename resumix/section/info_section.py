@@ -1,5 +1,6 @@
 import re
-from resumix.section.section_base import SectionBase
+from typing import Dict, Any
+from section.section_base import SectionBase
 
 
 class PersonalInfoSection(SectionBase):

@@ -74,3 +74,5 @@ test.pdf
 
 # config
 resumix/config/config.yaml
+
+resumix/models/

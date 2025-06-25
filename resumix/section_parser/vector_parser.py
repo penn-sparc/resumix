@@ -5,9 +5,10 @@ import sys
 import heapq
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
-from resumix.utils.logger import logger
+from loguru import logger
+from pathlib import Path
 
-from resumix.section_parser.section_labels import SectionLabels
+from section_parser.section_labels import SectionLabels
 
 from resumix.section.education_section import EducationSection
 from resumix.section.experience_section import ExperienceSection
@@ -16,6 +17,7 @@ from resumix.section.projects_section import ProjectsSection
 from resumix.section.skills_section import SkillsSection
 from resumix.section.section_base import SectionBase
 from resumix.utils.timeit import timeit
+from resumix.utils.sentence_transformer_utils import SentenceTransformerUtils
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -34,7 +36,7 @@ class VectorParser:
     def __init__(
         self, model_name="paraphrase-multilingual-MiniLM-L12-v2", threshold=0.65
     ):
-        self.model = SentenceTransformer(model_name)
+        self.model = SentenceTransformerUtils.get_instance(model_name)
         self.threshold = threshold
         # 这里可以改为持久化设置
         self.LABEL_EMBEDDINGS = {

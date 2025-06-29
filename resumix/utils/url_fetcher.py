@@ -3,7 +3,7 @@ import chardet
 from readability import Document
 from bs4 import BeautifulSoup
 from loguru import logger
-import trafilatura
+# import trafilatura  # Temporarily disabled due to dependency conflicts
 
 
 class UrlFetcher:
@@ -47,25 +47,25 @@ class UrlFetcher:
                     return text
                 else:
                     logger.warning(
-                        "[WebExtract] readability 提取内容为空或过短，尝试使用 trafilatura"
+                        "[WebExtract] readability 提取内容为空或过短 (trafilatura 已被临时禁用)"
                     )
             except Exception as e:
                 logger.warning(f"[WebExtract] readability 提取失败: {e}")
 
-            # Step 4: fallback 到 trafilatura 提取
-            try:
-                extracted = trafilatura.extract(
-                    html, include_comments=False, include_tables=False
-                )
-                if extracted:
-                    logger.info(
-                        f"[WebExtract] 使用 trafilatura 提取成功，字符数：{len(extracted)}"
-                    )
-                    return extracted.strip()
-                else:
-                    logger.warning("[WebExtract] trafilatura 也未能提取有效正文")
-            except Exception as e:
-                logger.error(f"[WebExtract] trafilatura 提取失败: {e}")
+            # Step 4: fallback 到 trafilatura 提取 (temporarily disabled)
+            # try:
+            #     extracted = trafilatura.extract(
+            #         html, include_comments=False, include_tables=False
+            #     )
+            #     if extracted:
+            #         logger.info(
+            #             f"[WebExtract] 使用 trafilatura 提取成功，字符数：{len(extracted)}"
+            #         )
+            #         return extracted.strip()
+            #     else:
+            #         logger.warning("[WebExtract] trafilatura 也未能提取有效正文")
+            # except Exception as e:
+            #     logger.error(f"[WebExtract] trafilatura 提取失败: {e}")
 
         except requests.RequestException as e:
             logger.error(f"[WebExtract] 请求异常: {e}")

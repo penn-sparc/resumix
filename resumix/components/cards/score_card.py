@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple, List
 from components.cards.base_card import BaseCard
 from loguru import logger
 
@@ -58,10 +58,8 @@ class ScoreCard(BaseCard):
         try:
             labels, values, angles = self._prepare_radar_data()
             
-            fig, ax = plt.subplots(
-                figsize=(3.5, 3.5),
-                subplot_kw=dict(polar=True)
-            )
+            fig = plt.figure(figsize=(3.5, 3.5))
+            ax = fig.add_subplot(111, polar=True)
             ax.plot(angles, values, linewidth=2)
             ax.fill(angles, values, alpha=0.25)
             ax.set_thetagrids(
@@ -94,25 +92,43 @@ class ScoreCard(BaseCard):
 
     def render_comment(self):
         """Render the comment section"""
-        if hasattr(self, 'comment') and self.comment:
-            st.markdown(f"📝 **Comment:** {self.comment}")
+        if self.comment:
+            st.markdown(f"*📊 {self.comment}*")
+
+    def render_card_body(self):
+        """
+        Render the main score card content with clean text hierarchy.
+        """
+        try:
+            st.markdown("### 📊 Resume Scoring")
+            
+            # Check if we have scoring data
+            scores = st.session_state.get("resume_scores", {})
+            
+            if not scores:
+                st.info("📊 Upload a resume and add a job description to see detailed scoring")
+                return
+            
+            # Simple two-column layout for chart and table
+            col1, col2 = st.columns([1, 2])
+            
+            with col1:
+                st.markdown("#### 📈 Score Visualization")
+                self.render_radar_chart()
+                
+            with col2:
+                st.markdown("#### 📋 Score Details")
+                self.render_score_table()
+                
+        except Exception as e:
+            logger.error(f"Failed to render score card body: {e}")
+            st.error("Could not display scoring interface")
 
     def render(self):
-        """Main render method that puts everything together"""
-        logger.info(f"Displaying scores for section: {self.section_name}")
+        """
+        Simple render method using the clean BaseCard structure.
+        """
+        logger.info("Rendering ScoreCard")
         
-        # Render header from BaseCard
-        if hasattr(self, 'render_header'):
-            self.render_header()
-        else:
-            st.header(f"{self.icon} {self.title}")
-        
-        # Two-column layout
-        col1, col2 = st.columns([1, 2])
-        
-        with col1:
-            self.render_radar_chart()
-            
-        with col2:
-            self.render_score_table()
-            self.render_comment()
+        # Use the simplified BaseCard render method
+        super().render()

@@ -34,7 +34,7 @@ SECTION_LABELS = SectionLabels.get_labels()
 
 class VectorParser:
     def __init__(
-        self, model_name="paraphrase-multilingual-MiniLM-L12-v2", threshold=0.65
+        self, model_name="paraphrase-multilingual-MiniLM-L12-v2", threshold=0.4
     ):
         self.model = SentenceTransformerUtils.get_instance(model_name)
         self.threshold = threshold

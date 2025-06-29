@@ -21,35 +21,37 @@ def extract_text_from_pdf(file):
 
     ocr_model = None
 
-    if CONFIG.OCR.USE_MODEL == "easyocr":
+    # Force EasyOCR for better performance
+    if True:  # Force EasyOCR
         ocr_model = easyocr.Reader(
-            ["ch_sim", "en"],
-            gpu=CONFIG.OCR.EASYOCR.GPU,
-            model_storage_directory=CONFIG.OCR.EASYOCR.DIRECTORY,
+            ["en"],  # English only for better performance
+            gpu=False,  # Force CPU for stability
+            model_storage_directory="resumix/models/easyocr",
         )
     elif CONFIG.OCR.USE_MODEL == "paddleocr":
         try:
-            # Try with default parameters first
-            ocr_model = PaddleOCR(use_angle_cls=True, lang="ch")
+            # Try with default parameters first - use English for resumes
+            ocr_model = PaddleOCR(use_angle_cls=True, lang="en")
         except AttributeError as e:
             if "set_mkldnn_cache_capacity" in str(e):
                 # Fallback to alternative initialization for compatibility
                 try:
-                    ocr_model = PaddleOCR(use_angle_cls=False, lang="ch", use_gpu=False)
+                    ocr_model = PaddleOCR(use_angle_cls=False, lang="en", use_gpu=False)
                 except Exception as fallback_error:
                     # If PaddleOCR still fails, fall back to EasyOCR
                     print(f"PaddleOCR failed, falling back to EasyOCR: {fallback_error}")
                     ocr_model = easyocr.Reader(
-                        ["ch_sim", "en"],
+                        ["en"],  # English only
                         gpu=False,
                         model_storage_directory="resumix/models/easyocr",
                     )
             else:
                 raise e
 
-    ocr = OCRUtils(ocr_model, dpi=50, keep_images=False)
+    # Balanced OCR settings - moderate quality for better text extraction
+    ocr = OCRUtils(ocr_model, dpi=75, keep_images=False)
 
-    return ocr.extract_text(file, max_pages=1)
+    return ocr.extract_text(file, max_pages=3)  # Process up to 3 pages instead of just 1
 
 
 def extract_job_description(jd_url):

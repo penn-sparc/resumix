@@ -16,7 +16,7 @@ llm:
     url: "https://api.siliconflow.cn/v1/chat/completions"
 
 ocr:
-  use_model: "paddleocr"
+  use_model: "easyocr"
   easyocr:
     model: "easyocr"
     directory: "resumix/models/easyocr"

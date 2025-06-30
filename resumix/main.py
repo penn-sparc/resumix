@@ -7,36 +7,33 @@ from pathlib import Path
 if "lang" not in st.session_state:
     st.session_state.lang = "en"
 
-import sys
-import os
+import concurrent.futures
 from pathlib import Path
 from langchain.agents import initialize_agent, AgentType
-from tools.tool import tool_list
-from resumix.utils.llm_client import LLMWrapper, LLMClient
-from resumix.rewriter.resume_rewriter import ResumeRewriter
+from resumix.backend.tools.tool import tool_list
+from resumix.shared.utils.llm_client import LLMWrapper, LLMClient
+from resumix.backend.rewriter.resume_rewriter import ResumeRewriter
 
 from config.config import Config
 
 from streamlit_option_menu import option_menu
 
 # Import card components
-from resumix.components.cards.analysis_card import AnalysisCard
-from resumix.components.cards.polish_card import PolishCard, polish_card
-from resumix.components.cards.agent_card import AgentCard
-from resumix.components.cards.score_card import ScoreCard
-from resumix.components.cards.compare_card import CompareCard
+from resumix.frontend.components.cards.analysis_card import AnalysisCard
+from resumix.frontend.components.cards.polish_card import PolishCard, polish_card
+from resumix.frontend.components.cards.agent_card import AgentCard
+from resumix.frontend.components.cards.score_card import ScoreCard
+from resumix.frontend.components.cards.compare_card import CompareCard
 
 # Import utilities
-from resumix.utils.llm_client import LLMClient, LLMWrapper
-from resumix.utils.session_utils import SessionUtils
+from resumix.shared.utils.llm_client import LLMClient, LLMWrapper
+from resumix.shared.utils.session_utils import SessionUtils
 
-import concurrent.futures
-from utils.i18n import LANGUAGES
-from job_parser.resume_rewriter import ResumeRewriter
-from job_parser.jd_parser import JDParser
-from utils.logger import logger
-from components.score_page import ScorePage
-from config.config import Config
+from resumix.shared.utils.i18n import LANGUAGES
+from resumix.backend.job_parser.resume_rewriter import ResumeRewriter
+from resumix.shared.utils.logger import logger
+from resumix.frontend.components.score_page import ScorePage
+from resumix.config.config import Config
 from langchain.agents import initialize_agent, AgentType
 
 # Config setup
@@ -68,15 +65,19 @@ st.set_page_config(
 )
 
 # Header section with logo and name
-st.markdown("""
+st.markdown(
+    """
 <div style="text-align: center; padding: 2rem 0; margin-bottom: 2rem; border-bottom: 1px solid #e2e8f0;">
     <h1 style="font-size: 2.5rem; font-weight: 700; color: #1e293b; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">📄 RESUMIX</h1>
     <p style="color: #64748b; font-size: 1rem; margin-top: 0.5rem; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">Hi, I'm your resume AI assistant !</p>
 </div>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # Add styling for sidebar
-st.markdown("""
+st.markdown(
+    """
 <style>
 /* Sidebar styling */
 .stSidebar .stVerticalBlock .stExpander {
@@ -166,7 +167,9 @@ st.markdown("""
 
 
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # Main navigation
 tab_names = T["tabs"]
@@ -180,12 +183,15 @@ selected_tab = option_menu(
 # Sidebar components
 with st.sidebar:
     # Add sidebar title
-    st.markdown("""
+    st.markdown(
+        """
     <div style="text-align: left; padding: 1rem 0 1.5rem 0; margin-bottom: 1rem;">
         <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">RESUMIX</h2>
     </div>
-    """, unsafe_allow_html=True)
-    
+    """,
+        unsafe_allow_html=True,
+    )
+
     # Resume upload
     with st.expander(T["upload_resume"], expanded=True):
         uploaded_file = st.file_uploader(T["upload_resume_title"], type=["pdf"])

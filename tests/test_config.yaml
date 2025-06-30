@@ -1,0 +1,10 @@
+# Test configuration overrides
+use_model: 'mock'
+ocr:
+  backend: 'mock'
+models:
+  embedding_model: 'mock-model'
+cache:
+  enabled: false
+logging:
+  level: 'ERROR'  # Reduce log noise during testing

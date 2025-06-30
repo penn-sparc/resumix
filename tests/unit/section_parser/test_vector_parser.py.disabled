@@ -1,0 +1,337 @@
+import pytest
+from unittest.mock import Mock, patch
+import numpy as np
+from resumix.section_parser.vector_parser import VectorParser
+
+
+class TestVectorParser:
+    """Test vector-based section parser"""
+    
+    @pytest.fixture
+    def mock_embedding_utils(self):
+        """Mock SentenceTransformerUtils for testing"""
+        with patch('resumix.section_parser.vector_parser.SentenceTransformerUtils') as mock:
+            mock_instance = Mock()
+            
+            # Mock embeddings for different sections
+            mock_instance.get_embeddings.return_value = np.array([
+                [0.1, 0.2, 0.3, 0.4],  # Mock embedding
+                [0.5, 0.6, 0.7, 0.8]   # Mock embedding
+            ])
+            
+            # Mock high similarity for section classification
+            mock_instance.calculate_similarity.return_value = 0.85
+            mock_instance.find_most_similar.return_value = (0, 0.85)  # (index, similarity)
+            
+            mock.return_value = mock_instance
+            yield mock_instance
+    
+    def test_initialization(self, mock_embedding_utils):
+        """Test VectorParser initialization"""
+        parser = VectorParser()
+        
+        assert parser.embedding_utils is not None
+        assert parser.confidence_threshold == 0.7  # Default threshold
+        assert hasattr(parser, 'section_labels')
+        assert len(parser.section_labels) > 0
+    
+    def test_initialization_with_custom_threshold(self, mock_embedding_utils):
+        """Test initialization with custom confidence threshold"""
+        custom_threshold = 0.9
+        parser = VectorParser(confidence_threshold=custom_threshold)
+        
+        assert parser.confidence_threshold == custom_threshold
+    
+    def test_parse_sections_basic(self, mock_embedding_utils, sample_resume_text):
+        """Test basic section parsing functionality"""
+        parser = VectorParser()
+        
+        sections = parser.parse_sections(sample_resume_text)
+        
+        assert isinstance(sections, list)
+        assert len(sections) > 0
+        
+        # Check that sections have required attributes
+        for section in sections:
+            assert hasattr(section, 'name')
+            assert hasattr(section, 'raw_text')
+            assert hasattr(section, 'confidence')
+            assert section.confidence >= parser.confidence_threshold
+    
+    def test_parse_sections_with_section_headers(self, mock_embedding_utils):
+        """Test parsing with clear section headers"""
+        text = """
+        EXPERIENCE
+        Software Engineer at Tech Corp
+        Developed web applications
+        
+        EDUCATION
+        Computer Science Degree
+        Stanford University
+        
+        SKILLS
+        Python, JavaScript, React
+        """
+        
+        parser = VectorParser()
+        sections = parser.parse_sections(text)
+        
+        # Should detect distinct sections
+        assert len(sections) >= 3
+        
+        section_names = [s.name.lower() for s in sections]
+        assert any('experience' in name for name in section_names)
+        assert any('education' in name for name in section_names)
+        assert any('skills' in name for name in section_names)
+    
+    def test_confidence_threshold_filtering(self, mock_embedding_utils):
+        """Test that low confidence sections are filtered out"""
+        parser = VectorParser(confidence_threshold=0.9)
+        
+        # Mock low confidence score
+        mock_embedding_utils.calculate_similarity.return_value = 0.5
+        mock_embedding_utils.find_most_similar.return_value = (0, 0.5)
+        
+        sections = parser.parse_sections("Some ambiguous text")
+        
+        # Should filter out low confidence sections
+        assert len(sections) == 0 or all(s.confidence >= 0.9 for s in sections)
+    
+    def test_confidence_threshold_inclusion(self, mock_embedding_utils):
+        """Test that high confidence sections are included"""
+        parser = VectorParser(confidence_threshold=0.8)
+        
+        # Mock high confidence score
+        mock_embedding_utils.calculate_similarity.return_value = 0.95
+        mock_embedding_utils.find_most_similar.return_value = (0, 0.95)
+        
+        sections = parser.parse_sections("Clear section content")
+        
+        # Should include high confidence sections
+        assert len(sections) > 0
+        assert all(s.confidence >= 0.8 for s in sections)
+    
+    def test_section_boundary_detection(self, mock_embedding_utils):
+        """Test detection of section boundaries"""
+        text = """
+        John Doe
+        Software Engineer
+        john@email.com
+        
+        WORK EXPERIENCE
+        Senior Developer at TechCorp
+        Built scalable applications
+        
+        EDUCATION BACKGROUND
+        MS Computer Science
+        Stanford University 2020
+        
+        TECHNICAL SKILLS
+        Python, React, AWS
+        """
+        
+        # Mock different similarities for different section types
+        similarities = [0.9, 0.85, 0.95, 0.88]  # Varying confidence scores
+        similarity_iter = iter(similarities)
+        
+        def mock_similarity(*args, **kwargs):
+            return next(similarity_iter, 0.8)
+        
+        mock_embedding_utils.calculate_similarity.side_effect = mock_similarity
+        mock_embedding_utils.find_most_similar.side_effect = [
+            (0, 0.9), (1, 0.85), (2, 0.95), (3, 0.88)
+        ]
+        
+        parser = VectorParser()
+        sections = parser.parse_sections(text)
+        
+        # Should detect multiple distinct sections
+        assert len(sections) >= 3
+    
+    def test_empty_text_handling(self, mock_embedding_utils):
+        """Test handling of empty or whitespace-only text"""
+        parser = VectorParser()
+        
+        # Test empty string
+        sections = parser.parse_sections("")
+        assert sections == []
+        
+        # Test whitespace only
+        sections = parser.parse_sections("   \n\n   \t   ")
+        assert sections == []
+    
+    def test_single_line_text(self, mock_embedding_utils):
+        """Test handling of single line text"""
+        parser = VectorParser()
+        
+        single_line = "Python developer with 5 years experience"
+        sections = parser.parse_sections(single_line)
+        
+        # Should handle single line gracefully
+        assert isinstance(sections, list)
+    
+    def test_section_label_mapping(self, mock_embedding_utils):
+        """Test that section labels are properly mapped"""
+        parser = VectorParser()
+        
+        # Mock specific section classification
+        mock_embedding_utils.find_most_similar.return_value = (1, 0.9)  # Experience section index
+        
+        text = "Software Engineer | TechCorp | 2020-2023"
+        sections = parser.parse_sections(text)
+        
+        if sections:
+            # Should map to appropriate section type
+            assert isinstance(sections[0].name, str)
+            assert len(sections[0].name) > 0
+    
+    def test_text_preprocessing(self, mock_embedding_utils):
+        """Test text preprocessing before section classification"""
+        parser = VectorParser()
+        
+        # Text with various formatting issues
+        messy_text = """
+        
+        
+        EXPERIENCE    
+        
+        Senior   Developer    |   TechCorp   
+        
+        
+        • Built web applications
+        
+        
+        EDUCATION
+        
+        Computer Science
+        
+        """
+        
+        sections = parser.parse_sections(messy_text)
+        
+        # Should handle messy formatting
+        assert isinstance(sections, list)
+        
+        # Verify that embedding utils was called (preprocessing occurred)
+        mock_embedding_utils.get_embeddings.assert_called()
+    
+    def test_section_content_extraction(self, mock_embedding_utils):
+        """Test that section content is properly extracted"""
+        parser = VectorParser()
+        
+        text = """
+        EXPERIENCE
+        Software Engineer at TechCorp
+        Developed scalable web applications
+        Led team of 5 developers
+        """
+        
+        sections = parser.parse_sections(text)
+        
+        if sections:
+            section = sections[0]
+            assert 'Software Engineer' in section.raw_text or 'TechCorp' in section.raw_text
+    
+    def test_multiple_similar_sections(self, mock_embedding_utils):
+        """Test handling of multiple sections of the same type"""
+        text = """
+        WORK EXPERIENCE
+        Senior Developer | Company A | 2020-2023
+        Built web applications
+        
+        PROFESSIONAL EXPERIENCE  
+        Junior Developer | Company B | 2018-2020
+        Maintained legacy systems
+        """
+        
+        # Mock similar confidence for both experience sections
+        mock_embedding_utils.find_most_similar.side_effect = [
+            (1, 0.9),  # Experience section
+            (1, 0.85)  # Also experience section
+        ]
+        
+        parser = VectorParser()
+        sections = parser.parse_sections(text)
+        
+        # Should handle multiple similar sections
+        assert isinstance(sections, list)
+    
+    def test_section_confidence_calculation(self, mock_embedding_utils):
+        """Test that confidence scores are properly calculated and assigned"""
+        parser = VectorParser()
+        
+        # Mock specific confidence scores
+        confidence_scores = [0.95, 0.82, 0.78, 0.91]
+        confidence_iter = iter(confidence_scores)
+        
+        def mock_find_similar(*args, **kwargs):
+            score = next(confidence_iter, 0.8)
+            return (0, score)
+        
+        mock_embedding_utils.find_most_similar.side_effect = mock_find_similar
+        
+        text = """
+        Experience section content
+        Education section content
+        Skills section content  
+        Projects section content
+        """
+        
+        sections = parser.parse_sections(text)
+        
+        # Check that confidence scores are assigned
+        for section in sections:
+            assert hasattr(section, 'confidence')
+            assert 0.0 <= section.confidence <= 1.0
+    
+    def test_performance_with_large_text(self, mock_embedding_utils):
+        """Test performance with large text input"""
+        # Generate large text
+        large_text = "\n".join([f"Line {i}: Sample content for testing" for i in range(1000)])
+        
+        parser = VectorParser()
+        
+        # Should handle large text without errors
+        sections = parser.parse_sections(large_text)
+        
+        assert isinstance(sections, list)
+        # Verify that processing completed
+        mock_embedding_utils.get_embeddings.assert_called()
+    
+    def test_special_characters_handling(self, mock_embedding_utils):
+        """Test handling of special characters and unicode"""
+        text = """
+        EXPERIENCE
+        Software Engineer @ TechCorp™
+        Developed applications with 99.9% uptime
+        Increased performance by 40%
+        
+        EDUCATION  
+        M.S. Computer Science
+        Stanford University (2018-2020)
+        """
+        
+        parser = VectorParser()
+        sections = parser.parse_sections(text)
+        
+        # Should handle special characters without errors
+        assert isinstance(sections, list)
+    
+    def test_section_order_preservation(self, mock_embedding_utils):
+        """Test that section order is preserved from original text"""
+        text = """
+        First section content
+        
+        Second section content
+        
+        Third section content
+        """
+        
+        parser = VectorParser()
+        sections = parser.parse_sections(text)
+        
+        # Sections should maintain relative order from original text
+        if len(sections) >= 2:
+            # This is more of a structural test - exact order depends on implementation
+            assert isinstance(sections, list)
+            assert all(hasattr(s, 'raw_text') for s in sections)

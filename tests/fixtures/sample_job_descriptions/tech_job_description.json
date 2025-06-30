@@ -1,0 +1,52 @@
+{
+  "title": "Senior Software Engineer",
+  "company": "TechCorp Inc.",
+  "location": "San Francisco, CA",
+  "employment_type": "Full-time",
+  "remote_option": "Hybrid",
+  "description": "We are seeking a talented Senior Software Engineer to join our growing engineering team. You will be responsible for designing and building scalable systems that serve millions of users worldwide.",
+  "requirements": [
+    "5+ years of experience in software development",
+    "Strong proficiency in Python and JavaScript",
+    "Experience with React or similar frontend frameworks",
+    "Knowledge of database systems (PostgreSQL, MongoDB)",
+    "Familiarity with cloud platforms (AWS, Azure, or GCP)",
+    "Experience with version control systems (Git)",
+    "Bachelor's degree in Computer Science or related field",
+    "Strong problem-solving and analytical skills",
+    "Excellent communication and teamwork abilities"
+  ],
+  "responsibilities": [
+    "Design and develop scalable web applications",
+    "Lead technical architecture decisions",
+    "Collaborate with cross-functional teams including product and design",
+    "Write clean, maintainable, and efficient code",
+    "Participate in code reviews and technical discussions",
+    "Mentor junior developers and contribute to team growth",
+    "Troubleshoot and debug complex applications",
+    "Stay up-to-date with emerging technologies and best practices"
+  ],
+  "nice_to_have": [
+    "Experience with microservices architecture",
+    "Knowledge of containerization (Docker, Kubernetes)",
+    "Familiarity with CI/CD pipelines",
+    "Experience with machine learning frameworks",
+    "Contributions to open source projects",
+    "Advanced degree in Computer Science",
+    "AWS or other cloud certifications"
+  ],
+  "benefits": [
+    "Competitive salary and equity package",
+    "Comprehensive health, dental, and vision insurance",
+    "401(k) with company matching",
+    "Flexible work arrangements",
+    "Professional development budget",
+    "Catered meals and snacks",
+    "Gym membership reimbursement"
+  ],
+  "salary_range": "$140,000 - $180,000",
+  "keywords": [
+    "python", "javascript", "react", "postgresql", "mongodb", "aws", "microservices",
+    "docker", "kubernetes", "git", "api", "backend", "frontend", "scalable", "cloud"
+  ]
+}

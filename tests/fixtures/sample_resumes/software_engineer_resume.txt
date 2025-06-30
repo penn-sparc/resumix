@@ -1,0 +1,65 @@
+John Doe
+Senior Software Engineer
+john.doe@email.com
+(555) 123-4567
+LinkedIn: linkedin.com/in/johndoe
+San Francisco, CA
+
+EXPERIENCE
+
+Senior Software Engineer | TechCorp Inc. | Jan 2020 - Present
+• Led development of microservices architecture serving 10M+ daily users
+• Reduced API response time by 45% through database optimization and caching
+• Mentored team of 5 junior developers and conducted technical interviews
+• Implemented CI/CD pipeline reducing deployment time from 2 hours to 15 minutes
+
+Software Engineer | StartupCo | Jun 2018 - Dec 2019
+• Built REST APIs using Python/Django for e-commerce platform
+• Developed React frontend components with TypeScript
+• Collaborated with product team to deliver features on aggressive timelines
+• Improved test coverage from 60% to 95% through comprehensive unit testing
+
+Junior Developer | WebSolutions | Aug 2016 - May 2018
+• Maintained legacy PHP applications and migrated to modern stack
+• Created automated testing framework reducing manual QA time by 70%
+• Participated in agile development process and sprint planning
+
+EDUCATION
+
+Master of Science in Computer Science | Stanford University | 2016
+GPA: 3.8/4.0
+Thesis: "Scalable Machine Learning Systems for Real-time Data Processing"
+Relevant Coursework: Algorithms, Distributed Systems, Machine Learning
+
+Bachelor of Science in Computer Science | UC Berkeley | 2014
+GPA: 3.9/4.0, Magna Cum Laude
+Relevant Coursework: Data Structures, Operating Systems, Database Systems
+
+SKILLS
+
+Programming Languages: Python, JavaScript, TypeScript, Java, Go
+Frontend: React, Vue.js, HTML5, CSS3, SASS
+Backend: Django, Flask, Node.js, Express.js
+Databases: PostgreSQL, MongoDB, Redis, Elasticsearch
+Cloud & DevOps: AWS (EC2, S3, RDS, Lambda), Docker, Kubernetes, Jenkins
+Tools: Git, JIRA, Postman, New Relic, DataDog
+
+PROJECTS
+
+E-commerce Recommendation Engine
+• Built ML-powered product recommendation system using Python and TensorFlow
+• Increased user engagement by 35% and conversion rate by 20%
+• Processed 1M+ user interactions daily with sub-100ms response time
+• Technologies: Python, TensorFlow, Apache Kafka, Redis, PostgreSQL
+
+Real-time Chat Application
+• Developed scalable chat platform supporting 50k concurrent users
+• Implemented WebSocket connections with automatic failover
+• Created admin dashboard for monitoring and user management
+• Technologies: Node.js, Socket.io, React, MongoDB, AWS
+
+API Gateway Microservice
+• Designed and implemented centralized API gateway for microservices
+• Added authentication, rate limiting, and request/response transformation
+• Reduced infrastructure costs by 30% through request optimization
+• Technologies: Go, Docker, Kubernetes, NGINX, Prometheus

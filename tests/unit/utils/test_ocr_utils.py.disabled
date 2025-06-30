@@ -1,0 +1,222 @@
+import pytest
+from unittest.mock import Mock, patch, MagicMock
+import tempfile
+import os
+from resumix.utils.ocr_utils import OCRUtils
+
+
+class TestOCRUtils:
+    """Test OCR utility functions"""
+    
+    @pytest.fixture
+    def mock_paddle_ocr(self):
+        """Mock PaddleOCR for testing"""
+        with patch('resumix.utils.ocr_utils.PaddleOCR') as mock_ocr:
+            mock_instance = Mock()
+            mock_instance.ocr.return_value = [
+                [
+                    [[0, 0], [100, 0], [100, 30], [0, 30]], 
+                    ('Sample text line 1', 0.95)
+                ],
+                [
+                    [[0, 35], [120, 35], [120, 65], [0, 65]], 
+                    ('Sample text line 2', 0.92)
+                ]
+            ]
+            mock_ocr.return_value = mock_instance
+            yield mock_instance
+    
+    @pytest.fixture
+    def mock_easy_ocr(self):
+        """Mock EasyOCR for testing"""
+        with patch('resumix.utils.ocr_utils.easyocr.Reader') as mock_reader:
+            mock_instance = Mock()
+            mock_instance.readtext.return_value = [
+                ([[0, 0], [100, 30]], 'Sample text line 1', 0.95),
+                ([[0, 35], [120, 65]], 'Sample text line 2', 0.92)
+            ]
+            mock_reader.return_value = mock_instance
+            yield mock_instance
+    
+    def test_init_paddle_backend(self, mock_paddle_ocr):
+        """Test initialization with PaddleOCR backend"""
+        utils = OCRUtils(backend='paddle')
+        
+        assert utils.backend == 'paddle'
+        assert utils.ocr_engine is not None
+    
+    def test_init_easy_backend(self, mock_easy_ocr):
+        """Test initialization with EasyOCR backend"""
+        utils = OCRUtils(backend='easy')
+        
+        assert utils.backend == 'easy'
+        assert utils.ocr_engine is not None
+    
+    def test_init_invalid_backend(self):
+        """Test initialization with invalid backend raises error"""
+        with pytest.raises(ValueError, match="Unsupported OCR backend"):
+            OCRUtils(backend='invalid_backend')
+    
+    def test_extract_text_from_pdf_paddle(self, temp_pdf_file, mock_paddle_ocr):
+        """Test PDF text extraction with PaddleOCR"""
+        utils = OCRUtils(backend='paddle')
+        
+        # Mock PDF to image conversion
+        with patch('resumix.utils.ocr_utils.convert_from_path') as mock_convert:
+            mock_image = Mock()
+            mock_convert.return_value = [mock_image]
+            
+            result = utils.extract_text_from_pdf(temp_pdf_file)
+            
+            assert isinstance(result, str)
+            assert len(result) > 0
+            assert 'Sample text line 1' in result
+            assert 'Sample text line 2' in result
+            
+            # Verify methods were called
+            mock_convert.assert_called_once_with(temp_pdf_file)
+            mock_paddle_ocr.ocr.assert_called()
+    
+    def test_extract_text_from_pdf_easy(self, temp_pdf_file, mock_easy_ocr):
+        """Test PDF text extraction with EasyOCR"""
+        utils = OCRUtils(backend='easy')
+        
+        # Mock PDF to image conversion
+        with patch('resumix.utils.ocr_utils.convert_from_path') as mock_convert:
+            mock_image = Mock()
+            mock_convert.return_value = [mock_image]
+            
+            result = utils.extract_text_from_pdf(temp_pdf_file)
+            
+            assert isinstance(result, str)
+            assert len(result) > 0
+            assert 'Sample text line 1' in result
+            assert 'Sample text line 2' in result
+            
+            # Verify methods were called
+            mock_convert.assert_called_once_with(temp_pdf_file)
+            mock_easy_ocr.readtext.assert_called()
+    
+    def test_extract_text_from_nonexistent_file(self):
+        """Test error handling for nonexistent file"""
+        utils = OCRUtils(backend='paddle')
+        
+        with pytest.raises(FileNotFoundError):
+            utils.extract_text_from_pdf('/nonexistent/file.pdf')
+    
+    @patch('resumix.utils.ocr_utils.convert_from_path')
+    def test_extract_text_pdf_conversion_error(self, mock_convert):
+        """Test error handling when PDF conversion fails"""
+        mock_convert.side_effect = Exception("PDF conversion failed")
+        utils = OCRUtils(backend='paddle')
+        
+        with pytest.raises(Exception, match="PDF conversion failed"):
+            utils.extract_text_from_pdf('dummy.pdf')
+    
+    def test_paddle_ocr_empty_result(self, temp_pdf_file):
+        """Test handling of empty OCR results from PaddleOCR"""
+        with patch('resumix.utils.ocr_utils.PaddleOCR') as mock_ocr:
+            mock_instance = Mock()
+            mock_instance.ocr.return_value = None
+            mock_ocr.return_value = mock_instance
+            
+            utils = OCRUtils(backend='paddle')
+            
+            with patch('resumix.utils.ocr_utils.convert_from_path') as mock_convert:
+                mock_convert.return_value = [Mock()]
+                
+                result = utils.extract_text_from_pdf(temp_pdf_file)
+                
+                assert result == ""
+    
+    def test_easy_ocr_empty_result(self, temp_pdf_file):
+        """Test handling of empty OCR results from EasyOCR"""
+        with patch('resumix.utils.ocr_utils.easyocr.Reader') as mock_reader:
+            mock_instance = Mock()
+            mock_instance.readtext.return_value = []
+            mock_reader.return_value = mock_instance
+            
+            utils = OCRUtils(backend='easy')
+            
+            with patch('resumix.utils.ocr_utils.convert_from_path') as mock_convert:
+                mock_convert.return_value = [Mock()]
+                
+                result = utils.extract_text_from_pdf(temp_pdf_file)
+                
+                assert result == ""
+    
+    def test_confidence_threshold_filtering_paddle(self, temp_pdf_file):
+        """Test confidence threshold filtering for PaddleOCR"""
+        with patch('resumix.utils.ocr_utils.PaddleOCR') as mock_ocr:
+            mock_instance = Mock()
+            # One high confidence, one low confidence result
+            mock_instance.ocr.return_value = [
+                [
+                    [[0, 0], [100, 30]], ('High confidence text', 0.95)
+                ],
+                [
+                    [[0, 35], [120, 65]], ('Low confidence text', 0.3)
+                ]
+            ]
+            mock_ocr.return_value = mock_instance
+            
+            utils = OCRUtils(backend='paddle', confidence_threshold=0.8)
+            
+            with patch('resumix.utils.ocr_utils.convert_from_path') as mock_convert:
+                mock_convert.return_value = [Mock()]
+                
+                result = utils.extract_text_from_pdf(temp_pdf_file)
+                
+                assert 'High confidence text' in result
+                assert 'Low confidence text' not in result
+    
+    def test_confidence_threshold_filtering_easy(self, temp_pdf_file):
+        """Test confidence threshold filtering for EasyOCR"""
+        with patch('resumix.utils.ocr_utils.easyocr.Reader') as mock_reader:
+            mock_instance = Mock()
+            # One high confidence, one low confidence result
+            mock_instance.readtext.return_value = [
+                ([[0, 0], [100, 30]], 'High confidence text', 0.95),
+                ([[0, 35], [120, 65]], 'Low confidence text', 0.3)
+            ]
+            mock_reader.return_value = mock_instance
+            
+            utils = OCRUtils(backend='easy', confidence_threshold=0.8)
+            
+            with patch('resumix.utils.ocr_utils.convert_from_path') as mock_convert:
+                mock_convert.return_value = [Mock()]
+                
+                result = utils.extract_text_from_pdf(temp_pdf_file)
+                
+                assert 'High confidence text' in result
+                assert 'Low confidence text' not in result
+    
+    def test_multiple_pages_processing(self, temp_pdf_file, mock_paddle_ocr):
+        """Test processing PDF with multiple pages"""
+        utils = OCRUtils(backend='paddle')
+        
+        with patch('resumix.utils.ocr_utils.convert_from_path') as mock_convert:
+            # Mock multiple pages
+            mock_image1 = Mock()
+            mock_image2 = Mock()
+            mock_convert.return_value = [mock_image1, mock_image2]
+            
+            result = utils.extract_text_from_pdf(temp_pdf_file)
+            
+            # Should call OCR for each page
+            assert mock_paddle_ocr.ocr.call_count == 2
+            assert isinstance(result, str)
+    
+    def test_text_postprocessing(self, temp_pdf_file, mock_paddle_ocr):
+        """Test text cleaning and postprocessing"""
+        utils = OCRUtils(backend='paddle')
+        
+        with patch('resumix.utils.ocr_utils.convert_from_path') as mock_convert:
+            mock_convert.return_value = [Mock()]
+            
+            result = utils.extract_text_from_pdf(temp_pdf_file)
+            
+            # Result should be cleaned (no extra whitespace, proper line breaks)
+            assert not result.startswith(' ')
+            assert not result.endswith(' ')
+            assert '\n\n\n' not in result  # No excessive line breaks

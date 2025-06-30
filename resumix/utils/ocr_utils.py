@@ -9,8 +9,9 @@ from loguru import logger
 from pathlib import Path
 from io import BytesIO
 from resumix.utils.timeit import timeit
-from PIL import Image
+from PIL import Image, ImageEnhance, ImageFilter
 import numpy as np
+import cv2
 
 
 class OCRUtils:
@@ -41,6 +42,48 @@ class OCRUtils:
             raise TypeError("Unsupported OCR model type.")
 
     @timeit()
+    def preprocess_image(self, image_path: str) -> str:
+        """
+        预处理图像以提高 OCR 准确性
+        """
+        try:
+            # 读取图像
+            image = cv2.imread(image_path)
+            if image is None:
+                logger.warning(f"无法读取图像文件: {image_path}")
+                return image_path
+            
+            # 转换为灰度图
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            
+            # 降噪处理
+            denoised = cv2.medianBlur(gray, 3)
+            
+            # 增强对比度 - 使用CLAHE (Contrast Limited Adaptive Histogram Equalization)
+            clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+            enhanced = clahe.apply(denoised)
+            
+            # 锐化处理
+            kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+            sharpened = cv2.filter2D(enhanced, -1, kernel)
+            
+            # 二值化处理 - 使用自适应阈值
+            binary = cv2.adaptiveThreshold(
+                sharpened, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
+            )
+            
+            # 保存预处理后的图像
+            processed_path = image_path.replace('.png', '_processed.png')
+            cv2.imwrite(processed_path, binary)
+            
+            logger.info(f"图像预处理完成: {processed_path}")
+            return processed_path
+            
+        except Exception as e:
+            logger.warning(f"图像预处理失败，使用原图像: {e}")
+            return image_path
+
+    @timeit()
     def save_image_stream(self, pix: fitz.Pixmap) -> BytesIO:
         img_stream = BytesIO()
         pix.pil_save(img_stream, format="PNG")
@@ -56,14 +99,28 @@ class OCRUtils:
         """
         根据后端类型执行 OCR，并返回提取的文本。
         """
-        if self.backend == "paddle":
-            result = self.ocr_model.ocr(image_path, cls=True)
-            return "\n".join([line[1][0] for block in result for line in block])
-        elif self.backend == "easyocr":
-            result = self.ocr_model.readtext(image_path)
-            return "\n".join([text for (_, text, _) in result])
-        else:
-            raise ValueError(f"不支持的 OCR 后端类型：{self.backend}")
+        # Skip preprocessing for better text extraction
+        processed_image_path = image_path  # Use original image without preprocessing
+        
+        try:
+            if self.backend == "paddle":
+                result = self.ocr_model.ocr(processed_image_path)
+                text_lines = []
+                for block in result:
+                    if block:  # 检查block不为空
+                        for line in block:
+                            if line and len(line) >= 2 and line[1]:  # 更严格的检查
+                                text_lines.append(line[1][0])
+                return "\n".join(text_lines)
+            elif self.backend == "easyocr":
+                result = self.ocr_model.readtext(processed_image_path)
+                return "\n".join([text for (_, text, confidence) in result if confidence > 0.3])  # Lower threshold for more text
+            else:
+                raise ValueError(f"不支持的 OCR 后端类型：{self.backend}")
+        finally:
+            # 清理预处理后的图像文件
+            if processed_image_path != image_path and not self.keep_images:
+                self._cleanup_temp_file(processed_image_path)
 
     @timeit()
     def extract_text(self, pdf_file, max_pages: int = 2) -> str:

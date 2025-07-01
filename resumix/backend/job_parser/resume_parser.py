@@ -84,12 +84,12 @@ class ResumeParser:
             raw_text = "\n".join(line_list)  # 每个 Section 内部仍使用文本传入
             cls = SECTIONS.get(section)
             if cls:
-                section_obj = cls(section, raw_text)
+                section_obj = cls(name=section, raw_text=raw_text)
                 section_obj.original_lines = line_list  # ✅ 保留原始行结构，供展示/分析
                 section_obj.parse()
                 structured_sections[section] = section_obj
             else:
-                fallback = SectionBase(section, raw_text)
+                fallback = SectionBase(name=section, raw_text=raw_text)
                 fallback.original_lines = line_list
                 fallback.parsed_data = {"raw": raw_text}
                 structured_sections[section] = fallback

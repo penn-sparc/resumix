@@ -167,12 +167,12 @@ class VectorParser:
 
             cls = SECTION_BASE.get(section)
             if cls:
-                section_obj = cls(section, raw_text)
+                section_obj = cls(name=section, raw_text=raw_text)
                 section_obj.original_lines = line_list
                 section_obj.parse()
                 structured_sections[section] = section_obj
             else:
-                fallback = SectionBase(section, raw_text)
+                fallback = SectionBase(name=section, raw_text=raw_text)
                 fallback.original_lines = line_list
                 fallback.parsed_data = {"raw": raw_text}
                 structured_sections[section] = fallback

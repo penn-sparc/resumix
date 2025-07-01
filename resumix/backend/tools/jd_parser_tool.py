@@ -29,7 +29,7 @@ class JDParserTool(BaseTool):
         }
 
         logger.info(f"JDParserTool result: {result}")
-        return json.dumps(result, ensure_ascii=False, indent=2)
+        return result.model_dump_json(indent=2, ensure_ascii=False)
 
     def _arun(self, text: str):
         raise NotImplementedError("JDParserTool does not support async")

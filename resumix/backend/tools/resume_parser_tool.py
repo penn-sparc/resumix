@@ -31,7 +31,7 @@ class ResumeParserTool(BaseTool):
             section: content.parsed_data for section, content in sections.items()
         }
 
-        return json.dumps(parsed_result, ensure_ascii=False, indent=2)
+        return result.model_dump_json(indent=2, ensure_ascii=False)
 
     def _arun(self, text: str):
         raise NotImplementedError("Async not supported for ResumeParserTool.")

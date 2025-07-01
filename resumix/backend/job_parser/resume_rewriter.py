@@ -7,11 +7,10 @@ from resumix.shared.section.section_base import SectionBase
 class ResumeRewriter:
     def __init__(self, llm):
         self.llm = llm  # callable like: lambda prompt -> str
-        self.dispatcher = PromptDispatcher()
 
     def rewrite_section(self, section: SectionBase, jd_text: str = "") -> SectionBase:
         # 获取针对该 section 的 prompt
-        prompt = self.dispatcher.get_prompt(section)
+        prompt = PromptDispatcher().get_prompt(section)
         logger.info(f"Rewriting section '{section.name}' with LLM...")
 
         # 调用 LLM 接口

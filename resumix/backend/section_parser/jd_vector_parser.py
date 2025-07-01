@@ -66,7 +66,7 @@ class JDVectorParser(BaseParser):
                     tag_key = tag.lower().replace(" ", "_")
 
                     cls = SectionBase
-                    section_obj = cls(tag_key, raw_text)
+                    section_obj = cls(name=tag_key, raw_text=raw_text)
                     section_obj.original_lines = line_list
                     section_obj.parsed_data = {"raw": raw_text}
 
@@ -99,7 +99,7 @@ class JDVectorParser(BaseParser):
             for section, lines in section_lines.items():
                 raw_text = "\n".join(lines)
                 cls = SectionBase
-                section_obj = cls(section, raw_text)
+                section_obj = cls(name=section, raw_text=raw_text)
                 section_obj.original_lines = lines
                 section_obj.parsed_data = {"raw": raw_text}
                 section_obj.parse()

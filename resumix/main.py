@@ -36,10 +36,18 @@ from resumix.frontend.components.score_page import ScorePage
 from resumix.config.config import Config
 from langchain.agents import initialize_agent, AgentType
 
+
+
+
+
+
+
 # Config setup
 CONFIG = Config().config
 CURRENT_DIR = Path(__file__).resolve().parent
 ASSET_DIR = CURRENT_DIR / "assets" / "logo.png"
+
+
 
 T = LANGUAGES[st.session_state.lang]
 
@@ -275,8 +283,9 @@ if uploaded_file:
     elif selected_tab == tab_names[2]:  # Agent
         with st.container():
             agent_card = AgentCard()
+            agent_card.set_sections(STRUCTED_SECTIONS)
             agent_card.render()
-            agent_card.render_options()
+            #agent_card.render_options()
             # agent_card.render_agent_interaction(text, jd_content, agent)
 
     elif selected_tab == tab_names[3]:  # Score

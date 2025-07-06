@@ -12,6 +12,7 @@ import sys
 import re
 import requests
 import chardet
+import traceback
 from bs4 import BeautifulSoup
 import json
 
@@ -109,7 +110,7 @@ class JDVectorParser(BaseParser):
         except Exception as e:
             logger.error(f"[JDVectorParser] fallback 向量解析也失败: {e}")
             logger.debug(traceback.format_exc())
-            return {"overview": SectionBase("overview", "❌ 无法解析 JD 内容。")}
+            return {"overview": SectionBase(name="overview", raw_text="❌ 无法解析 JD 内容。")}
 
     def fetch_text_from_url(self, url: str) -> str:
         logger.info(f"[JD Fetcher] 开始抓取 URL: {url}")

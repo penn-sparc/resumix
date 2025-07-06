@@ -172,12 +172,43 @@ Example output:
 Final Answer: {"skills":[{"name":"Programming Languages","keywords":["Python","C++"]},{"name":"Frameworks","keywords":["React","PyTorch"]}]}
 """
 
+AWARDS_PROMPT = """
+You are going to write a JSON resume section for an applicant applying for job posts.
+
+Consider the following CV:
+<CV_TEXT>
+
+Now consider the following TypeScript Interface for the JSON schema:
+
+interface AwardItem {
+    title: string;
+    date: string;
+    awarder: string;
+    summary: string;
+}
+
+interface Awards {
+    awards: AwardItem[];
+}
+
+Instructions:
+- Include only awards, certifications, and recognitions present in the CV.
+- Return only valid JSON matching the schema above.
+- Do NOT include markdown code blocks, comments, or explanations.
+- Prefix the output with exactly: Final Answer:
+- Return in a single line.
+
+Example output:
+Final Answer: {"awards":[{"title":"AWS Certified Solutions Architect","date":"2023","awarder":"Amazon Web Services","summary":"Professional cloud architecture certification"}]}
+"""
+
 PROMPT_MAP = {
     "personal_info": BASICS_PROMPT,
     "education": EDUCATION_PROMPT,
     "experience": WORK_PROMPT,
     "projects": PROJECTS_PROMPT,
     "skills": SKILLS_PROMPT,
+    "awards": AWARDS_PROMPT,
     "tailor": TAILORING_PROMPT,
 }
 
@@ -233,6 +264,7 @@ SCORE_PROMPT_MAP = {
     "experience": PROJECTS_SCORE_PROMPT,
     "projects": PROJECTS_SCORE_PROMPT,
     "skills": PROJECTS_SCORE_PROMPT,
+    "awards": PROJECTS_SCORE_PROMPT,
 }
 
 

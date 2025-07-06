@@ -3,7 +3,7 @@ from resumix.backend.prompt.prompt_templates import PROMPT_MAP, SCORE_PROMPT_MAP
 from resumix.shared.section.section_base import SectionBase
 from enum import Enum
 from typing import List
-from resumix.shared.utils.logger import logger
+from loguru import logger
 import threading
 
 
@@ -44,6 +44,9 @@ class PromptDispatcher:
 
         prompt = self.prompt_templates.get(section.name)
         if not prompt and mode != "tailor":
+            raise ValueError(f"No prompt found for section: {section.name}")
+
+        if not prompt:
             raise ValueError(f"No prompt found for section: {section.name}")
 
         placeholder = "<CV_TEXT>"

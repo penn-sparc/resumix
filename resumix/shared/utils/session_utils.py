@@ -118,14 +118,16 @@ class SessionUtils:
             st.session_state.jd_content = "⚠️ 未提供岗位描述链接"
             return st.session_state.jd_sections
 
-        if (
-            url == cached_url
-            and "jd_sections" in st.session_state
-            and "jd_content" in st.session_state
-        ):
-            logger.info(f"[SessionUtils] 当前url: {url}, 缓存url: {url}")
-            logger.info("[SessionUtils] JD URL 未变化，使用缓存内容")
-            return st.session_state.jd_sections
+        # if (
+        #     url == cached_url
+        #     and "jd_sections" in st.session_state
+        #     and "jd_content" in st.session_state
+        # ):
+        #     logger.info(f"[SessionUtils] 当前url: {url}, 缓存url: {url}")
+        #     logger.info("[SessionUtils] JD URL 未变化，使用缓存内容")
+        #     for section in st.session_state.jd_sections.values():
+        #         logger.info(f"[SessionUtils] section: {section}")
+        #     return st.session_state.jd_sections
         try:
             logger.info(f"[SessionUtils] Fetching and parsing JD from: {url}")
             jd_text = UrlFetcher.fetch(url)

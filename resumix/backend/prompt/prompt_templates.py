@@ -255,10 +255,10 @@ Your task is to optimize the given CV content for the specified job position and
 - Highlight any work that matches the responsibilities or domain implied by {JOB_POSITION}
 - Rewrite experience items using clear, professional language and quantifiable results where possible
 - Use active voice and concise phrasing; avoid repetition and vague descriptions
-- If a technology in <TECH_STACK> is not mentioned but can be reasonably inferred based on context, include it
+- If a technology in {TECH_STACK} is not mentioned but can be reasonably inferred based on context, include it
 - If relevant experience is missing, suggest a placeholder line the candidate could consider adding
-- Do not include personal opinions, summaries, or markdown formatting
+
 
 ## Output:
-Return the optimized CV section only, without commentary or explanation.
+Return the optimized CV section, with commentary and explanation.
 """

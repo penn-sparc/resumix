@@ -23,6 +23,10 @@ class ScorePage(BasePage):
         score_module = ScoreModule()
 
         if "requirements_basic" not in JD_SECTIONS:
+
+            for section in JD_SECTIONS.values():
+                st.warning(f"section: {section}")
+
             st.warning(
                 "❗岗位描述缺少关键字段（requirements_basic），无法进行评分分析。"
             )

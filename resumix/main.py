@@ -6,6 +6,8 @@ from pathlib import Path
 # Initialize session state
 if "lang" not in st.session_state:
     st.session_state.lang = "en"
+if "resumix_started" not in st.session_state:
+    st.session_state.resumix_started = False
 
 import concurrent.futures
 from pathlib import Path
@@ -17,6 +19,7 @@ from resumix.backend.rewriter.resume_rewriter import ResumeRewriter
 from config.config import Config
 
 from streamlit_option_menu import option_menu
+from resumix.frontend.components.unified_modern_ui import UnifiedModernUI, ModernCard
 
 # Import card components
 from resumix.frontend.components.cards.analysis_card import AnalysisCard
@@ -30,7 +33,6 @@ from resumix.shared.utils.llm_client import LLMClient, LLMWrapper
 from resumix.shared.utils.session_utils import SessionUtils
 
 from resumix.shared.utils.i18n import LANGUAGES
-from resumix.backend.job_parser.resume_rewriter import ResumeRewriter
 from resumix.shared.utils.logger import logger
 from resumix.frontend.components.score_page import ScorePage
 from resumix.config.config import Config
@@ -72,16 +74,8 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Header section with logo and name
-st.markdown(
-    """
-<div style="text-align: center; padding: 2rem 0; margin-bottom: 2rem; border-bottom: 1px solid #e2e8f0;">
-    <h1 style="font-size: 2.5rem; font-weight: 700; color: #1e293b; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">📄 RESUMIX</h1>
-    <p style="color: #64748b; font-size: 1rem; margin-top: 0.5rem; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">Hi, I'm your resume AI assistant !</p>
-</div>
-""",
-    unsafe_allow_html=True,
-)
+# Initialize modern UI system (no header on welcome screen)
+UnifiedModernUI.initialize_app(show_header=False)
 
 # Add styling for sidebar
 st.markdown(
@@ -173,64 +167,285 @@ st.markdown(
     font-weight: bold !important;
 }
 
+/* SPECIAL GRADIENT BUTTON FOR START RESUMIX - Updated 2025 */
+.start-resumix-button .stButton > button,
+.start-resumix-button button[kind="primary"],
+.start-resumix-button div[data-testid="stButton"] > button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 0.75rem 1.5rem !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+    transform: translateY(0) !important;
+    width: 100% !important;
+}
+
+.start-resumix-button .stButton > button:hover,
+.start-resumix-button button[kind="primary"]:hover,
+.start-resumix-button div[data-testid="stButton"] > button:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
+}
+
+.start-resumix-button .stButton > button:active,
+.start-resumix-button button[kind="primary"]:active,
+.start-resumix-button div[data-testid="stButton"] > button:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4) !important;
+}
+
+.start-resumix-button .stButton > button:focus,
+.start-resumix-button button[kind="primary"]:focus,
+.start-resumix-button div[data-testid="stButton"] > button:focus {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+    outline: none !important;
+}
 
 </style>
 """,
     unsafe_allow_html=True,
 )
 
-# Main navigation
-tab_names = T["tabs"]
-selected_tab = option_menu(
-    menu_title=None,
-    options=tab_names,
-    icons=["file-text", "pencil", "robot", "bar-chart", "file-earmark-break"],
-    orientation="horizontal",
-)
+# Main content area - show welcome or cards based on state
+if not st.session_state.resumix_started:
+    # Show welcome screen with logo and instructions
+    st.markdown(
+        """
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center;">
+            <div style="font-size: 5rem; margin-bottom: 1rem;">📄</div>
+            <h1 style="font-size: 3rem; font-weight: 700; color: #2d3748; margin: 0; font-family: 'Inter', sans-serif;">RESUMIX</h1>
+            <p style="font-size: 1.2rem; color: #64748b; margin: 1rem 0 2rem 0; max-width: 600px; line-height: 1.6;">
+                Your AI-powered resume enhancement platform. Upload your resume and get started with intelligent analysis, polishing, and optimization.
+            </p>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem 2rem; border-radius: 12px; color: white; margin-top: 1rem;">
+                <p style="margin: 0; font-weight: 500;">👈 Follow the steps in the sidebar to get started</p>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+else:
+    # Show the main application interface
+    # Clean interface - no header, just tabs and content
+    
+    # Main navigation
+    tab_names = T["tabs"]
+    
+    # Auto-select first tab (Analysis) when user starts Resumix
+    if "selected_tab_index" not in st.session_state:
+        st.session_state.selected_tab_index = 0
+    
+    selected_tab = option_menu(
+        menu_title=None,
+        options=tab_names,
+        icons=["file-text", "pencil", "robot", "bar-chart", "file-earmark-break"],
+        orientation="horizontal",
+        default_index=st.session_state.selected_tab_index,
+    )
+    
+    # Get uploaded file from session state
+    uploaded_file = st.session_state.get("uploaded_file", None)
+    
+    if uploaded_file:
+        # Initialize session data if not exists
+        if "resume_text" not in st.session_state:
+            st.session_state.resume_text = SessionUtils.get_resume_text()
 
-# Sidebar components
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
+
+        # Background section extraction (non-blocking)
+        if "resume_sections" not in st.session_state:
+            try:
+                st.session_state.resume_sections = SessionUtils.get_resume_sections()
+                logger.info("[Backend] Resume section extraction completed")
+            except Exception as e:
+                logger.warning(f"[Backend] Resume section extraction failed: {e}")
+
+        text = st.session_state.resume_text
+        STRUCTED_SECTIONS = SessionUtils.get_resume_sections()
+        
+        # Handle JD content gracefully (optional for auto-parsing)
+        jd_url = st.session_state.get("jd_url", "")
+        if jd_url and jd_url.strip():
+            try:
+                jd_content = SessionUtils.get_job_description_content()
+            except Exception as e:
+                # JD parsing failed, use fallback
+                jd_content = f"Job description URL provided: {jd_url} (parsing failed)"
+        else:
+            # No JD URL provided, use default
+            jd_content = "No job description provided"
+
+        # Tab routing with modern card styling
+        if selected_tab == tab_names[0]:  # Analysis
+            with ModernCard("Resume Analysis", "📊", "AI-powered section analysis", "analysis"):
+                analysis_card = AnalysisCard()
+                analysis_card.render()
+
+        elif selected_tab == tab_names[1]:  # Polish
+            with ModernCard("Resume Polish", "✨", "Enhance with AI suggestions", "polish"):
+                polish_card(text, llm_model)
+
+        elif selected_tab == tab_names[2]:  # Agent
+            with ModernCard("AI Agent", "🤖", "Intelligent optimization", "agent"):
+                agent_card = AgentCard()
+                agent_card.set_sections(STRUCTED_SECTIONS)
+                agent_card.render()
+
+        elif selected_tab == tab_names[3]:  # Score
+            with ModernCard("Resume Score", "📈", "Performance metrics", "score"):
+                ScorePage().render()
+
+        elif selected_tab == tab_names[4]:  # Compare
+            with ModernCard("Resume Compare", "🔄", "Before and after analysis", "compare"):
+                compare_card = CompareCard()
+                compare_card.render()
+                # Handle different types of jd_content
+                if isinstance(jd_content, dict):
+                    jd_content_str = str(jd_content)
+                elif jd_content is None:
+                    jd_content_str = "No job description provided"
+                else:
+                    jd_content_str = str(jd_content)
+                compare_card.render_comparison(
+                    STRUCTED_SECTIONS, jd_content_str, RESUME_REWRITER
+                )
+    else:
+        # Show message that resume is needed
+        st.markdown(
+            """
+            <div style="text-align: center; margin-top: 4rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
+                <h3 style="color: #64748b; font-weight: 500;">Please upload a resume to continue</h3>
+                <p style="color: #94a3b8;">Upload your resume in the sidebar to start using the AI-powered features.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+# Sidebar components with guided instructions
 with st.sidebar:
     # Add sidebar title
     st.markdown(
         """
     <div style="text-align: left; padding: 1rem 0 1.5rem 0; margin-bottom: 1rem;">
-        <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">RESUMIX</h2>
+        <h2 style="font-size: 1.5rem; font-weight: 700; color: #2d3748; margin: 0; font-family: 'Inter', sans-serif;">RESUMIX Setup</h2>
     </div>
     """,
         unsafe_allow_html=True,
     )
 
-    # Resume upload
-    with st.expander(T["upload_resume"], expanded=True):
-        uploaded_file = st.file_uploader(T["upload_resume_title"], type=["pdf"])
+    # Step 1: Resume upload with instruction
+    st.markdown(
+        """
+    <div style="margin-bottom: 1rem; padding: 0.75rem; background: #f7fafc; border-left: 4px solid #4facfe; border-radius: 4px;">
+        <p style="margin: 0; font-weight: 600; color: #2d3748; font-size: 0.9rem;">
+            📄 Step 1: Please upload a resume PDF file to get started.
+        </p>
+    </div>
+    """,
+        unsafe_allow_html=True,
+    )
+    
+    with st.expander("📄 Upload Resume", expanded=True):
+        uploaded_file = st.file_uploader("Select your resume PDF", type=["pdf"], label_visibility="collapsed")
         SessionUtils.upload_resume_file(uploaded_file)
+        
+        if uploaded_file:
+            st.success("✅ Resume uploaded successfully!")
 
-    # Job description
-    with st.expander(T["job_description"], expanded=True):
+    # Step 2: Job description with instruction
+    st.markdown(
+        """
+    <div style="margin: 1.5rem 0 1rem 0; padding: 0.75rem; background: #f7fafc; border-left: 4px solid #667eea; border-radius: 4px;">
+        <p style="margin: 0; font-weight: 600; color: #2d3748; font-size: 0.9rem;">
+            🔗 Step 2: Please enter a job description link for comparison.
+        </p>
+    </div>
+    """,
+        unsafe_allow_html=True,
+    )
+    
+    with st.expander("🔗 Job Description", expanded=True):
         jd_url = st.text_input(
-            T["job_description_title"],
+            "Job Description URL",
             placeholder="https://example.com/job-description",
             key="jd_url",
+            label_visibility="collapsed"
         )
+        
+        if jd_url:
+            st.success("✅ Job description URL added!")
 
-    # Authentication
-    with st.expander(T["user_login"], expanded=False):
+    # Start Resumix Button
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Check if user can start (has uploaded resume)
+    can_start = uploaded_file is not None
+    
+    # Add CSS for gradient button - target by position in sidebar
+    st.markdown("""
+    <style>
+    /* Target the Start Resumix button specifically */
+    .stSidebar div[data-testid="stVerticalBlock"] > div:nth-last-child(3) button[kind="primary"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 0.75rem 1.5rem !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+        width: 100% !important;
+    }
+    
+    .stSidebar div[data-testid="stVerticalBlock"] > div:nth-last-child(3) button[kind="primary"]:hover {
+        background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
+    }
+    
+    .stSidebar div[data-testid="stVerticalBlock"] > div:nth-last-child(3) button[kind="primary"]:active {
+        transform: translateY(0) !important;
+        box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4) !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Single button with conditional behavior
+    if can_start:
+        if st.button("🚀 Start Resumix", type="primary", use_container_width=True):
+            st.session_state.resumix_started = True
+            st.rerun()
+    else:
+        st.button("🚀 Start Resumix", disabled=True, use_container_width=True, help="Please upload a resume first")
+
+    # Divider
+    st.markdown("---")
+
+    # Additional options (collapsed by default)
+    with st.expander("⚙️ Advanced Settings", expanded=False):
+        # Authentication
         if not st.session_state.get("authenticated"):
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
-            if st.button(T["login_button"]):
+            if st.button("Login"):
                 if username == "admin" and password == "123456":
                     st.session_state.authenticated = True
-                    st.success(T["login_success"])
+                    st.success("✅ Logged in successfully!")
         else:
-            st.success(T["logged_in"])
-            if st.button(T["logout"]):
+            st.success("✅ Logged in")
+            if st.button("Logout"):
                 st.session_state.authenticated = False
 
-    # Language selection
-    with st.expander(T["language"], expanded=False):
+        # Language selection
         selected_lang = st.selectbox(
-            "Global",
+            "Language",
             ["en", "zh"],
             index=["en", "zh"].index(st.session_state.lang),
         )
@@ -239,69 +454,4 @@ with st.sidebar:
             st.rerun()
 
 
-def prefetch_resume_sections():
-    try:
-        st.session_state.resume_sections = SessionUtils.get_resume_sections()
-        logger.info("[后台] Resume section 提取完成")
-    except Exception as e:
-        logger.warning(f"[后台] 提取 resume_sections 失败: {e}")
 
-
-def prefetch_jd_sections():
-    try:
-        st.session_state.jd_sections = SessionUtils.get_jd_sections()
-        logger.info("[后台] JD section 提取完成")
-    except Exception as e:
-        logger.warning(f"[后台] 提取 jd_sections 失败: {e}")
-
-
-if uploaded_file:
-    # Initialize session data if not exists
-    if "resume_text" not in st.session_state:
-        st.session_state.resume_text = SessionUtils.get_resume_text()
-
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
-
-    # Background section extraction (non-blocking)
-    if "resume_sections" not in st.session_state:
-        executor.submit(prefetch_resume_sections)
-
-    text = st.session_state.resume_text
-    STRUCTED_SECTIONS = SessionUtils.get_resume_sections()
-    jd_content = SessionUtils.get_job_description_content()
-
-    # Tab routing with proper isolation to prevent cross-tab bleeding
-    if selected_tab == tab_names[0]:  # Analysis
-        with st.container():
-            analysis_card = AnalysisCard()
-            analysis_card.render()
-
-    elif selected_tab == tab_names[1]:  # Polish
-        with st.container():
-            polish_card(text, llm_model)
-
-    elif selected_tab == tab_names[2]:  # Agent
-        with st.container():
-            agent_card = AgentCard()
-            agent_card.set_sections(STRUCTED_SECTIONS)
-            agent_card.render()
-            #agent_card.render_options()
-            # agent_card.render_agent_interaction(text, jd_content, agent)
-
-    elif selected_tab == tab_names[3]:  # Score
-        with st.container():
-            ScorePage().render()
-            # Alternatively, using ScoreCard for each section:
-            # for section_name in STRUCTED_SECTIONS.keys():
-            #     score_card = ScoreCard(section_name, sample_scores)
-            #     score_card.render()
-
-    elif selected_tab == tab_names[4]:  # Compare
-        with st.container():
-            compare_card = CompareCard()
-            compare_card.render()
-            compare_card.render_comparison(
-                STRUCTED_SECTIONS, jd_content, RESUME_REWRITER
-            )
-else:
-    st.info(T["please_upload"])

@@ -1,0 +1,142 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PlushCV - One Page Two Column Resume
+% LaTeX Template
+% Version 1.0 (11/28/2021)
+%
+% Author:
+% Shubham Mazumder (http://mazumder.me)
+%
+% Hacked together from:
+% https://github.com/deedydas/Deedy-Resume
+%
+% IMPORTANT: THIS TEMPLATE NEEDS TO BE COMPILED WITH XeLaTeX
+%
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% TODO:
+% 1. Figure out a smoother way for the document to flow onto the next page.
+% 3. Add more icon options 
+% 4. Fix hacky left alignment on contact line
+% 5. Remove Hacky fix for awkward extra vertical space
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% CHANGELOG:
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Known Issues:
+% 1. Overflows onto second page if any column's contents are more than the vertical limit.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%Icons:
+%%Main: https://icons8.com/icons/carbon-copy
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[]{plushcv}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\usepackage{paracol}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%     TITLE NAME
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%     TITLE NAME
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\namesection{Zhang}{San}{}{\contactline{ 123 Tsinghua Road, Beijing, China }{ https://zhangsan.dev }{}{}{ zhangsan@example.com}{ +86 123{-}4567{-}8901 }}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%     COLUMN ONE
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\columnratio{0.7}
+\begin{paracol}{2}
+\setlength{\columnsep}{4mm}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     EXPERIENCE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Work Experience}
+
+\runsubsection{ \textbf{ByteDance} }
+\descript{| Backend Intern   }
+\location{ 2022{-}07 -   2022{-}12 }
+\vspace{\topsep} % Hacky fix for awkward extra vertical space
+ 
+\begin{tightemize}
+	\item Optimized microservice latency by 35\% via Redis{-}based caching.
+	\item Designed an asynchronous pipeline for high{-}QPS video recommendation backend.
+	\item Collaborated with front{-}end team to reduce average user response time by 20\%.
+\end{tightemize}
+\sectionsep
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     Projects
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Projects}
+\runsubsection{ AI Resume Optimization Assistant }
+\descript{         |RAG  , FastAPI, FAISS 
+    }
+\location{ https://github.com/zhangsan/ai{-}resume }
+ A system leveraging RAG and vector DBs to rewrite and optimize resumes. \sectionsep\\
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%     COLUMN TWO
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\switchcolumn
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     EDUCATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Education} 
+\subsection{Tsinghua University }
+\descript{Bachelor  in Computer Science and Technology  }
+\location{  2018{-}09 -   2022{-}07 \\
+ Beijing, China }
+ \location{GPA: 3.8/4.0} 
+\sectionsep
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     SKILLS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Skills}
+\subsection{Programming Languages}
+Python \textbullet{}  Go \textbullet{}  C++  \\   \sectionsep \subsection{Databases}
+PostgreSQL \textbullet{}  MongoDB \textbullet{}  Redis  \\   \sectionsep \subsection{Tools}
+Docker \textbullet{}  Git \textbullet{}  Linux  \\   \sectionsep \subsection{Cloud}
+GCP \textbullet{}  Kubernetes \textbullet{}  Terraform  \\   \sectionsep \sectionsep
+\newline
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     AWARDS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Awards} 
+\subsection{ACM ICPC Regional Bronze Medal}
+\descript{2021{-}12}
+\location{ACM Asia}
+Achieved outstanding performance in algorithmic regional competition.
+\sectionsep
+
+
+\end{paracol} 
+\end{document}

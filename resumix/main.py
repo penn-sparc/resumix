@@ -67,15 +67,15 @@ st.set_page_config(
 )
 
 # Header section with logo and name
-st.markdown(
-    """
-<div style="text-align: center; padding: 2rem 0; margin-bottom: 2rem; border-bottom: 1px solid #e2e8f0;">
-    <h1 style="font-size: 2.5rem; font-weight: 700; color: #1e293b; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">📄 RESUMIX</h1>
-    <p style="color: #64748b; font-size: 1rem; margin-top: 0.5rem; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">Hi, I'm your resume AI assistant !</p>
-</div>
-""",
-    unsafe_allow_html=True,
-)
+# st.markdown(
+#     """
+# <div style="text-align: center; padding: 2rem 0; margin-bottom: 2rem; border-bottom: 1px solid #e2e8f0;">
+#     <h1 style="font-size: 2.5rem; font-weight: 700; color: #1e293b; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">📄 RESUMIX</h1>
+#     <p style="color: #64748b; font-size: 1rem; margin-top: 0.5rem; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">Hi, I'm your resume AI assistant !</p>
+# </div>
+# """,
+#     unsafe_allow_html=True,
+# )
 
 # Add styling for sidebar
 st.markdown(

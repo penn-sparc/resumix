@@ -1,0 +1,137 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+% Awesome CV LaTeX Template
+%
+% This template has been downloaded from:
+% https://github.com/posquit0/Awesome-CV
+%
+% Author:
+% Claud D. Park <posquit0.bj@gmail.com>
+% http://www.posquit0.com
+%
+% Template license:
+% CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
+%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     Configuration
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Themes: Awesome-CV
+\documentclass[]{awesome-cv}
+\usepackage{textcomp}
+%%% Override a directory location for fonts(default: 'fonts/')
+\fontdir[fonts/]
+
+%%% Configure a directory location for sections
+\newcommand*{\sectiondir}{resume/}
+
+%%% Override color
+% Awesome Colors: awesome-emerald, awesome-skyblue, awesome-red, awesome-pink, awesome-orange
+%                 awesome-nephritis, awesome-concrete, awesome-darknight
+%% Color for highlight
+% Define your custom color if you don't like awesome colors
+\colorlet{awesome}{awesome-red}
+%\definecolor{awesome}{HTML}{CA63A8}
+%% Colors for text
+%\definecolor{darktext}{HTML}{414141}
+%\definecolor{text}{HTML}{414141}
+%\definecolor{graytext}{HTML}{414141}
+%\definecolor{lighttext}{HTML}{414141}
+
+%%% Override a separator for social informations in header(default: ' | ')
+%\headersocialsep[\quad\textbar\quad]
+\begin{document}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     Profile
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+	\headerfirstnamestyle{Zhang} \headerlastnamestyle{San}\\
+	\vspace{2mm}
+     {\faEnvelope\ zhangsan@example.com} |      {\faMobile\ +86 123{-}4567{-}8901} |      {\faMapMarker\ 123 Tsinghua Road, Beijing, China} |      {\faLink\ https://zhangsan.dev} \
+\end{center}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     Education
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\cvsection{Education}
+\begin{cventries}
+	    \cventry
+	{Bachelor  in Computer Science and Technology  }
+	{ Tsinghua University }
+	{ Beijing, China  }
+	{ 2018{-}09 -   2022{-}07 }
+	{ GPA: 3.8/4.0 }
+    \end{cventries}
+
+\vspace{-2mm}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     Experience
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\cvsection{Work Experience}
+\begin{cventries}
+	\cventry
+	{ Backend Intern  }
+	{ ByteDance  }
+	{ Beijing, China }
+	{ 2022{-}07 -   2022{-}12 }
+	{ \begin{cvitems} 		\item Optimized microservice latency by 35\% via Redis{-}based caching.
+				\item Designed an asynchronous pipeline for high{-}QPS video recommendation backend.
+				\item Collaborated with front{-}end team to reduce average user response time by 20\%.
+		 \end{cvitems} }
+\end{cventries}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     Skills
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\cvsection{Skills}
+\begin{cventries}
+	\cventry
+	{}
+	{\def\arraystretch{1.15}{\begin{tabular}{ l l }
+		        Programming Languages:  & {\skill{ Python, Go, C++}}\\
+                Databases:  & {\skill{ PostgreSQL, MongoDB, Redis}}\\
+                Tools:  & {\skill{ Docker, Git, Linux}}\\
+                Cloud:  & {\skill{ GCP, Kubernetes, Terraform}}\\
+        		\end{tabular}}}
+	{}
+	{}
+	{}
+\end{cventries}
+
+\vspace{-7mm}
+
+
+%==== Projects ====%
+\cvsection{Projects}
+\begin{cventries}
+    	\cventry
+	{ A system leveraging RAG and vector DBs to rewrite and optimize resumes. }
+	{ AI Resume Optimization Assistant }
+	{        {RAG, FastAPI, FAISS } 
+    }
+	{ https://github.com/zhangsan/ai{-}resume }
+	{}
+	
+	\vspace{-5mm}
+    \end{cventries}
+
+
+%==== Awards ====%
+\cvsection{Awards}
+\begin{cvhonors}
+    	\cvhonor
+	{ACM ICPC Regional Bronze Medal}
+	{Achieved outstanding performance in algorithmic regional competition.}
+	{ACM Asia}
+	{2021{-}12}
+    \end{cvhonors}
+
+\
+\end{document}

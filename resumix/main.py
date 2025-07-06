@@ -39,16 +39,10 @@ from resumix.config.config import Config
 from langchain.agents import initialize_agent, AgentType
 
 
-
-
-
-
-
 # Config setup
 CONFIG = Config().config
 CURRENT_DIR = Path(__file__).resolve().parent
 ASSET_DIR = CURRENT_DIR / "assets" / "logo.png"
-
 
 
 T = LANGUAGES[st.session_state.lang]
@@ -455,3 +449,73 @@ with st.sidebar:
 
 
 
+<<<<<<< HEAD
+=======
+
+def prefetch_jd_sections():
+    try:
+        st.session_state.jd_sections = SessionUtils.get_jd_sections()
+        logger.info("[后台] JD section 提取完成")
+    except Exception as e:
+        logger.warning(f"[后台] 提取 jd_sections 失败: {e}")
+
+
+if uploaded_file:
+    # Initialize session data if not exists
+    if "resume_text" not in st.session_state:
+        st.session_state.resume_text = SessionUtils.get_resume_text()
+
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
+
+    # Background section extraction (non-blocking)
+    if "resume_sections" not in st.session_state:
+        executor.submit(prefetch_resume_sections)
+
+    text = st.session_state.resume_text
+    STRUCTED_SECTIONS = SessionUtils.get_resume_sections()
+    jd_content = SessionUtils.get_job_description_content()
+
+    # Tab routing with proper isolation to prevent cross-tab bleeding
+    if selected_tab == tab_names[0]:  # Analysis
+        with st.container():
+            analysis_card = AnalysisCard()
+            analysis_card.render()
+
+    elif selected_tab == tab_names[1]:  # Polish
+        with st.container():
+            polish_card(text, llm_model)
+
+    elif selected_tab == tab_names[2]:  # Agent
+        with st.container():
+            agent_card = AgentCard()
+
+            education_and_experience_sections = {}
+            for section_name, section_obj in STRUCTED_SECTIONS.items():
+                logger.info(f"Processing section: {section_name}")
+                if section_name in ["education", "projects", "experience"]:
+                    logger.info(f"Processing section: {section_name}")
+                    education_and_experience_sections[section_name] = section_obj
+
+            agent_card.set_sections(education_and_experience_sections)
+            agent_card.render()
+            # agent_card.render_options()
+            # agent_card.render_agent_interaction(text, jd_content, agent)
+
+    elif selected_tab == tab_names[3]:  # Score
+        with st.container():
+            ScorePage().render()
+            # Alternatively, using ScoreCard for each section:
+            # for section_name in STRUCTED_SECTIONS.keys():
+            #     score_card = ScoreCard(section_name, sample_scores)
+            #     score_card.render()
+
+    elif selected_tab == tab_names[4]:  # Compare
+        with st.container():
+            compare_card = CompareCard()
+            compare_card.render()
+            compare_card.render_comparison(
+                STRUCTED_SECTIONS, jd_content, RESUME_REWRITER
+            )
+else:
+    st.info(T["please_upload"])
+>>>>>>> 13a30b30a0fcf99e4a70a26d50f85644648e9f0b

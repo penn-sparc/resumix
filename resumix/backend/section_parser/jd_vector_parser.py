@@ -1,5 +1,5 @@
 from typing import Dict, Any, List
-from resumix.shared.utils import logger
+from resumix.shared.utils.logger import logger
 from pathlib import Path
 from section_parser.jd_section_labels import JDSectionLabels
 from section_parser.base_parser import BaseParser
@@ -83,12 +83,9 @@ class JDVectorParser(BaseParser):
                 raise ValueError("所有段落处理失败，无有效结构")
 
         except Exception as e:
-            import traceback
-
-            logger.warning(
-                f"[JDVectorParser] LLM parsing failed, fallback to vector. Reason: {e}"
-            )
-            logger.debug(traceback.format_exc())
+            #            import traceback
+            logger.info(f"[JDVectorParser] LLM 解析失败: {e}")
+            # logger.debug(traceback.format_exc())
 
         # fallback：向量结构解析
         try:

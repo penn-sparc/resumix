@@ -1,0 +1,42 @@
+\documentclass[a4paper]{article}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{textcomp}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\textheight=10in
+\pagestyle{empty}
+\raggedright
+\usepackage[left=0.8in,right=0.8in,bottom=0.8in,top=0.8in]{geometry}
+
+%\renewcommand{\encodingdefault}{cg}
+%\renewcommand{\rmdefault}{lgrcmr}
+\def\bull{\vrule height 0.8ex width .7ex depth -.1ex }
+% DEFINITIONS FOR RESUME 
+\newcommand{\area} [2] {
+    \vspace*{-9pt}
+    \begin{verse}
+        \textbf{#1}   #2
+    \end{verse}
+}
+\newcommand{\lineunder} {
+    \vspace*{-8pt} \\
+    \hspace*{-18pt} \hrulefill \\
+}
+\newcommand{\header} [1] {
+    {\hspace*{-18pt}\vspace*{6pt} \textsc{#1}}
+    \vspace*{-6pt} \lineunder
+}
+% END RESUME DEFINITIONS
+
+\begin{document}
+\vspace*{-40pt}
+
+\BLOCK{ for section in section_ordering }
+
+\VAR{sections.get(section, "")}
+
+\BLOCK{ endfor }
+
+\end{document}

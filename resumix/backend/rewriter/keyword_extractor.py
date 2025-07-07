@@ -1,10 +1,12 @@
 from keybert import KeyBERT
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 import re
 import threading
 from sentence_transformers import util
 
 from resumix.shared.utils.sentence_transformer_utils import SentenceTransformerUtils
+from resumix.backend.service.job_embedding_store import JobEmbeddingStore
+from resumix.shared.utils.logger import logger
 
 
 class KeywordExtractor:
@@ -25,6 +27,7 @@ class KeywordExtractor:
         """
         self.model = KeyBERT(model_name)
         self.embedder = SentenceTransformerUtils.get_instance(model_name)
+        self.job_store = JobEmbeddingStore()
 
     def extract_keywords(
         self,
@@ -63,6 +66,59 @@ class KeywordExtractor:
             ]
 
         return keyword_list
+
+    def extract_relevant_keywords_fast(self, job_id: str, resume_text: str, top_k: int = 10) -> List[Tuple[str, float]]:
+        """
+        Use cached job embeddings instead of recomputing for faster processing.
+        
+        Args:
+            job_id: Job identifier in the embedding store
+            resume_text: Resume text to compare against
+            top_k: Number of top keywords to return
+            
+        Returns:
+            List of (keyword, score) tuples
+        """
+        # Check if job embedding exists
+        if job_id not in self.job_store.job_metadata:
+            # Fallback to original method - need job text
+            job_metadata = self.job_store.get_job_metadata(job_id)
+            if job_metadata and 'jd_text' in job_metadata:
+                job_text = job_metadata['jd_text']
+                return self.extract_relevant_keywords(job_text, resume_text, top_k)
+            else:
+                logger.warning(f"Job {job_id} not found in job embedding store")
+                return []
+        
+        try:
+            # Get cached job embedding
+            job_embedding = self.job_store.get_job_embedding(job_id)
+            if job_embedding is None:
+                logger.error(f"Failed to retrieve embedding for job {job_id}")
+                return []
+            
+            # Get job metadata to extract relevant sentences
+            job_metadata = self.job_store.get_job_metadata(job_id)
+            jd_text = job_metadata['jd_text']
+            
+            # Use cached embeddings for faster processing
+            jd_sentences = [s.strip() for s in jd_text.split("\n") if s.strip()]
+            resume_embedding = self.embedder.encode(resume_text, convert_to_tensor=True)
+            jd_embeddings = self.embedder.encode(jd_sentences, convert_to_tensor=True)
+            
+            cosine_scores = util.cos_sim(resume_embedding, jd_embeddings)[0]
+            
+            k = min(top_k, len(jd_sentences))
+            top_indices = cosine_scores.topk(k).indices.tolist()
+            
+            selected_text = " ".join([jd_sentences[i] for i in top_indices])
+            
+            # Extract keywords from selected relevant text
+            return self.extract_keywords(selected_text, top_k=top_k)
+            
+        except Exception as e:
+            logger.error(f"Error in fast keyword extraction for job {job_id}: {e}")
+            return []
 
     def extract_relevant_keywords(
         self,

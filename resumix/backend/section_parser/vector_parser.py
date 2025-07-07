@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from loguru import logger
 from pathlib import Path
 
-from section_parser.section_labels import SectionLabels
+from resumix.backend.section_parser.section_labels import SectionLabels
 
 from resumix.shared.section.education_section import EducationSection
 from resumix.shared.section.experience_section import ExperienceSection

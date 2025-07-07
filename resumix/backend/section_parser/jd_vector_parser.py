@@ -1,12 +1,13 @@
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from resumix.shared.utils.logger import logger
 from pathlib import Path
-from section_parser.jd_section_labels import JDSectionLabels
-from section_parser.base_parser import BaseParser
+from resumix.backend.section_parser.jd_section_labels import JDSectionLabels
+from resumix.backend.section_parser.base_parser import BaseParser
 from resumix.shared.utils.url_fetcher import UrlFetcher
 from concurrent.futures import ThreadPoolExecutor
 from resumix.shared.utils.llm_client import LLMClient
 from resumix.shared.section.section_base import SectionBase
+from resumix.backend.service.job_embedding_store import JobEmbeddingStore
 import os
 import sys
 import re
@@ -14,6 +15,7 @@ import requests
 import chardet
 from bs4 import BeautifulSoup
 import json
+import hashlib
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
@@ -25,6 +27,7 @@ class JDVectorParser(BaseParser):
         section_labels = JDSectionLabels.get_labels(["zh", "en"])
         super().__init__(section_labels, model_name, threshold)
         self.llm_client = LLMClient()
+        self.job_store = JobEmbeddingStore()
 
     def parse(self, jd_text: str) -> Dict[str, SectionBase]:
         """
@@ -107,9 +110,60 @@ class JDVectorParser(BaseParser):
             logger.info("[JDVectorParser] Parsed sections with vector fallback")
             return structured_sections
         except Exception as e:
+            import traceback
             logger.error(f"[JDVectorParser] fallback 向量解析也失败: {e}")
             logger.debug(traceback.format_exc())
             return {"overview": SectionBase("overview", "❌ 无法解析 JD 内容。")}
+
+    def parse_and_store(self, jd_text: str, job_id: str = None) -> Dict[str, SectionBase]:
+        """
+        Parse JD and store embeddings for future use.
+        
+        Args:
+            jd_text: Job description text
+            job_id: Optional job identifier for caching
+            
+        Returns:
+            Dict of parsed sections
+        """
+        # Parse using existing logic
+        sections = self.parse(jd_text)
+        
+        # Store embeddings if job_id provided
+        if job_id:
+            try:
+                # Convert sections to a format suitable for storage
+                structured_data = {}
+                for section_name, section_obj in sections.items():
+                    structured_data[section_name] = {
+                        'raw_text': section_obj.raw_text,
+                        'parsed_data': getattr(section_obj, 'parsed_data', {})
+                    }
+                
+                success = self.job_store.add_job_description(job_id, jd_text, structured_data)
+                if success:
+                    self.job_store.save_index()
+                    logger.info(f"Successfully stored job {job_id} in embedding store")
+                else:
+                    logger.warning(f"Failed to store job {job_id} in embedding store")
+            except Exception as e:
+                logger.error(f"Error storing job {job_id}: {e}")
+        
+        return sections
+    
+    def generate_job_id(self, jd_text: str) -> str:
+        """
+        Generate a unique job ID from job description text.
+        
+        Args:
+            jd_text: Job description text
+            
+        Returns:
+            Unique job identifier
+        """
+        # Create hash from job description text
+        text_hash = hashlib.md5(jd_text.encode('utf-8')).hexdigest()[:12]
+        return f"job_{text_hash}"
 
     def fetch_text_from_url(self, url: str) -> str:
         logger.info(f"[JD Fetcher] 开始抓取 URL: {url}")

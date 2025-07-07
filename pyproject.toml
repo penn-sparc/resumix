@@ -30,7 +30,8 @@ dependencies = [
     "requests (>=2.32.3,<3.0.0)",
     "beautifulsoup4 (>=4.12.3,<5.0.0)",
     "python-dotenv (>=1.0.0,<2.0.0)",
-    "charset-normalizer (>=3.4.2,<4.0.0)"
+    "charset-normalizer (>=3.4.2,<4.0.0)",
+    "faiss-cpu (>=1.7.4,<2.0.0)"
 ]
 
 

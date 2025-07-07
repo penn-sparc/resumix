@@ -2,7 +2,7 @@ from resumix.backend.rewriter.keyword_extractor import KeywordExtractor
 from resumix.shared.utils.keywords_loader import KeywordsLoader
 from resumix.backend.section_parser.jd_vector_parser import JDVectorParser
 from resumix.backend.section_parser.vector_parser import VectorParser
-from resumix.modules.score_module.score_module import ScoreModule
+from resumix.backend.score_module.score_module import ScoreModule
 
 if __name__ == "__main__":
 

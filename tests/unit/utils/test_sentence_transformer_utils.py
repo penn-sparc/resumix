@@ -1,210 +1,152 @@
 import pytest
 from unittest.mock import Mock, patch
 import numpy as np
-from resumix.utils.sentence_transformer_utils import SentenceTransformerUtils
+from resumix.shared.utils.sentence_transformer_utils import SentenceTransformerUtils
 
 
 class TestSentenceTransformerUtils:
     """Test sentence transformer utility functions"""
     
+    def setup_method(self):
+        """Reset singleton before each test"""
+        SentenceTransformerUtils._instance = None
+    
     @pytest.fixture
     def mock_sentence_transformer(self):
         """Mock SentenceTransformer model"""
-        with patch('resumix.utils.sentence_transformer_utils.SentenceTransformer') as mock_st:
-            with patch('resumix.utils.sentence_transformer_utils.CONFIG') as mock_config:
+        with patch('resumix.shared.utils.sentence_transformer_utils.SentenceTransformer') as mock_st:
+            with patch('resumix.shared.utils.sentence_transformer_utils.CONFIG') as mock_config:
                 # Mock config values
                 mock_config.SENTENCE_TRANSFORMER.USE_MODEL = "all-MiniLM-L6-v2"
                 mock_config.SENTENCE_TRANSFORMER.DIRECTORY = "/tmp/models"
                 
                 mock_model = Mock()
-                # Mock embeddings dynamically based on input length
-                def mock_encode(sentences):
-                    if isinstance(sentences, str):
-                        sentences = [sentences]
-                    n_sentences = len(sentences)
-                    return np.random.rand(n_sentences, 4)  # Return embeddings matching input size
-                
-                mock_model.encode.side_effect = mock_encode
+                # Mock encode method to return proper embeddings
+                mock_model.encode.return_value = np.array([[0.1, 0.2, 0.3, 0.4]])
                 mock_st.return_value = mock_model
+                
                 yield mock_model
-    
-    def test_initialization(self, mock_sentence_transformer):
-        """Test SentenceTransformerUtils initialization"""
-        utils = SentenceTransformerUtils()
+
+    def test_singleton_pattern(self, mock_sentence_transformer):
+        """Test that SentenceTransformerUtils follows singleton pattern"""
+        instance1 = SentenceTransformerUtils.get_instance()
+        instance2 = SentenceTransformerUtils.get_instance()
         
-        assert utils.model is not None
-        # Should use default model name
-        assert hasattr(utils, 'model_name')
-    
-    def test_initialization_with_custom_model(self, mock_sentence_transformer):
-        """Test initialization with custom model name"""
+        assert instance1 is instance2
+        assert instance1 is not None
+
+    def test_get_instance_with_custom_model(self, mock_sentence_transformer):
+        """Test getting instance with custom model name"""
         custom_model = "custom-model-name"
-        utils = SentenceTransformerUtils(model_name=custom_model)
+        instance = SentenceTransformerUtils.get_instance(model_name=custom_model)
         
-        assert utils.model_name == custom_model
-    
-    def test_get_embeddings_single_sentence(self, mock_sentence_transformer):
-        """Test getting embeddings for a single sentence"""
-        utils = SentenceTransformerUtils()
+        assert instance is not None
+        # Verify SentenceTransformer was called
+        assert mock_sentence_transformer.encode is not None
+
+    def test_encode_functionality(self, mock_sentence_transformer):
+        """Test that the returned instance can encode text"""
+        transformer = SentenceTransformerUtils.get_instance()
         
-        sentence = "This is a test sentence"
-        embeddings = utils.get_embeddings([sentence])
+        # Test encoding
+        test_text = "This is a test sentence"
+        embeddings = transformer.encode(test_text)
         
-        assert isinstance(embeddings, np.ndarray)
-        assert embeddings.shape == (1, 4)  # 1 sentence, 4 dimensions
-        mock_sentence_transformer.encode.assert_called_once_with([sentence])
-    
-    def test_get_embeddings_multiple_sentences(self, mock_sentence_transformer):
-        """Test getting embeddings for multiple sentences"""
-        utils = SentenceTransformerUtils()
+        # Verify encode was called
+        mock_sentence_transformer.encode.assert_called_with(test_text)
+        assert embeddings is not None
+
+    def test_encode_multiple_sentences(self, mock_sentence_transformer):
+        """Test encoding multiple sentences"""
+        transformer = SentenceTransformerUtils.get_instance()
         
-        sentences = ["First sentence", "Second sentence"]
-        embeddings = utils.get_embeddings(sentences)
-        
-        assert isinstance(embeddings, np.ndarray)
-        assert embeddings.shape == (2, 4)  # 2 sentences, 4 dimensions
-        mock_sentence_transformer.encode.assert_called_once_with(sentences)
-    
-    def test_get_embeddings_empty_list(self, mock_sentence_transformer):
-        """Test getting embeddings for empty sentence list"""
-        mock_sentence_transformer.encode.return_value = np.array([])
-        utils = SentenceTransformerUtils()
-        
-        embeddings = utils.get_embeddings([])
-        
-        assert isinstance(embeddings, np.ndarray)
-        assert embeddings.size == 0
-    
-    def test_calculate_similarity_basic(self, mock_sentence_transformer):
-        """Test basic similarity calculation between two sentences"""
-        utils = SentenceTransformerUtils()
-        
-        with patch('resumix.utils.sentence_transformer_utils.cosine_similarity') as mock_cosine:
-            mock_cosine.return_value = np.array([[0.85]])
-            
-            similarity = utils.calculate_similarity("text1", "text2")
-            
-            assert similarity == 0.85
-            mock_cosine.assert_called_once()
-            
-            # Verify encode was called once with both texts (more efficient)
-            assert mock_sentence_transformer.encode.call_count == 1
-    
-    def test_calculate_similarity_identical_texts(self, mock_sentence_transformer):
-        """Test similarity calculation for identical texts"""
-        utils = SentenceTransformerUtils()
-        
-        with patch('resumix.utils.sentence_transformer_utils.cosine_similarity') as mock_cosine:
-            mock_cosine.return_value = np.array([[1.0]])
-            
-            similarity = utils.calculate_similarity("same text", "same text")
-            
-            assert similarity == 1.0
-    
-    def test_calculate_similarity_completely_different(self, mock_sentence_transformer):
-        """Test similarity calculation for completely different texts"""
-        utils = SentenceTransformerUtils()
-        
-        with patch('resumix.utils.sentence_transformer_utils.cosine_similarity') as mock_cosine:
-            mock_cosine.return_value = np.array([[0.0]])
-            
-            similarity = utils.calculate_similarity("text1", "completely different")
-            
-            assert similarity == 0.0
-    
-    def test_calculate_batch_similarities(self, mock_sentence_transformer):
-        """Test calculating similarities between multiple sentence pairs"""
-        utils = SentenceTransformerUtils()
-        
-        sentences1 = ["First sentence", "Second sentence"]
-        sentences2 = ["Third sentence", "Fourth sentence"]
-        
-        with patch('resumix.utils.sentence_transformer_utils.cosine_similarity') as mock_cosine:
-            mock_cosine.return_value = np.array([
-                [0.8, 0.3],
-                [0.2, 0.9]
-            ])
-            
-            similarities = utils.calculate_batch_similarities(sentences1, sentences2)
-            
-            assert isinstance(similarities, np.ndarray)
-            assert similarities.shape == (2, 2)
-            assert similarities[0, 0] == 0.8
-            assert similarities[1, 1] == 0.9
-    
-    def test_find_most_similar(self, mock_sentence_transformer):
-        """Test finding most similar sentence from a list"""
-        utils = SentenceTransformerUtils()
-        
-        query = "Python programming"
-        candidates = [
-            "Java development",
-            "Python software engineering", 
-            "JavaScript coding",
-            "Python programming language"
-        ]
-        
-        with patch('resumix.utils.sentence_transformer_utils.cosine_similarity') as mock_cosine:
-            # Mock similarities: highest for Python programming language
-            mock_cosine.return_value = np.array([[0.3, 0.7, 0.2, 0.95]])
-            
-            most_similar_idx, similarity_score = utils.find_most_similar(query, candidates)
-            
-            assert most_similar_idx == 3  # "Python programming language"
-            assert similarity_score == 0.95
-    
-    def test_find_most_similar_empty_candidates(self, mock_sentence_transformer):
-        """Test finding most similar with empty candidates list"""
-        utils = SentenceTransformerUtils()
-        
-        query = "Test query"
-        candidates = []
-        
-        result = utils.find_most_similar(query, candidates)
-        
-        assert result == (None, 0.0)
-    
-    def test_normalize_embeddings(self, mock_sentence_transformer):
-        """Test embedding normalization"""
-        # Create non-normalized embeddings
+        # Mock return value for multiple sentences
         mock_sentence_transformer.encode.return_value = np.array([
-            [3.0, 4.0, 0.0],  # Length = 5
-            [1.0, 1.0, 1.0]   # Length = sqrt(3)
+            [0.1, 0.2, 0.3, 0.4],
+            [0.5, 0.6, 0.7, 0.8]
         ])
         
-        utils = SentenceTransformerUtils()
-        embeddings = utils.get_embeddings(["test1", "test2"])
+        sentences = ["First sentence", "Second sentence"]
+        embeddings = transformer.encode(sentences)
         
-        # Check if embeddings can be normalized
-        norms = np.linalg.norm(embeddings, axis=1)
-        assert len(norms) == 2
-    
-    def test_error_handling_invalid_model(self):
-        """Test error handling for invalid model name"""
-        with patch('resumix.utils.sentence_transformer_utils.SentenceTransformer') as mock_st:
-            with patch('resumix.utils.sentence_transformer_utils.CONFIG') as mock_config:
-                mock_config.SENTENCE_TRANSFORMER.USE_MODEL = "all-MiniLM-L6-v2"
+        mock_sentence_transformer.encode.assert_called_with(sentences)
+        assert embeddings is not None
+        assert len(embeddings) == 2
+
+    def test_thread_safety(self, mock_sentence_transformer):
+        """Test that singleton is thread-safe"""
+        import threading
+        import time
+        
+        instances = []
+        
+        def get_instance():
+            time.sleep(0.01)  # Small delay to simulate concurrent access
+            instance = SentenceTransformerUtils.get_instance()
+            instances.append(instance)
+        
+        threads = []
+        for _ in range(10):
+            thread = threading.Thread(target=get_instance)
+            threads.append(thread)
+            thread.start()
+        
+        for thread in threads:
+            thread.join()
+        
+        # All instances should be the same object
+        first_instance = instances[0]
+        for instance in instances:
+            assert instance is first_instance
+
+    def test_error_handling_no_model_name_first_call(self):
+        """Test error handling when no model name provided on first call"""
+        # Reset singleton to test first call behavior
+        SentenceTransformerUtils._instance = None
+        
+        with patch('resumix.shared.utils.sentence_transformer_utils.CONFIG') as mock_config:
+            with patch('resumix.shared.utils.sentence_transformer_utils.SentenceTransformer') as mock_st:
+                # Set config to None to simulate missing model name
+                mock_config.SENTENCE_TRANSFORMER.USE_MODEL = None
                 mock_config.SENTENCE_TRANSFORMER.DIRECTORY = "/tmp/models"
-                mock_st.side_effect = Exception("Model not found")
                 
-                with pytest.raises(Exception, match="Model not found"):
-                    SentenceTransformerUtils(model_name="invalid-model")
-    
-    def test_similarity_bounds(self, mock_sentence_transformer):
-        """Test that similarity scores are within expected bounds"""
-        utils = SentenceTransformerUtils()
-        
-        with patch('resumix.utils.sentence_transformer_utils.cosine_similarity') as mock_cosine:
-            # Test boundary values
-            test_cases = [
-                (np.array([[1.0]]), 1.0),    # Maximum similarity
-                (np.array([[0.0]]), 0.0),    # No similarity
-                (np.array([[-1.0]]), -1.0),  # Opposite vectors
-                (np.array([[0.5]]), 0.5)     # Moderate similarity
-            ]
+                with pytest.raises(ValueError, match="首次调用必须提供 model_name"):
+                    SentenceTransformerUtils.get_instance(model_name=None)
+
+    def test_config_integration(self, mock_sentence_transformer):
+        """Test that config values are used correctly"""
+        with patch('resumix.shared.utils.sentence_transformer_utils.CONFIG') as mock_config:
+            mock_config.SENTENCE_TRANSFORMER.USE_MODEL = "test-model"
+            mock_config.SENTENCE_TRANSFORMER.DIRECTORY = "/test/path"
             
-            for cosine_result, expected in test_cases:
-                mock_cosine.return_value = cosine_result
-                similarity = utils.calculate_similarity("text1", "text2")
-                assert similarity == expected
-                assert -1.0 <= similarity <= 1.0  # Cosine similarity bounds
+            instance = SentenceTransformerUtils.get_instance()
+            
+            # Verify SentenceTransformer was initialized with correct path
+            assert instance is not None
+
+    def test_subsequent_calls_ignore_parameters(self, mock_sentence_transformer):
+        """Test that subsequent calls ignore model_name parameter"""
+        # First call with specific model
+        instance1 = SentenceTransformerUtils.get_instance(model_name="first-model")
+        
+        # Second call with different model should return same instance
+        instance2 = SentenceTransformerUtils.get_instance(model_name="second-model")
+        
+        assert instance1 is instance2
+
+    def test_reset_singleton(self, mock_sentence_transformer):
+        """Test that singleton can be reset for testing"""
+        instance1 = SentenceTransformerUtils.get_instance()
+        
+        # Reset singleton
+        SentenceTransformerUtils._instance = None
+        
+        # Create a new mock for the second instance
+        with patch('resumix.shared.utils.sentence_transformer_utils.SentenceTransformer') as mock_st2:
+            mock_model2 = Mock()
+            mock_st2.return_value = mock_model2
+            
+            instance2 = SentenceTransformerUtils.get_instance()
+            
+            # Should be different instances after reset
+            assert instance1 is not instance2

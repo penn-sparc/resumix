@@ -1,5 +1,5 @@
 from typing import Dict, List
-from resumix.shared.utils import logger
+from loguru import logger
 from resumix.backend.prompt.prompt_dispatcher import PromptDispatcher, PromptMode
 from resumix.shared.section.section_base import SectionBase
 
@@ -23,6 +23,7 @@ class ResumeRewriter(BaseRewriter):
 
         # 写入回 section 对象
         section.rewritten_text = rewritten_text.strip()
+        return section
 
     def rewrite_all(
         self, sections: Dict[str, SectionBase], jd_text: str = ""

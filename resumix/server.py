@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from resumix.backend.controller.agent_controller import router as agent_router
 from resumix.backend.controller.score_controller import router as score_router
+from resumix.backend.controller.compare_controller import router as compare_router
 import uvicorn
 
 app = FastAPI()
@@ -17,6 +18,7 @@ app.add_middleware(
 
 app.include_router(agent_router)
 app.include_router(score_router)
+app.include_router(compare_router)
 
 
 if __name__ == "__main__":

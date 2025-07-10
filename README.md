@@ -51,7 +51,11 @@ RESUMIX is a tool for generating resumes in various formats. It allows users to 
    # Make sure to set PYTHONPATH each time you run the app
    export PYTHONPATH=$(pwd):$PYTHONPATH && streamlit run resumix/main.py
    ```
+   # Run backend server
 
+   ```bash
+   export PYTHONPATH=$(pwd):$PYTHONPATH && python3 resumix/server.py
+   ```
 ### Troubleshooting
 
 If you encounter import errors:

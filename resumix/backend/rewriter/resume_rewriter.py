@@ -13,7 +13,7 @@ class ResumeRewriter(BaseRewriter):
     def __init__(self, llm):
         super().__init__(llm)
 
-    def rewrite_section(self, section: SectionBase, jd_text: str = "") -> SectionBase:
+    def rewrite_section(self, section: SectionBase, jd_text: str = "") -> str:
         # 获取针对该 section 的 prompt
         prompt = PromptDispatcher().get_prompt(section)
         logger.info(f"Rewriting section '{section.name}' with LLM...")
@@ -23,7 +23,7 @@ class ResumeRewriter(BaseRewriter):
 
         # 写入回 section 对象
         section.rewritten_text = rewritten_text.strip()
-        return section
+        return rewritten_text
 
     def rewrite_all(
         self, sections: Dict[str, SectionBase], jd_text: str = ""
@@ -41,9 +41,10 @@ class TechRewriter(BaseRewriter):
     def rewrite_section(
         self, section: SectionBase, tech_stacks: List[str], job_positions: List[str]
     ) -> SectionBase:
-        
-        
-        prompt = PromptDispatcher().get_tech_stack_prompt(section, tech_stacks, job_positions)
+
+        prompt = PromptDispatcher().get_tech_stack_prompt(
+            section, tech_stacks, job_positions
+        )
 
         result = self.llm(prompt)
 

@@ -26,6 +26,8 @@ from resumix.frontend.components.cards.polish_card import PolishCard, polish_car
 from resumix.frontend.components.cards.agent_card import AgentCard
 from resumix.frontend.components.cards.compare_card import CompareCard
 from resumix.frontend.components.pages.score_page import ScorePage
+from resumix.frontend.components.pages.agent_page import AgentPage
+from resumix.frontend.components.pages.compare_page import ComparePage
 
 
 # Import utilities
@@ -413,32 +415,17 @@ else:
                 polish_card(text, llm_model)
 
         elif selected_tab == tab_names[2]:  # Agent
-            with st.container():
-                agent_card = AgentCard()
-                agent_card.set_sections(STRUCTED_SECTIONS)
-                agent_card.render()
+            agent_page = AgentPage()
+            agent_page.render()
 
         elif selected_tab == tab_names[3]:  # Score
-            with st.container():
-                score_page = ScorePage()
-                score_page.render()
+            score_page = ScorePage()
+            score_page.render()
 
         elif selected_tab == tab_names[4]:  # Compare
-            with st.container():
-                compare_card = CompareCard()
-                compare_card.render()
+            compare_page = ComparePage()
+            compare_page.render()
 
-                # Handle different types of jd_content
-                if isinstance(jd_content, dict):
-                    jd_content_str = str(jd_content)
-                elif jd_content is None:
-                    jd_content_str = "No job description provided"
-                else:
-                    jd_content_str = str(jd_content)
-
-                compare_card.render_comparison(
-                    STRUCTED_SECTIONS, jd_content_str, RESUME_REWRITER
-                )
     else:
         # Show message that resume is needed
         st.markdown(

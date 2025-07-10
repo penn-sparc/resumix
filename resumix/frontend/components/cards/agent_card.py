@@ -4,13 +4,13 @@ from resumix.frontend.components.cards.base_card import BaseCard
 from resumix.backend.job_parser.resume_parser import ResumeParser
 from resumix.shared.utils.logger import logger
 from resumix.shared.section.section_base import SectionBase
-from resumix.shared.model.schema.schema import TechOptimizeRequest, TechOptimizeResponse, BaseRequest
+from resumix.frontend.api.api import process_section_api
+
 from typing import List, Tuple
-import requests
-from config.config import Config
-import traceback
+from resumix.config.config import Config
 
 CONFIG = Config().config
+
 
 class AgentCard(BaseCard):
     def __init__(
@@ -37,9 +37,9 @@ class AgentCard(BaseCard):
         )
         self.parser = ResumeParser()
         self.sections = {}
+
     def set_sections(self, sections: Dict[str, SectionBase]):
         self.sections = sections
-
 
     # def parse_resume_sections(self, text: str) -> Dict[str, SectionBase]:
     #     """
@@ -60,46 +60,46 @@ class AgentCard(BaseCard):
     #         st.error(f"❌ Resume parsing failed: {e}")
     #         return {}
 
-#     def create_optimization_prompt(
-#         self, section_name: str, section_content: str, jd_content: str
-#     ) -> str:
-#         """
-#         Create an optimization prompt for the AI agent.
+    #     def create_optimization_prompt(
+    #         self, section_name: str, section_content: str, jd_content: str
+    #     ) -> str:
+    #         """
+    #         Create an optimization prompt for the AI agent.
 
-#         Args:
-#             section_name: Name of the resume section
-#             section_content: Content of the section
-#             jd_content: Job description content
+    #         Args:
+    #             section_name: Name of the resume section
+    #             section_content: Content of the section
+    #             jd_content: Job description content
 
-#         Returns:
-#             Formatted prompt for the agent
-#         """
-#         prompt = f"""你是一个简历优化助手。请参考以下岗位描述，并优化简历内容：
+    #         Returns:
+    #             Formatted prompt for the agent
+    #         """
+    #         prompt = f"""你是一个简历优化助手。请参考以下岗位描述，并优化简历内容：
 
-#             岗位描述：{jd_content}
+    #             岗位描述：{jd_content}
 
-#             简历原文：
-# \"\"\"{section_content}\"\"\"
+    #             简历原文：
+    # \"\"\"{section_content}\"\"\"
 
-# 请按照如下格式作答：
-# Thought: ...
-# Action: local_llm_generate
-# Action Input: \"\"\"优化后的内容\"\"\"
-# """
-#         return prompt
+    # 请按照如下格式作答：
+    # Thought: ...
+    # Action: local_llm_generate
+    # Action Input: \"\"\"优化后的内容\"\"\"
+    # """
+    #         return prompt
 
-#     def render_agent_response(self, result: str):
-#         """
-#         Render the agent's response.
+    #     def render_agent_response(self, result: str):
+    #         """
+    #         Render the agent's response.
 
-#         Args:
-#             result: Agent response to display
-#         """
-#         try:
-#             st.chat_message("Resumix").write(result)
-#         except Exception as e:
-#             logger.error(f"Failed to render agent response: {e}")
-#             st.warning("Could not display agent response")
+    #         Args:
+    #             result: Agent response to display
+    #         """
+    #         try:
+    #             st.chat_message("Resumix").write(result)
+    #         except Exception as e:
+    #             logger.error(f"Failed to render agent response: {e}")
+    #             st.warning("Could not display agent response")
 
     # def render_section_optimization(
     #     self, section_name: str, section_obj: SectionBase, jd_content: str, agent
@@ -125,15 +125,13 @@ class AgentCard(BaseCard):
 
     #         # Create and run optimization prompt
     #         with st.spinner(f"AI is optimizing {section_name}..."):
-                
+
     #             # payload = TechOptimizeRquest(
     #             #     section_name=section,
-                    
+
     #             #     jd_text=,
-    #             #     tech_stack= 
-                
-                
-                
+    #             #     tech_stack=
+
     #             prompt = self.create_optimization_prompt(
     #                 section_name, content, jd_content
     #             )
@@ -219,7 +217,7 @@ class AgentCard(BaseCard):
         )
         return selected_job_positions
 
-    def _render_options(self)-> Tuple[List[str], List[str]]:
+    def _render_options(self) -> Tuple[List[str], List[str]]:
         """
         Render user option selection interface.
         This replaces the misspelled 'redner_options' method.
@@ -267,37 +265,23 @@ class AgentCard(BaseCard):
     #     """Render the comment section"""
     #     if self.comment:
     #         st.markdown(f"*🤖 {self.comment}*")
-    
-    def process(self, sections: Dict[str, SectionBase], tech_stacks: List[str], job_positions: List[str]):
+
+    def process(
+        self,
+        sections: Dict[str, SectionBase],
+        tech_stacks: List[str],
+        job_positions: List[str],
+    ):
         for section in sections.values():
             self.process_section(section, tech_stacks, job_positions)
             st.divider()
-            
-    def process_section(self, section: SectionBase, tech_stacks: List[str], job_positions: List[str]):
+
+    def process_section(
+        self, section: SectionBase, tech_stacks: List[str], job_positions: List[str]
+    ):
         with st.spinner(f"AI is optimizing {section.name}..."):
-            result = self.process_section_api(section, tech_stacks, job_positions)
+            result = process_section_api(section, tech_stacks, job_positions)
             st.chat_message("Resumix").write(result)
-    
-            
-                
-    def process_section_api(self, section: SectionBase, tech_stacks: List[str], job_positions: List[str]) -> str:
-        payload = {
-            "data": {
-                "section": section.model_dump(),
-                "tech_stack": tech_stacks,
-                "job_positions": job_positions
-            }
-        }
-        try:
-            response = requests.post(CONFIG.BACKEND.HOST + "/agent/rewrite", json=payload)
-            response.raise_for_status()
-            return response.json().get("data", None)
-        except requests.exceptions.RequestException as e:
-                st.error(f"❌ Failed to optimize section {section.name}: {e}")
-                logger.exception(f"❌ RequestException while optimizing section {section.name}")
-        except Exception as e:
-                st.error(f"❌ Failed to optimize section {section.name}: {e}")
-                logger.exception(f"❌ Unexpected error while optimizing section {section.name}")
 
     def render(self):
         """
@@ -307,11 +291,12 @@ class AgentCard(BaseCard):
 
         # Use the simplified BaseCard render method
         super().render()
-        
+
         tech_stacks, job_positions = self._render_options()
-        
+
         logger.info(type(self.sections))
         self.process(self.sections, tech_stacks, job_positions)
+
 
 def agent_card(text: str):
     """

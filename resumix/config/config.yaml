@@ -7,7 +7,7 @@ backend:
   port: 8000
 
 llm:
-  use_model: "deepseek"
+  use_model: "local"
   deepseek:
     model: "deepseek-chat"
     url: "https://api.deepseek.com/v1/chat/completions"

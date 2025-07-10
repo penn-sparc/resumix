@@ -24,8 +24,9 @@ from streamlit_option_menu import option_menu
 from resumix.frontend.components.cards.analysis_card import AnalysisCard
 from resumix.frontend.components.cards.polish_card import PolishCard, polish_card
 from resumix.frontend.components.cards.agent_card import AgentCard
-from resumix.frontend.components.cards.score_card import ScoreCard
 from resumix.frontend.components.cards.compare_card import CompareCard
+from resumix.frontend.components.pages.score_page import ScorePage
+
 
 # Import utilities
 from resumix.shared.utils.llm_client import LLMClient, LLMWrapper
@@ -223,7 +224,9 @@ with st.sidebar:
     )
 
     with st.expander("📄 Upload Resume", expanded=True):
-        uploaded_file = st.file_uploader("Select your resume PDF", type=["pdf"], label_visibility="collapsed")
+        uploaded_file = st.file_uploader(
+            "Select your resume PDF", type=["pdf"], label_visibility="collapsed"
+        )
         SessionUtils.upload_resume_file(uploaded_file)
 
         if uploaded_file:
@@ -240,26 +243,27 @@ with st.sidebar:
     """,
         unsafe_allow_html=True,
     )
-    
+
     with st.expander("🔗 Job Description", expanded=True):
         jd_url = st.text_input(
             "Job Description URL",
             placeholder="https://example.com/job-description",
             key="jd_url",
-            label_visibility="collapsed"
+            label_visibility="collapsed",
         )
-        
+
         if jd_url:
             st.success("✅ Job description URL added!")
 
     # Start Resumix Button
     st.markdown("<br>", unsafe_allow_html=True)
-    
+
     # Check if user can start (has uploaded resume)
     can_start = uploaded_file is not None
-    
+
     # Add CSS for gradient button - target by position in sidebar
-    st.markdown("""
+    st.markdown(
+        """
     <style>
     /* Target the Start Resumix button specifically */
     .stSidebar div[data-testid="stVerticalBlock"] > div:nth-last-child(3) button[kind="primary"] {
@@ -285,22 +289,29 @@ with st.sidebar:
         box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4) !important;
     }
     </style>
-    """, unsafe_allow_html=True)
-    
+    """,
+        unsafe_allow_html=True,
+    )
+
     # Single button with conditional behavior
     if can_start:
         if st.button("🚀 Start Resumix", type="primary", use_container_width=True):
             st.session_state.resumix_started = True
             st.rerun()
     else:
-        st.button("🚀 Start Resumix", disabled=True, use_container_width=True, help="Please upload a resume first")
+        st.button(
+            "🚀 Start Resumix",
+            disabled=True,
+            use_container_width=True,
+            help="Please upload a resume first",
+        )
 
     # Divider
     st.markdown("---")
 
     # Additional options (collapsed by default)
     with st.expander("⚙️ Advanced Settings", expanded=False):
-    # Authentication
+        # Authentication
         if not st.session_state.get("authenticated"):
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
@@ -313,7 +324,7 @@ with st.sidebar:
             if st.button("Logout"):
                 st.session_state.authenticated = False
 
-    # Language selection
+        # Language selection
         selected_lang = st.selectbox(
             "Language",
             ["en", "zh"],
@@ -344,14 +355,14 @@ if not st.session_state.resumix_started:
 else:
     # Show the main application interface
     # Clean interface - no header, just tabs and content
-    
+
     # Main navigation
     tab_names = T["tabs"]
-    
+
     # Auto-select first tab (Analysis) when user starts Resumix
     if "selected_tab_index" not in st.session_state:
         st.session_state.selected_tab_index = 0
-    
+
     selected_tab = option_menu(
         menu_title=None,
         options=tab_names,
@@ -378,7 +389,7 @@ else:
 
         text = st.session_state.resume_text
         STRUCTED_SECTIONS = SessionUtils.get_resume_sections()
-        
+
         # Handle JD content gracefully (optional for auto-parsing)
         jd_url = st.session_state.get("jd_url", "")
         if jd_url and jd_url.strip():
@@ -409,173 +420,14 @@ else:
 
         elif selected_tab == tab_names[3]:  # Score
             with st.container():
-                # Import ScoreModule
-                from resumix.backend.score_module.score_module import ScoreModule
-                
-                # Check if we have JD sections for proper scoring
-                try:
-                    jd_sections = SessionUtils.get_jd_sections()
-                    
-                    # Debug: Show what sections we actually got
-                    st.info(f"🔍 Debug: Found {len(jd_sections)} JD sections: {list(jd_sections.keys())}")
-                    
-                    # Show JD content for debugging
-                    st.subheader("📄 JD Sections Content:")
-                    for key, value in jd_sections.items():
-                        with st.expander(f"Section: {key}"):
-                            if hasattr(value, 'raw_text') and hasattr(value, 'raw_text'):
-                                # SectionBase object
-                                raw_text = getattr(value, 'raw_text', '')
-                                st.text(f"Type: SectionBase\nContent: {raw_text[:200]}...")
-                            elif isinstance(value, list):
-                                st.text(f"Type: List\nContent: {str(value)[:200]}...")
-                            elif isinstance(value, str):
-                                st.text(f"Type: String\nContent: {value[:200]}...")
-                            else:
-                                st.text(f"Type: {type(value)}\nContent: {str(value)[:200]}...")
-                    
-                    # Much more flexible section matching
-                    basic_key = None
-                    preferred_key = None
-                    
-                    # First, try exact matches
-                    for key in jd_sections.keys():
-                        key_lower = key.lower()
-                        if "basic" in key_lower and ("qualification" in key_lower or "requirement" in key_lower):
-                            basic_key = key
-                        elif "preferred" in key_lower and ("qualification" in key_lower or "requirement" in key_lower):
-                            preferred_key = key
-                    
-                    # If no exact match, try broader matching
-                    if not basic_key:
-                        for key in jd_sections.keys():
-                            key_lower = key.lower()
-                            if any(term in key_lower for term in ["requirement", "qualification", "skill", "must", "essential"]):
-                                basic_key = key
-                                break
-                    
-                    # Use any section as basic if we still don't have one
-                    if not basic_key and jd_sections:
-                        basic_key = list(jd_sections.keys())[0]
-                        st.warning(f"⚠️ Using '{basic_key}' as basic requirements section")
-                    
-                    st.info(f"🎯 Selected sections - Basic: {basic_key}, Preferred: {preferred_key}")
-                    
-                    if not basic_key:
-                        st.warning("⚠️ No suitable JD sections found for scoring")
-                        st.info("📊 Available sections: " + ", ".join(jd_sections.keys()))
-                        
-                        # Show simple dummy score for testing
-                        st.subheader("🧪 Test Score Card")
-                        test_scores = {
-                            "Completeness": 8,
-                            "Clarity": 7,
-                            "Relevance": 6,
-                            "ProfessionalLanguage": 9,
-                            "AchievementOriented": 5,
-                            "QuantitativeSupport": 4,
-                            "Comment": "This is a test score card with dummy data"
-                        }
-                        test_score_card = ScoreCard("Test Section", test_scores)
-                        test_score_card.render()
-                        
-                    else:
-                        # Import SectionBase for JD section conversion
-                        from resumix.shared.section.section_base import SectionBase
-                        
-                        # Convert JD sections to SectionBase objects using flexible keys
-                        jd_basic_obj = jd_sections[basic_key]
-                        if hasattr(jd_basic_obj, 'raw_text') and getattr(jd_basic_obj, 'raw_text', ''):
-                            # Already a SectionBase object
-                            jd_basic_text = getattr(jd_basic_obj, 'raw_text', '')
-                        elif isinstance(jd_basic_obj, list):
-                            jd_basic_text = "\n".join(str(item) for item in jd_basic_obj)
-                        elif isinstance(jd_basic_obj, str):
-                            jd_basic_text = jd_basic_obj
-                        else:
-                            jd_basic_text = str(jd_basic_obj)
-                        jd_basic_section = SectionBase(name=basic_key, raw_text=jd_basic_text)
-                        
-                        if preferred_key and jd_sections.get(preferred_key):
-                            jd_preferred_obj = jd_sections[preferred_key]
-                            if hasattr(jd_preferred_obj, 'raw_text') and getattr(jd_preferred_obj, 'raw_text', ''):
-                                # Already a SectionBase object
-                                jd_preferred_text = getattr(jd_preferred_obj, 'raw_text', '')
-                            elif isinstance(jd_preferred_obj, list):
-                                jd_preferred_text = "\n".join(str(item) for item in jd_preferred_obj)
-                            elif isinstance(jd_preferred_obj, str):
-                                jd_preferred_text = jd_preferred_obj
-                            else:
-                                jd_preferred_text = str(jd_preferred_obj)
-                            jd_preferred_section = SectionBase(name=preferred_key, raw_text=jd_preferred_text)
-                        else:
-                            # Create empty preferred section when not available
-                            jd_preferred_section = SectionBase(name="requirements_preferred", raw_text="")
-                        
-                        # Initialize scoring module
-                        score_module = ScoreModule()
-                        
-                        # Show overall scoring progress
-                        st.success("✅ JD sections found! Starting real scoring...")
-                        
-                        # Score each section
-                        section_scores = {}
-                        for section_name, section_obj in STRUCTED_SECTIONS.items():
-                            try:
-                                with st.spinner(f"Scoring {section_name}..."):
-                                    score_result = score_module.score_resume(
-                                        section_obj,
-                                        jd_basic_section,
-                                        jd_preferred_section
-                                    )
-                                    section_scores[section_name] = score_result
-                                    
-                                    # Display individual section score
-                                    score_card = ScoreCard(section_name, score_result)
-                                    score_card.render()
-                                    st.markdown("---")
-                                    
-                            except Exception as e:
-                                logger.error(f"Failed to score section {section_name}: {e}")
-                                st.error(f"Failed to score {section_name}: {e}")
-                                # Show test score card for this section
-                                test_scores = {
-                                    "Completeness": 8,
-                                    "Clarity": 7,
-                                    "Relevance": 6,
-                                    "Comment": f"Scoring failed for {section_name}: {e}"
-                                }
-                                test_score_card = ScoreCard(section_name, test_scores)
-                                test_score_card.render()
-                                st.markdown("---")
-                        
-                        if section_scores:
-                            st.success("✅ Resume scoring completed!")
-                            
-                except Exception as e:
-                    logger.error(f"Failed to get JD sections: {e}")
-                    st.error(f"⚠️ Job description parsing failed: {e}")
-                    st.info("📊 Upload a resume and add a job description to see detailed scoring")
-                    
-                    # Show simple dummy score for testing
-                    st.subheader("🧪 Test Score Card")
-                    test_scores = {
-                        "Completeness": 8,
-                        "Clarity": 7,
-                        "Relevance": 6,
-                        "ProfessionalLanguage": 9,
-                        "AchievementOriented": 5,
-                        "QuantitativeSupport": 4,
-                        "Comment": "This is a test score card with dummy data"
-                    }
-                    test_score_card = ScoreCard("Test Section", test_scores)
-                    test_score_card.render()
+                score_page = ScorePage()
+                score_page.render()
 
         elif selected_tab == tab_names[4]:  # Compare
             with st.container():
                 compare_card = CompareCard()
                 compare_card.render()
-                
+
                 # Handle different types of jd_content
                 if isinstance(jd_content, dict):
                     jd_content_str = str(jd_content)
@@ -583,7 +435,7 @@ else:
                     jd_content_str = "No job description provided"
                 else:
                     jd_content_str = str(jd_content)
-                
+
                 compare_card.render_comparison(
                     STRUCTED_SECTIONS, jd_content_str, RESUME_REWRITER
                 )

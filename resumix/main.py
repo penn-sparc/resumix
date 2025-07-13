@@ -213,12 +213,12 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    # Step 1: Resume upload with instruction
+    # Resume upload with simplified instruction
     st.markdown(
         """
     <div style="margin-bottom: 1rem; padding: 0.75rem; background: #f7fafc; border-left: 4px solid #4facfe; border-radius: 4px;">
         <p style="margin: 0; font-weight: 600; color: #2d3748; font-size: 0.9rem;">
-            📄 Step 1: Please upload a resume PDF file to get started.
+            📄 Upload your resume PDF file to get started with AI-powered analysis, polishing, and optimization.
         </p>
     </div>
     """,
@@ -233,29 +233,6 @@ with st.sidebar:
 
         if uploaded_file:
             st.success("✅ Resume uploaded successfully!")
-
-    # Step 2: Job description with instruction
-    st.markdown(
-        """
-    <div style="margin: 1.5rem 0 1rem 0; padding: 0.75rem; background: #f7fafc; border-left: 4px solid #667eea; border-radius: 4px;">
-        <p style="margin: 0; font-weight: 600; color: #2d3748; font-size: 0.9rem;">
-            🔗 Step 2: Please enter a job description link for comparison.
-        </p>
-    </div>
-    """,
-        unsafe_allow_html=True,
-    )
-
-    with st.expander("🔗 Job Description", expanded=True):
-        jd_url = st.text_input(
-            "Job Description URL",
-            placeholder="https://example.com/job-description",
-            key="jd_url",
-            label_visibility="collapsed",
-        )
-
-        if jd_url:
-            st.success("✅ Job description URL added!")
 
     # Start Resumix Button
     st.markdown("<br>", unsafe_allow_html=True)
@@ -391,18 +368,6 @@ else:
 
         text = st.session_state.resume_text
         STRUCTED_SECTIONS = SessionUtils.get_resume_sections()
-
-        # Handle JD content gracefully (optional for auto-parsing)
-        jd_url = st.session_state.get("jd_url", "")
-        if jd_url and jd_url.strip():
-            try:
-                jd_content = SessionUtils.get_job_description_content()
-            except Exception as e:
-                # JD parsing failed, use fallback
-                jd_content = f"Job description URL provided: {jd_url} (parsing failed)"
-        else:
-            # No JD URL provided, use default
-            jd_content = "No job description provided"
 
         # Tab routing with container styling
         if selected_tab == tab_names[0]:  # Analysis

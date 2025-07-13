@@ -46,23 +46,29 @@ class ComparePage:
     
     def render_version_choice_buttons(self, section_name: str, left_version, right_version):
         """Render choice buttons for selecting preferred version"""
-        col1, col2, col3, col4 = st.columns([2, 1, 2, 1])
+        col1, col2, col3 = st.columns([2, 1, 2])
         
         with col1:
-            if st.button(f"← Choose Left", key=f"choose_left_{section_name}_{st.session_state.comparison_session.get(f'{section_name}_iterations', 0)}", use_container_width=True):
+            # Keep polish button for left side
+            if st.button(f"Keep polishing with this version", key=f"choose_left_{section_name}_{st.session_state.comparison_session.get(f'{section_name}_iterations', 0)}", use_container_width=True):
                 return "left"
+                
+            # Always show "I'm happy with this version" button for left side
+            if st.button("✅ I'm happy with this version", key=f"done_left_{section_name}_{st.session_state.comparison_session.get(f'{section_name}_iterations', 0)}", help="Finish polishing this section with left version", use_container_width=True):
+                return "done_left"
         
         with col2:
             st.markdown("<div style='text-align: center; padding-top: 0.5rem; font-size: 0.8rem;'>OR</div>", unsafe_allow_html=True)
             
         with col3:
-            if st.button(f"Choose Right →", key=f"choose_right_{section_name}_{st.session_state.comparison_session.get(f'{section_name}_iterations', 0)}", use_container_width=True):
+            # Keep polish button for right side
+            if st.button(f"Keep polishing with this version", key=f"choose_right_{section_name}_{st.session_state.comparison_session.get(f'{section_name}_iterations', 0)}", use_container_width=True):
                 return "right"
-        
-        with col4:
-            if st.session_state.comparison_session.get(f"{section_name}_iterations", 0) > 0:
-                if st.button("✅ Done", key=f"done_{section_name}", help="Finish polishing this section"):
-                    return "done"
+            
+            # Always show "I'm happy with this version" button for right side (if right version exists)
+            if right_version is not None:
+                if st.button("✅ I'm happy with this version", key=f"done_right_{section_name}_{st.session_state.comparison_session.get(f'{section_name}_iterations', 0)}", help="Finish polishing this section with right version", use_container_width=True):
+                    return "done_right"
         
         return None
 
@@ -70,9 +76,17 @@ class ComparePage:
         """Handle user choice for a specific section and generate next iteration"""
         session = st.session_state.comparison_session
         
-        if choice == "done":
-            # Mark section as completed
+        if choice == "done_left":
+            # Mark section as completed and store the final chosen version (left version)
             session[f"{section_name}_completed"] = True
+            session[f"{section_name}_final_version"] = left_version  # Store user's final choice
+            st.success(f"✅ {section_name} polishing completed!")
+            st.rerun()
+            return
+        elif choice == "done_right":
+            # Mark section as completed and store the final chosen version (right version)
+            session[f"{section_name}_completed"] = True
+            session[f"{section_name}_final_version"] = right_version  # Store user's final choice
             st.success(f"✅ {section_name} polishing completed!")
             st.rerun()
             return
@@ -183,8 +197,7 @@ Please provide an improved version in the same JSON format, making meaningful en
     def render_version_section(self, section_name: str, version_data, version_label: str):
         """Render a specific version of a section"""
         try:
-            st.markdown(f"#### {version_label} - {section_name}")
-            st.chat_message("assistant").write("这是润色后的内容：")
+            st.markdown(f"#### {version_label}")
             
             if version_data == "original":
                 # Handle original version
@@ -231,10 +244,9 @@ Please provide an improved version in the same JSON format, making meaningful en
         if session.get(f"{section_name}_completed", False):
             st.success(f"✅ {section_name} polishing completed!")
             
-            # Show final result
-            versions = session.get(f"{section_name}_versions", [])
-            if versions:
-                final_version = versions[-1]
+            # Show final result using user's chosen version
+            final_version = session.get(f"{section_name}_final_version")
+            if final_version:
                 self.render_version_section(section_name, final_version, "Final Version")
             
             if st.button(f"🔄 Restart {section_name}", key=f"restart_{section_name}"):
@@ -242,6 +254,7 @@ Please provide an improved version in the same JSON format, making meaningful en
                 session.pop(f"{section_name}_completed", None)
                 session.pop(f"{section_name}_versions", None)
                 session.pop(f"{section_name}_iterations", None)
+                session.pop(f"{section_name}_final_version", None)  # Clear final version too
                 st.rerun()
             return
         
@@ -337,18 +350,19 @@ Please provide an improved version in the same JSON format, making meaningful en
         
         with col1:
             if completed_sections == total_sections:
-                if st.button("🎉 All Sections Complete!", type="primary", use_container_width=True):
-                    st.balloons()
+                if st.button("➡️ Generate final PDF(to be implemented)", type="primary", use_container_width=True):
                     st.success("🎊 Congratulations! All sections have been polished to your satisfaction!")
         
         with col2:
-            if st.button("🗑️ Reset All Sections", use_container_width=True):
-                # Reset all sections
-                for section_name in sections.keys():
-                    session.pop(f"{section_name}_completed", None)
-                    session.pop(f"{section_name}_versions", None)
-                    session.pop(f"{section_name}_iterations", None)
-                st.rerun()
+            pass
+            # if st.button("🗑️ Reset All Sections", use_container_width=True):
+            #      Reset all sections
+            #     for section_name in sections.keys():
+            #         session.pop(f"{section_name}_completed", None)
+            #         session.pop(f"{section_name}_versions", None)
+            #         session.pop(f"{section_name}_iterations", None)
+            #         session.pop(f"{section_name}_final_version", None)
+            #     st.rerun()
 
     def render(self):
         """Render the compare page"""

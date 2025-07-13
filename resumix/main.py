@@ -218,7 +218,7 @@ with st.sidebar:
         """
     <div style="margin-bottom: 1rem; padding: 0.75rem; background: #f7fafc; border-left: 4px solid #4facfe; border-radius: 4px;">
         <p style="margin: 0; font-weight: 600; color: #2d3748; font-size: 0.9rem;">
-            📄 Upload your resume PDF file below
+            📄 Upload your resume below
         </p>
     </div>
     """,

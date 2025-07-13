@@ -381,22 +381,15 @@ Please provide an improved version in the same JSON format, making meaningful en
             st.info(f"Found {len(sections)} sections to compare: {', '.join(section_names)}")
 
             # Add JD URL input section in the Compare tab
-            st.markdown("### 🔗 Job Description (Optional)")
-            st.markdown("Add a job description URL to get more tailored comparisons:")
+            st.markdown("### 🔗 Add a job description to polish your resume")
             
-            col1, col2 = st.columns([3, 1])
-            with col1:
-                jd_url = st.text_input(
-                    "Job Description URL",
-                    placeholder="https://example.com/job-description",
-                    key="compare_jd_url",
-                    help="Optional: Add a job description URL for more tailored resume polishing"
-                )
-            with col2:
-                clear_jd = st.button("🗑️ Clear", help="Clear the job description URL")
-                if clear_jd:
-                    st.session_state["compare_jd_url"] = ""
-                    st.rerun()
+            jd_url = st.text_input(
+                "",
+                placeholder="Job Description URL",
+                key="compare_jd_url",
+                help="Optional: Add a job description URL for more tailored resume polishing",
+                label_visibility="collapsed"
+            )
 
             # Get JD content based on input
             if jd_url and jd_url.strip():
@@ -412,9 +405,6 @@ Please provide an improved version in the same JSON format, making meaningful en
                         jd_content = str(jd_content)
                     
                     st.success("✅ Job description loaded successfully!")
-                    with st.expander("📄 View Job Description Preview", expanded=False):
-                        preview_text = jd_content[:500] + "..." if len(jd_content) > 500 else jd_content
-                        st.text_area("Job Description Content", preview_text, height=150, disabled=True)
                     
                 except Exception as e:
                     jd_content = f"Job description URL provided: {jd_url} (parsing failed: {str(e)})"
@@ -422,27 +412,19 @@ Please provide an improved version in the same JSON format, making meaningful en
                     st.info("💡 You can still compare without a job description - comparison will use general improvements")
             else:
                 jd_content = "No job description provided"
-                st.info("💡 Add a job description URL above for more tailored comparisons, or proceed without one for general improvements")
 
-            # Show comparison button or continue comparison
-            st.markdown("---")
+           
             
             # Check if comparison is already started
             session = st.session_state.comparison_session
             comparison_started = session.get("comparison_started", False)
             
             if not comparison_started:
-                # Create two columns for the button and info
-                button_col1, button_col2 = st.columns([2, 3])
+               
+                start_comparison = st.button("🚀 Start Comparison", type="primary", use_container_width=True)
                 
-                with button_col1:
-                    start_comparison = st.button("🚀 Start Comparison", type="primary", use_container_width=True)
                 
-                with button_col2:
-                    if jd_url and jd_url.strip():
-                        st.success("Ready to compare with job description!")
-                    else:
-                        st.info("Will use general improvements")
+                    
 
                 if start_comparison:
                     # Mark comparison as started
@@ -450,18 +432,11 @@ Please provide an improved version in the same JSON format, making meaningful en
                     session["jd_content"] = jd_content
                     st.rerun()
             else:
-                # Show reset button
-                col1, col2 = st.columns([1, 4])
-                with col1:
-                    if st.button("🔄 New Comparison", help="Start a new comparison"):
-                        self.reset_comparison_session()
-                        st.rerun()
-                with col2:
-                    st.info("💡 Comparison in progress - make your choices below")
+                # Show instruction
+                st.info("💡 Make your choices below")
 
             # Show comparison content if started
             if comparison_started:
-                st.markdown("---")
                 stored_jd_content = session.get("jd_content", jd_content)
                 self.perform_section_comparison(sections, stored_jd_content)
 

@@ -207,7 +207,7 @@ with st.sidebar:
     st.markdown(
         """
     <div style="text-align: left; padding: 1rem 0 1.5rem 0; margin-bottom: 1rem;">
-        <h2 style="font-size: 1.5rem; font-weight: 700; color: #2d3748; margin: 0; font-family: 'Inter', sans-serif;">RESUMIX Setup</h2>
+        <h2 style="font-size: 1.5rem; font-weight: 700; color: #2d3748; margin: 0; font-family: 'Inter', sans-serif;">RESUMIX</h2>
     </div>
     """,
         unsafe_allow_html=True,
@@ -218,7 +218,7 @@ with st.sidebar:
         """
     <div style="margin-bottom: 1rem; padding: 0.75rem; background: #f7fafc; border-left: 4px solid #4facfe; border-radius: 4px;">
         <p style="margin: 0; font-weight: 600; color: #2d3748; font-size: 0.9rem;">
-            📄 Upload your resume PDF file to get started with AI-powered analysis, polishing, and optimization.
+            📄 Upload your resume PDF file below
         </p>
     </div>
     """,
@@ -325,7 +325,7 @@ if not st.session_state.resumix_started:
                 Your AI-powered resume enhancement platform. Upload your resume and get started with intelligent analysis, polishing, and optimization.
             </p>
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem 2rem; border-radius: 12px; color: white; margin-top: 1rem;">
-                <p style="margin: 0; font-weight: 500;">👈 Follow the steps in the sidebar to get started</p>
+                <p style="margin: 0; font-weight: 500;">👈 Upload your resume to get started</p>
             </div>
         </div>
         """,

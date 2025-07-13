@@ -225,7 +225,7 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    with st.expander("📄 Upload Resume", expanded=True):
+    with st.expander("", expanded=True):
         uploaded_file = st.file_uploader(
             "Select your resume PDF", type=["pdf"], label_visibility="collapsed"
         )

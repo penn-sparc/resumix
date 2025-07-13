@@ -235,7 +235,6 @@ Please provide an improved version in the same JSON format, making meaningful en
             versions = session.get(f"{section_name}_versions", [])
             if versions:
                 final_version = versions[-1]
-                st.markdown(f"#### ✨ Final Polished Version - {section_name}")
                 self.render_version_section(section_name, final_version, "Final Version")
             
             if st.button(f"🔄 Restart {section_name}", key=f"restart_{section_name}"):
@@ -421,7 +420,7 @@ Please provide an improved version in the same JSON format, making meaningful en
             
             if not comparison_started:
                
-                start_comparison = st.button("🚀 Start Comparison", type="primary", use_container_width=True)
+                start_comparison = st.button("🚀 Start Comparison", type="primary", use_container_width=False)
                 
                 
                     

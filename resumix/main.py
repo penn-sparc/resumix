@@ -207,25 +207,25 @@ with st.sidebar:
     st.markdown(
         """
     <div style="text-align: left; padding: 1rem 0 1.5rem 0; margin-bottom: 1rem;">
-        <h2 style="font-size: 1.5rem; font-weight: 700; color: #2d3748; margin: 0; font-family: 'Inter', sans-serif;">RESUMIX</h2>
+        <h2 style="font-size: 1.5rem; font-weight: 700; color: #2d3748; margin: 0; font-family: 'Inter', sans-serif;">RESUMIX Setup</h2>
     </div>
     """,
         unsafe_allow_html=True,
     )
 
-    # Resume upload with simplified instruction
+    # Step 1: Resume upload with instruction
     st.markdown(
         """
     <div style="margin-bottom: 1rem; padding: 0.75rem; background: #f7fafc; border-left: 4px solid #4facfe; border-radius: 4px;">
         <p style="margin: 0; font-weight: 600; color: #2d3748; font-size: 0.9rem;">
-            📄 Upload your resume below
+            📄 Step 1: Please upload a resume PDF file to get started.
         </p>
     </div>
     """,
         unsafe_allow_html=True,
     )
 
-    with st.expander("", expanded=True):
+    with st.expander("📄 Upload Resume", expanded=True):
         uploaded_file = st.file_uploader(
             "Select your resume PDF", type=["pdf"], label_visibility="collapsed"
         )
@@ -233,6 +233,29 @@ with st.sidebar:
 
         if uploaded_file:
             st.success("✅ Resume uploaded successfully!")
+
+    # Step 2: Job description with instruction
+    st.markdown(
+        """
+    <div style="margin: 1.5rem 0 1rem 0; padding: 0.75rem; background: #f7fafc; border-left: 4px solid #667eea; border-radius: 4px;">
+        <p style="margin: 0; font-weight: 600; color: #2d3748; font-size: 0.9rem;">
+            🔗 Step 2: Please enter a job description link for comparison.
+        </p>
+    </div>
+    """,
+        unsafe_allow_html=True,
+    )
+
+    with st.expander("🔗 Job Description", expanded=True):
+        jd_url = st.text_input(
+            "Job Description URL",
+            placeholder="https://example.com/job-description",
+            key="jd_url",
+            label_visibility="collapsed",
+        )
+
+        if jd_url:
+            st.success("✅ Job description URL added!")
 
     # Start Resumix Button
     st.markdown("<br>", unsafe_allow_html=True)
@@ -325,7 +348,7 @@ if not st.session_state.resumix_started:
                 Your AI-powered resume enhancement platform. Upload your resume and get started with intelligent analysis, polishing, and optimization.
             </p>
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem 2rem; border-radius: 12px; color: white; margin-top: 1rem;">
-                <p style="margin: 0; font-weight: 500;">👈 Upload your resume to get started</p>
+                <p style="margin: 0; font-weight: 500;">👈 Follow the steps in the sidebar to get started</p>
             </div>
         </div>
         """,
@@ -368,6 +391,18 @@ else:
 
         text = st.session_state.resume_text
         STRUCTED_SECTIONS = SessionUtils.get_resume_sections()
+
+        # Handle JD content gracefully (optional for auto-parsing)
+        jd_url = st.session_state.get("jd_url", "")
+        if jd_url and jd_url.strip():
+            try:
+                jd_content = SessionUtils.get_job_description_content()
+            except Exception as e:
+                # JD parsing failed, use fallback
+                jd_content = f"Job description URL provided: {jd_url} (parsing failed)"
+        else:
+            # No JD URL provided, use default
+            jd_content = "No job description provided"
 
         # Tab routing with container styling
         if selected_tab == tab_names[0]:  # Analysis

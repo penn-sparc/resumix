@@ -1,259 +1,310 @@
 import streamlit as st
-from loguru import logger
-from typing import Dict
-from resumix.shared.utils.session_utils import SessionUtils
+from resumix.shared.utils.logger import logger
+from typing import Dict, Any, Optional, Tuple
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from resumix.frontend.components.cards.score_card import ScoreCard
-from resumix.backend.module.score_module import ScoreModule
+from resumix.frontend.components.pages.base_page import BasePage
+from resumix.shared.utils.session_utils import SessionUtils
+from resumix.shared.utils.i18n import LANGUAGES
+
 from resumix.shared.section.section_base import SectionBase
+from resumix.shared.utils.logger import logger
+from resumix.config.config import Config
+
+from resumix.frontend.api.api import score_section_api
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import requests
+
+CONFIG = Config().config
 
 
-class ScorePage:
-    """Page for scoring resume sections against job description"""
-    
+class ScorePage(BasePage):
     def __init__(self):
-        self.score_module = ScoreModule()
-    
-    def _check_prerequisites(self):
-        """Check if resume and JD URL are available"""
-        # Check if resume is uploaded
-        if "resume_text" not in st.session_state or not st.session_state.resume_text:
-            st.warning("📄 Please upload a resume first in the sidebar.")
-            return False
-        
-        # Check if JD URL is provided
-        jd_url = st.session_state.get("jd_url", "")
-        if not jd_url or not jd_url.strip():
-            st.warning("🔗 Please provide a job description URL in the sidebar.")
-            return False
-        
-        return True
-    
-    def _find_section_keys(self, jd_sections: Dict):
-        """Find basic and preferred requirement sections from JD"""
-        basic_key = None
-        preferred_key = None
-        
-        # First, try exact matches
-        for key in jd_sections.keys():
-            key_lower = key.lower()
-            if "basic" in key_lower and ("qualification" in key_lower or "requirement" in key_lower):
-                basic_key = key
-            elif "preferred" in key_lower and ("qualification" in key_lower or "requirement" in key_lower):
-                preferred_key = key
-        
-        # If no exact match, try broader matching
-        if not basic_key:
-            for key in jd_sections.keys():
-                key_lower = key.lower()
-                if any(term in key_lower for term in ["requirement", "qualification", "skill", "must", "essential"]):
-                    basic_key = key
-                    break
-        
-        # Use any section as basic if we still don't have one
-        if not basic_key and jd_sections:
-            basic_key = list(jd_sections.keys())[0]
-            st.warning(f"⚠️ Using '{basic_key}' as basic requirements section")
-        
-        return basic_key, preferred_key
-    
-    def _convert_to_section_base(self, jd_sections: Dict, key: str):
-        """Convert JD section to SectionBase object"""
-        if not key or key not in jd_sections:
-            return None
-        
-        jd_obj = jd_sections[key]
-        
-        if hasattr(jd_obj, 'raw_text'):
-            # Already a SectionBase object
-            jd_text = getattr(jd_obj, 'raw_text', '')
-        elif isinstance(jd_obj, list):
-            jd_text = "\n".join(str(item) for item in jd_obj)
-        elif isinstance(jd_obj, str):
-            jd_text = jd_obj
-        else:
-            jd_text = str(jd_obj)
-        
-        return SectionBase(name=key, raw_text=jd_text)
-    
-    def _score_section(self, section_name: str, section_obj, jd_basic_section, jd_preferred_section):
-        """Score a single resume section"""
-        try:
-            logger.info(f"Scoring section: {section_name}")
-            
-            score_result = self.score_module.score_resume(
-                section_obj,
-                jd_basic_section,
-                jd_preferred_section
-            )
-            
-            logger.info(f"Score result for {section_name}: {score_result}")
-            
-            # Check if we got a valid score result
-            if isinstance(score_result, dict) and not score_result.get('error'):
-                # Display individual section score
-                score_card = ScoreCard(section_name, score_result)
-                score_card.render()
-                st.markdown("---")
-                return True
-            else:
-                # Handle error case
-                error_msg = score_result.get('error', 'Unknown error') if isinstance(score_result, dict) else str(score_result)
-                st.error(f"❌ Scoring failed for {section_name}: {error_msg}")
-                
-                # Show test score card for this section
-                test_scores = {
-                    "Completeness": 5,
-                    "Clarity": 5,
-                    "Relevance": 5,
-                    "Comment": f"Scoring failed for {section_name}: {error_msg}"
-                }
-                test_score_card = ScoreCard(section_name, test_scores)
-                test_score_card.render()
-                st.markdown("---")
-                return False
-                
-        except Exception as e:
-            logger.error(f"Failed to score section {section_name}: {e}")
-            st.error(f"❌ Failed to score {section_name}: {e}")
-            
-            # Show test score card for this section
-            test_scores = {
-                "Completeness": 5,
-                "Clarity": 5,
-                "Relevance": 5,
-                "Comment": f"Scoring failed for {section_name}: {e}"
-            }
-            test_score_card = ScoreCard(section_name, test_scores)
-            test_score_card.render()
-            st.markdown("---")
-            return False
-    
+        super().__init__()
+
+    def set_sections(self, sections: Dict[str, Any]):
+        self.sections = sections
+
+    # def laura_render():
+
+    #     STRUCTED_SECTIONS = []
+    #     # Check if we have JD sections for proper scoring
+    #     try:
+    #         jd_sections = SessionUtils.get_jd_sections()
+
+    #         # Debug: Show what sections we actually got
+    #         st.info(
+    #             f"🔍 Debug: Found {len(jd_sections)} JD sections: {list(jd_sections.keys())}"
+    #         )
+
+    #         # Show JD content for debugging
+    #         st.subheader("📄 JD Sections Content:")
+    #         for key, value in jd_sections.items():
+    #             with st.expander(f"Section: {key}"):
+    #                 if hasattr(value, "raw_text") and hasattr(value, "raw_text"):
+    #                     # SectionBase object
+    #                     raw_text = getattr(value, "raw_text", "")
+    #                     st.text(f"Type: SectionBase\nContent: {raw_text[:200]}...")
+    #                 elif isinstance(value, list):
+    #                     st.text(f"Type: List\nContent: {str(value)[:200]}...")
+    #                 elif isinstance(value, str):
+    #                     st.text(f"Type: String\nContent: {value[:200]}...")
+    #                 else:
+    #                     st.text(f"Type: {type(value)}\nContent: {str(value)[:200]}...")
+
+    #         # Much more flexible section matching
+    #         basic_key = None
+    #         preferred_key = None
+
+    #         # First, try exact matches
+    #         for key in jd_sections.keys():
+    #             key_lower = key.lower()
+    #             if "basic" in key_lower and (
+    #                 "qualification" in key_lower or "requirement" in key_lower
+    #             ):
+    #                 basic_key = key
+    #             elif "preferred" in key_lower and (
+    #                 "qualification" in key_lower or "requirement" in key_lower
+    #             ):
+    #                 preferred_key = key
+
+    #         # If no exact match, try broader matching
+    #         if not basic_key:
+    #             for key in jd_sections.keys():
+    #                 key_lower = key.lower()
+    #                 if any(
+    #                     term in key_lower
+    #                     for term in [
+    #                         "requirement",
+    #                         "qualification",
+    #                         "skill",
+    #                         "must",
+    #                         "essential",
+    #                     ]
+    #                 ):
+    #                     basic_key = key
+    #                     break
+
+    #         # Use any section as basic if we still don't have one
+    #         if not basic_key and jd_sections:
+    #             basic_key = list(jd_sections.keys())[0]
+    #             st.warning(f"⚠️ Using '{basic_key}' as basic requirements section")
+
+    #         st.info(
+    #             f"🎯 Selected sections - Basic: {basic_key}, Preferred: {preferred_key}"
+    #         )
+
+    #         if not basic_key:
+    #             st.warning("⚠️ No suitable JD sections found for scoring")
+    #             st.info("📊 Available sections: " + ", ".join(jd_sections.keys()))
+
+    #             # Show simple dummy score for testing
+    #             st.subheader("🧪 Test Score Card")
+    #             test_scores = {
+    #                 "Completeness": 8,
+    #                 "Clarity": 7,
+    #                 "Relevance": 6,
+    #                 "ProfessionalLanguage": 9,
+    #                 "AchievementOriented": 5,
+    #                 "QuantitativeSupport": 4,
+    #                 "Comment": "This is a test score card with dummy data",
+    #             }
+    #             test_score_card = ScoreCard("Test Section", test_scores)
+    #             test_score_card.render()
+
+    #         else:
+    #             # Import SectionBase for JD section conversion
+
+    #             # Convert JD sections to SectionBase objects using flexible keys
+    #             jd_basic_obj = jd_sections[basic_key]
+    #             if hasattr(jd_basic_obj, "raw_text") and getattr(
+    #                 jd_basic_obj, "raw_text", ""
+    #             ):
+    #                 # Already a SectionBase object
+    #                 jd_basic_text = getattr(jd_basic_obj, "raw_text", "")
+    #             elif isinstance(jd_basic_obj, list):
+    #                 jd_basic_text = "\n".join(str(item) for item in jd_basic_obj)
+    #             elif isinstance(jd_basic_obj, str):
+    #                 jd_basic_text = jd_basic_obj
+    #             else:
+    #                 jd_basic_text = str(jd_basic_obj)
+    #             jd_basic_section = SectionBase(name=basic_key, raw_text=jd_basic_text)
+
+    #             if preferred_key and jd_sections.get(preferred_key):
+    #                 jd_preferred_obj = jd_sections[preferred_key]
+    #                 if hasattr(jd_preferred_obj, "raw_text") and getattr(
+    #                     jd_preferred_obj, "raw_text", ""
+    #                 ):
+    #                     # Already a SectionBase object
+    #                     jd_preferred_text = getattr(jd_preferred_obj, "raw_text", "")
+    #                 elif isinstance(jd_preferred_obj, list):
+    #                     jd_preferred_text = "\n".join(
+    #                         str(item) for item in jd_preferred_obj
+    #                     )
+    #                 elif isinstance(jd_preferred_obj, str):
+    #                     jd_preferred_text = jd_preferred_obj
+    #                 else:
+    #                     jd_preferred_text = str(jd_preferred_obj)
+    #                 jd_preferred_section = SectionBase(
+    #                     name=preferred_key, raw_text=jd_preferred_text
+    #                 )
+    #             else:
+    #                 # Create empty preferred section when not available
+    #                 jd_preferred_section = SectionBase(
+    #                     name="requirements_preferred", raw_text=""
+    #                 )
+
+    #             # Initialize scoring module
+    #             score_module = ScoreModule()
+
+    #             # Show overall scoring progress
+    #             st.success("✅ JD sections found! Starting real scoring...")
+
+    #             # Score each section
+    #             section_scores = {}
+    #             for section_name, section_obj in STRUCTED_SECTIONS.items():
+    #                 try:
+    #                     with st.spinner(f"Scoring {section_name}..."):
+    #                         score_result = score_module.score_resume(
+    #                             section_obj,
+    #                             jd_basic_section,
+    #                             jd_preferred_section,
+    #                         )
+    #                         section_scores[section_name] = score_result
+
+    #                         # Display individual section score
+    #                         score_card = ScoreCard(section_name, score_result)
+    #                         score_card.render()
+    #                         st.markdown("---")
+
+    #                 except Exception as e:
+    #                     logger.error(f"Failed to score section {section_name}: {e}")
+    #                     st.error(f"Failed to score {section_name}: {e}")
+    #                     # Show test score card for this section
+    #                     test_scores = {
+    #                         "Completeness": 8,
+    #                         "Clarity": 7,
+    #                         "Relevance": 6,
+    #                         "Comment": f"Scoring failed for {section_name}: {e}",
+    #                     }
+    #                     test_score_card = ScoreCard(section_name, test_scores)
+    #                     test_score_card.render()
+    #                     st.markdown("---")
+
+    #             if section_scores:
+    #                 st.success("✅ Resume scoring completed!")
+
+    #     except Exception as e:
+    #         logger.error(f"Failed to get JD sections: {e}")
+    #         st.error(f"⚠️ Job description parsing failed: {e}")
+    #         st.info(
+    #             "📊 Upload a resume and add a job description to see detailed scoring"
+    #         )
+
+    #         # Show simple dummy score for testing
+    #         st.subheader("🧪 Test Score Card")
+    #         test_scores = {
+    #             "Completeness": 8,
+    #             "Clarity": 7,
+    #             "Relevance": 6,
+    #             "ProfessionalLanguage": 9,
+    #             "AchievementOriented": 5,
+    #             "QuantitativeSupport": 4,
+    #             "Comment": "This is a test score card with dummy data",
+    #         }
+    #         test_score_card = ScoreCard("Test Section", test_scores)
+    #         test_score_card.render()
+
     def render(self):
-        """Render the score page"""
-        st.markdown("## 📊 Resume Scoring")
-        
-        # Check prerequisites
-        if not self._check_prerequisites():
-            # Show demo score card
-            st.subheader("🧪 Demo Score Card")
-            st.info("This is a demonstration of how scoring results will look:")
-            
-            demo_scores = {
-                "Completeness": 8,
-                "Clarity": 7,
-                "Relevance": 6,
-                "ProfessionalLanguage": 9,
-                "AchievementOriented": 5,
-                "QuantitativeSupport": 4,
-                "Comment": "This is a demo score card showing how results will be displayed."
-            }
-            demo_card = ScoreCard("Demo Section", demo_scores)
-            demo_card.render()
-            return
-        
-        try:
-            # Parse JD sections
-            with st.spinner("Parsing job description..."):
-                jd_sections = SessionUtils.get_jd_sections()
-            
-            # Show basic info about parsed sections
-            st.success(f"✅ Job description parsed successfully! Found {len(jd_sections)} sections.")
-            
-            # Show sections in a more compact way
-            with st.expander("📄 View Parsed JD Sections"):
-                for key, value in jd_sections.items():
-                    st.markdown(f"**{key}:**")
-                    if hasattr(value, 'raw_text'):
-                        content = getattr(value, 'raw_text', '')
-                        st.text(content[:300] + "..." if len(content) > 300 else content)
-                    elif isinstance(value, list):
-                        st.text(str(value)[:300] + "..." if len(str(value)) > 300 else str(value))
-                    elif isinstance(value, str):
-                        st.text(value[:300] + "..." if len(value) > 300 else value)
-                    else:
-                        st.text(str(value)[:300] + "..." if len(str(value)) > 300 else str(value))
-                    st.markdown("---")
-            
-            # Find section keys
-            basic_key, preferred_key = self._find_section_keys(jd_sections)
-            
-            st.info(f"🎯 Selected sections - Basic: {basic_key}, Preferred: {preferred_key}")
-            
-            if not basic_key:
-                st.warning("⚠️ No suitable JD sections found for scoring")
-                st.info("📊 Available sections: " + ", ".join(jd_sections.keys()))
-                
-                # Show demo score card
-                st.subheader("🧪 Demo Score Card")
-                demo_scores = {
-                    "Completeness": 8,
-                    "Clarity": 7,
-                    "Relevance": 6,
-                    "ProfessionalLanguage": 9,
-                    "AchievementOriented": 5,
-                    "QuantitativeSupport": 4,
-                    "Comment": "Demo score card - no suitable JD sections found for real scoring"
+
+        with st.container():
+            RESUME_SECTIONS = SessionUtils.get_resume_sections()
+            JD_SECTIONS = SessionUtils.get_jd_sections()
+
+            if "requirements_basic" not in JD_SECTIONS:
+                for section in JD_SECTIONS.values():
+                    st.warning(f"section: {section}")
+                st.warning("❗岗位描述缺少字段 requirements_basic，无法评分分析。")
+                return
+
+            with st.spinner("正在调用评分服务..."):
+                try:
+                    results = self._render_sections(
+                        sections=RESUME_SECTIONS,
+                        jd_basic=JD_SECTIONS["requirements_basic"],
+                        jd_preferred=JD_SECTIONS.get("requirements_preferred"),
+                        max_workers=5,  # 可调整并发数量
+                    )
+                except Exception as e:
+                    st.error(f"❌ 请求失败: {e}")
+                    return
+
+            st.success("所有简历段落评分完成 ✅")
+
+    def _render_sections(
+        self,
+        sections: Dict[str, SectionBase],
+        jd_basic: SectionBase,
+        jd_preferred: Optional[SectionBase] = None,
+        max_workers: int = 5,
+    ) -> Dict[str, Any]:
+        """
+        每次调用评分 API 只处理一个 section，并发执行 + 即时展示
+        """
+        results = {}
+
+        # 准备 JD 数据
+        jd_basic.parse()
+        jd_basic_data = jd_basic.model_dump()
+
+        jd_preferred_data = None
+        if jd_preferred:
+            jd_preferred.parse()
+            jd_preferred_data = jd_preferred.model_dump()
+
+        def score_single(name: str, section: SectionBase) -> Tuple[str, Dict[str, Any]]:
+            section.parse()
+            payload = {
+                "data": {
+                    "section": section.model_dump(),
+                    "jd_section_basic": jd_basic_data,
+                    "jd_section_preferred": jd_preferred_data,
                 }
-                demo_card = ScoreCard("Demo Section", demo_scores)
-                demo_card.render()
-                return
-            
-            # Convert JD sections to SectionBase objects
-            jd_basic_section = self._convert_to_section_base(jd_sections, basic_key) if basic_key else None
-            jd_preferred_section = self._convert_to_section_base(jd_sections, preferred_key) if preferred_key else None
-            
-            if not jd_preferred_section:
-                jd_preferred_section = SectionBase(name="requirements_preferred", raw_text="")
-            
-            # Get resume sections
-            resume_sections = SessionUtils.get_resume_sections()
-            
-            if not resume_sections:
-                st.error("❌ No resume sections found. Please upload a valid resume.")
-                return
-            
-            # Show overall scoring progress
-            st.success("✅ JD sections found! Starting resume scoring...")
-            
-            # Score each section
-            section_scores = {}
-            progress_bar = st.progress(0)
-            status_text = st.empty()
-            
-            total_sections = len(resume_sections)
-            successful_scores = 0
-            
-            for i, (section_name, section_obj) in enumerate(resume_sections.items()):
-                status_text.text(f"Scoring {section_name}... ({i+1}/{total_sections})")
-                progress_bar.progress((i + 1) / total_sections)
-                
-                if self._score_section(section_name, section_obj, jd_basic_section, jd_preferred_section):
-                    successful_scores += 1
-            
-            # Clear progress indicators
-            progress_bar.empty()
-            status_text.empty()
-            
-            if successful_scores > 0:
-                st.success(f"✅ Resume scoring completed! Scored {successful_scores} sections successfully.")
-            else:
-                st.warning("⚠️ No sections were scored successfully. Please check your resume and job description.")
-                
-        except Exception as e:
-            logger.error(f"Failed to get JD sections: {e}")
-            st.error(f"⚠️ Job description parsing failed: {e}")
-            st.info("📊 Please check your job description URL and try again.")
-            
-            # Show demo score card
-            st.subheader("🧪 Demo Score Card")
-            demo_scores = {
-                "Completeness": 8,
-                "Clarity": 7,
-                "Relevance": 6,
-                "ProfessionalLanguage": 9,
-                "AchievementOriented": 5,
-                "QuantitativeSupport": 4,
-                "Comment": "Demo score card - JD parsing failed"
             }
-            demo_card = ScoreCard("Demo Section", demo_scores)
-            demo_card.render()
+            try:
+                result = score_section_api(payload)
+                return name, result
+            except Exception as e:
+                logger.exception(f"❌ Failed to score {name}")
+                return name, {"error": str(e)}
+
+        # 使用线程池并发评分
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_name = {
+                executor.submit(score_single, name, section): name
+                for name, section in sections.items()
+            }
+
+            finished = 0
+            total = len(sections)
+            progress_bar = st.progress(0)
+
+            for future in as_completed(future_to_name):
+                name = future_to_name[future]
+                try:
+                    name, result = future.result()
+                    results[name] = result
+                    with st.spinner(f"正在展示 {sections[name].name}..."):
+                        score_card = ScoreCard(sections[name].name, result)
+                        score_card.render()
+                        st.markdown("---")
+                except Exception as e:
+                    logger.exception(f"❌ Exception in future for {name}")
+                    results[name] = {"error": str(e)}
+                    st.error(f"评分服务调用失败（{name}）: {e}")
+
+                finished += 1
+                progress_bar.progress(finished / total)
+
+        return results

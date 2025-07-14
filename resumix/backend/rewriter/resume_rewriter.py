@@ -13,9 +13,9 @@ class ResumeRewriter(BaseRewriter):
     def __init__(self, llm):
         super().__init__(llm)
 
-    def rewrite_section(self, section: SectionBase, jd_text: str = "") -> str:
+    def rewrite_section(self, section: SectionBase, jd_text: str = "", prompt_mode=PromptMode.DEFAULT) -> str:
         # 获取针对该 section 的 prompt
-        prompt = PromptDispatcher().get_prompt(section)
+        prompt = PromptDispatcher().get_prompt(section, prompt_mode)
         logger.info(f"Rewriting section '{section.name}' with LLM...")
 
         # 调用 LLM 接口

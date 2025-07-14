@@ -10,10 +10,8 @@ from resumix.shared.utils.json_parser import JsonParser
 
 class SectionRender:
 
-    def render_section(self, section: SectionBase):
+    def render_section(self, section_name: str, section_json: str):
         """根据 section 名称渲染不同格式的 JSON 内容"""
-        section_json = section.rewritten_text
-        section_name = section.name
         try:
             section_json = self._strip_markdown_code_fence(section_json)
             logger.info(f"Section JSON: {section_json}")

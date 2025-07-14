@@ -24,6 +24,21 @@ def compare_section_api(section: SectionBase, jd_content: str):
     return response.json().get("data", {})
 
 
+def format_section_api(section: SectionBase, jd_content: str):
+
+    logger.info("Calling compare API")
+    payload = {"data": {"section": section.model_dump(), "jd_content": jd_content}}
+
+    response = requests.post(
+        url=CONFIG.BACKEND.HOST + "/compare/format", json=payload, timeout=60
+    )
+    logger.info(response.json())
+
+    logger.info(type(response.json().get("data", {})))
+
+    return response.json().get("data", {})
+
+
 def score_section_api(
     payload: Dict[str, Any],
 ) -> Dict[str, Any]:

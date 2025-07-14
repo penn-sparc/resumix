@@ -1,0 +1,104 @@
+\documentclass[a4paper]{article}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{textcomp}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\textheight=10in
+\pagestyle{empty}
+\raggedright
+\usepackage[left=0.8in,right=0.8in,bottom=0.8in,top=0.8in]{geometry}
+
+%\renewcommand{\encodingdefault}{cg}
+%\renewcommand{\rmdefault}{lgrcmr}
+\def\bull{\vrule height 0.8ex width .7ex depth -.1ex }
+% DEFINITIONS FOR RESUME 
+\newcommand{\area} [2] {
+    \vspace*{-9pt}
+    \begin{verse}
+        \textbf{#1}   #2
+    \end{verse}
+}
+\newcommand{\lineunder} {
+    \vspace*{-8pt} \\
+    \hspace*{-18pt} \hrulefill \\
+}
+\newcommand{\header} [1] {
+    {\hspace*{-18pt}\vspace*{6pt} \textsc{#1}}
+    \vspace*{-6pt} \lineunder
+}
+% END RESUME DEFINITIONS
+
+\begin{document}
+\vspace*{-40pt}
+
+
+%==== Profile ====%
+\vspace*{-10pt}
+\begin{center}
+  {\Huge \scshape {Zhang San}}\\
+   123 Tsinghua Road, Beijing, China $\cdot$    zhangsan@example.com $\cdot$    +86 123{-}4567{-}8901 $\cdot$    https://zhangsan.dev \
+\end{center}
+
+
+%==== Education ====%
+\header{Education}
+ \textbf{Tsinghua University}  
+ \hfill Beijing, China \\
+ Bachelor   in Computer Science and Technology   \textit{GPA: 3.8/4.0} \hfill
+ 2018{-}09 -  2022{-}07 \\
+\vspace{2mm}
+
+
+
+%==== Experience ====%
+\header{Work Experience}
+\vspace{1mm}
+ \textbf{ByteDance}  
+ \hfill Beijing, China \\
+ \textit{Backend Intern}  
+\hfill
+ 2022{-}07 -  2022{-}12 \\
+\vspace{-1mm}
+\begin{itemize} \itemsep 1pt
+    \item Optimized microservice latency by 35\% via Redis{-}based caching.
+    \item Designed an asynchronous pipeline for high{-}QPS video recommendation backend.
+    \item Collaborated with front{-}end team to reduce average user response time by 20\%.
+\end{itemize}
+
+
+
+
+%==== Skills ====%
+\header{Skills}
+\begin{tabular}{ l l }
+	    Programming Languages: & Python, Go, C++\\
+        Databases: & PostgreSQL, MongoDB, Redis\\
+        Tools: & Docker, Git, Linux\\
+        Cloud: & GCP, Kubernetes, Terraform\\
+    \end{tabular}
+\vspace{2mm}
+
+
+%==== Projects ====%
+\header{Projects}
+ {\textbf{AI Resume Optimization Assistant}} {\sl RAG, FastAPI, FAISS } 
+\hfill 
+ https://github.com/zhangsan/ai{-}resume \\
+ A system leveraging RAG and vector DBs to rewrite and optimize resumes. \\
+\vspace*{2mm}
+
+
+
+%==== Awards ====%
+\header{Awards}
+\textbf{ACM ICPC Regional Bronze Medal}\hfill
+ACM Asia \\
+Achieved outstanding performance in algorithmic regional competition.\hfill
+2021{-}12\\
+\vspace*{2mm}
+
+
+
+\end{document}

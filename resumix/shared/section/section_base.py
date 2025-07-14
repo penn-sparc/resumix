@@ -7,6 +7,7 @@ class SectionBase(BaseModel):
     name: str
     raw_text: str
     lines: List[str] = []
+    json_text: Optional[str] = None
     structured_data: Optional[Dict[str, Any]] = None
     rewritten_text: Optional[str] = None
     original_lines: Optional[List[str]] = None

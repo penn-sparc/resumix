@@ -128,25 +128,3 @@ class ScoreCard(BaseCard):
             st.markdown("#### 📋 Score Details")
             self.render_score_table()
             self.render_comment()
-
-    def render(self):
-        """Main render method that puts everything together"""
-        logger.info(f"Displaying scores for section: {self.section_name}")
-        
-        # Render header
-        st.header(f"{self.icon} {self.title}")
-        
-        # Check if we have scoring data
-        if not self.score_items:
-            st.info("📊 Upload a resume and add a job description to see detailed scoring")
-            return
-        
-        # Two-column layout
-        col1, col2 = st.columns([1, 2])
-        
-        with col1:
-            self.render_radar_chart()
-            
-        with col2:
-            self.render_score_table()
-            self.render_comment()

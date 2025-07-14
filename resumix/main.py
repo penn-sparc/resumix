@@ -28,7 +28,7 @@ from resumix.frontend.components.cards.compare_card import CompareCard
 from resumix.frontend.components.pages.score_page import ScorePage
 from resumix.frontend.components.pages.agent_page import AgentPage
 from resumix.frontend.components.pages.compare_page import ComparePage
-
+from resumix.frontend.components.pages.parsing_page import ParsingPage
 
 # Import utilities
 from resumix.shared.utils.llm_client import LLMClient, LLMWrapper
@@ -38,6 +38,8 @@ from resumix.shared.utils.i18n import LANGUAGES
 from loguru import logger
 from resumix.config.config import Config
 from langchain.agents import initialize_agent, AgentType
+
+import threading
 
 # Config setup
 CONFIG = Config().config
@@ -57,7 +59,6 @@ agent = initialize_agent(
     max_iterations=5,
 )
 
-RESUME_REWRITER = ResumeRewriter(llm_model)
 
 # Page configuration
 st.set_page_config(
@@ -379,7 +380,7 @@ else:
         if "resume_text" not in st.session_state:
             st.session_state.resume_text = SessionUtils.get_resume_text()
 
-        executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
+        # executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 
         # Background section extraction (non-blocking)
         if "resume_sections" not in st.session_state:
@@ -396,7 +397,7 @@ else:
         jd_url = st.session_state.get("jd_url", "")
         if jd_url and jd_url.strip():
             try:
-                jd_content = SessionUtils.get_job_description_content()
+                threading.thread(target=SessionUtils.get_jd_sections).start()
             except Exception as e:
                 # JD parsing failed, use fallback
                 jd_content = f"Job description URL provided: {jd_url} (parsing failed)"
@@ -406,10 +407,8 @@ else:
 
         # Tab routing with container styling
         if selected_tab == tab_names[0]:  # Analysis
-            with st.container():
-                analysis_card = AnalysisCard()
-                analysis_card.render()
-
+            parsing_page = ParsingPage()
+            parsing_page.render()
         elif selected_tab == tab_names[1]:  # Polish
             with st.container():
                 polish_card(text, llm_model)

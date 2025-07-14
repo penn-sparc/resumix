@@ -16,6 +16,7 @@ from resumix.shared.utils.logger import logger
 from resumix.frontend.api.api import compare_section_api
 
 from resumix.shared.utils.json_parser import JsonParser
+from resumix.shared.utils.session_utils import SessionUtils
 
 
 # class CompareCard:
@@ -67,7 +68,7 @@ class CompareCard(BaseCard):
             comment=comment,
             additional_content=additional_content,
         )
-        self.T = LANGUAGES[st.session_state.lang]
+        self.T = LANGUAGES[SessionUtils.get_language()]
         self.section_render = SectionRender()
 
     def render_version_section(
@@ -130,14 +131,14 @@ class CompareCard(BaseCard):
     def _render_json_section(self, section_name: str, section_obj: SectionBase):
 
         try:
-            st.markdown(f"#### {self.T['compare']['original']} - {section_name}")
+            # st.markdown(f"#### {self.T['compare']['original']} - {section_name}")
 
             # Check if section has rewritten content
-            with st.chat_message("assistant"):
-                st.write(self.T["compare"]["polished_content"])
-                self.section_render.render_section(
-                    section_name, section_json=section_obj.json_text
-                )
+            #            with st.chat_message("assistant"):
+            # st.write(self.T["compare"]["polished_content"])
+            self.section_render.render_section(
+                section_name, section_json=section_obj.json_text
+            )
 
         except Exception as e:
             logger.error(f"Failed to render polished section {section_name}: {e}")
@@ -152,14 +153,14 @@ class CompareCard(BaseCard):
             section_obj: SectionBase object containing original content
         """
         try:
-            st.markdown(f"#### {self.T['compare']['polished']} - {section_name}")
+            # st.markdown(f"#### {self.T['compare']['polished']} - {section_name}")
 
             # Check if section has rewritten content
-            with st.chat_message("assistant"):
-                st.write(self.T["compare"]["polished_content"])
-                self.section_render.render_section(
-                    section_name, section_json=section_obj.rewritten_text
-                )
+            # with st.chat_message("assistant"):
+            st.write(self.T["compare"]["polished_content"])
+            self.section_render.render_section(
+                section_name, section_json=section_obj.rewritten_text
+            )
 
         except Exception as e:
             logger.error(f"Failed to render polished section {section_name}: {e}")

@@ -4,14 +4,14 @@ import requests
 from typing import Dict, Any, List
 from resumix.shared.utils.logger import logger
 import streamlit as st
-
+import json
 
 CONFIG = Config().config
 
 
 def compare_section_api(section: SectionBase, jd_content: str):
     logger.info("Calling compare API")
-    payload = {"data": {"section": section.model_dump(), "jd_content": jd_content}}
+    payload = {"data": {"section": section.to_dict(), "jd_content": jd_content}}
 
     response = requests.post(
         url=CONFIG.BACKEND.HOST + "/compare/section", json=payload, timeout=60
@@ -24,19 +24,72 @@ def compare_section_api(section: SectionBase, jd_content: str):
     return response.json().get("data", {})
 
 
+def check_serializability(obj, prefix="root"):
+    try:
+        json.dumps(obj)
+    except TypeError as e:
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                check_serializability(v, prefix=f"{prefix}.{k}")
+        elif isinstance(obj, list):
+            for i, item in enumerate(obj):
+                check_serializability(item, prefix=f"{prefix}[{i}]")
+        else:
+            logger.error(
+                f"❌ Non-serializable value at {prefix}: {repr(obj)} ({type(obj)}) — {e}"
+            )
+
+
 def format_section_api(section: SectionBase, jd_content: str):
+    try:
+        logger.info("🚀 Calling compare API")
 
-    logger.info("Calling compare API")
-    payload = {"data": {"section": section.model_dump(), "jd_content": jd_content}}
+        # ✅ 正确地序列化 SectionBase 子类
+        section_dict = section.model_dump(mode="json", exclude_none=True)
 
-    response = requests.post(
-        url=CONFIG.BACKEND.HOST + "/compare/format", json=payload, timeout=60
-    )
-    logger.info(response.json())
+        logger.info(f"🧾 Section type: {type(section)}")
 
-    logger.info(type(response.json().get("data", {})))
+        # ✅ 这里只打印 section_dict，而不是 section 本体
+        try:
+            logger.info(
+                f"🧾 Section dict preview: {json.dumps(section_dict, indent=2, ensure_ascii=False)}"
+            )
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to json.dumps section_dict: {e}")
 
-    return response.json().get("data", {})
+        payload = {
+            "data": {
+                "section": section_dict,
+                "jd_content": jd_content,
+            }
+        }
+
+        check_serializability(payload)
+
+        # ✅ 只打印真正是 dict 的 payload，不要含任何对象
+        try:
+            logger.info(
+                f"📦 Payload preview: {json.dumps(payload, indent=2, ensure_ascii=False)}"
+            )
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to json.dumps payload: {e}")
+
+        # ✅ 发送请求
+        response = requests.post(
+            url=CONFIG.BACKEND.HOST + "/compare/format", json=payload, timeout=60
+        )
+
+        logger.info(f"✅ Response status code: {response.status_code}")
+        logger.info(f"📨 Response content: {response.text}")
+
+        response_data = response.json().get("data", {})
+        logger.info(f"📦 Parsed data type: {type(response_data)}")
+
+        return response_data
+
+    except Exception as e:
+        logger.error(f"❌ Failed to call compare/format API: {e}")
+        raise
 
 
 def score_section_api(

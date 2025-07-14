@@ -6,7 +6,7 @@ from resumix.shared.utils.url_fetcher import UrlFetcher
 import streamlit as st
 from config.config import Config
 import easyocr
-
+from resumix.shared.utils.i18n import LANGUAGES
 from paddleocr import PaddleOCR
 
 CONFIG = Config().config
@@ -155,3 +155,13 @@ class SessionUtils:
     def get_section_data(section_name: str) -> dict:
         sections = SessionUtils.get_resume_sections()
         return sections.get(section_name).to_dict() if section_name in sections else {}
+
+    @staticmethod
+    def get_language():
+        if "lang" not in st.session_state:
+            st.session_state.lang = "en"
+        return st.session_state.lang
+
+    @staticmethod
+    def get_T():
+        return LANGUAGES[SessionUtils.get_language()]

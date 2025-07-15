@@ -166,6 +166,73 @@ class ComparePage:
                         "polishing_failed"
                     ].format(error=str(e))
 
+    def _render_section_comparisons(
+        self, sections: Dict[str, SectionBase], jd_content: str
+    ):
+        for section_name, section_obj in sections.items():
+            st.divider()
+            st.markdown(f"### 📝 {section_name.replace('_', ' ').title()}")
+
+            # 获取当前版本的原文和重写版本
+            left_version, right_version = self._get_section_current_versions(
+                section_name
+            )
+
+            # 使用 Streamlit 的两列布局显示左侧原文和右侧重写版本
+            col1, col2 = st.columns(2)
+            with col1:
+                version = left_version["version"]
+
+                logger.warning(f"left_version: {version}")
+
+                # CompareCard().render_version_section(
+                #     section_name, section_obj, version_label=version
+                # )
+                CompareCard()._render_json_section(section_name, section_obj)
+
+            with col2:
+                version = right_version["version"]
+                # CompareCard().render_version_section(
+                #     section_name, section_obj, version_label=version
+                # )
+                CompareCard()._render_polished_section(section_name, section_obj)
+
+            # 渲染用户选择的按钮
+            choice = self._render_version_choice_buttons(
+                section_name, left_version, right_version
+            )
+            if choice:
+                self._handle_section_choice(
+                    section_name, choice, left_version, right_version, jd_content
+                )
+
+    def _render_version_choice_buttons(self, section_name, left_version, right_version):
+        col1, col2, col3 = st.columns([2, 1, 2])
+        with col1:
+            if st.button(
+                "Keep polishing with this version", key=f"choose_left_{section_name}"
+            ):
+                return "left"
+            if st.button(
+                "✅ I'm happy with this version", key=f"done_left_{section_name}"
+            ):
+                return "done_left"
+        with col2:
+            st.markdown(
+                "<div style='text-align: center; padding-top: 0.5rem; font-size: 0.8rem;'>OR</div>",
+                unsafe_allow_html=True,
+            )
+        with col3:
+            if st.button(
+                "Keep polishing with this version", key=f"choose_right_{section_name}"
+            ):
+                return "right"
+            if st.button(
+                "✅ I'm happy with this version", key=f"done_right_{section_name}"
+            ):
+                return "done_right"
+        return None
+
     def _handle_section_choice(
         self, section_name, choice, left_version, right_version, jd_content
     ):

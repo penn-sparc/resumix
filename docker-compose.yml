@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  resumix-app:
+    build: .
+    container_name: resumix-app
+    ports:
+      - "8501:8501"  # Streamlit frontend
+      - "8000:8000"  # FastAPI backend
+    volumes:
+      - ./uploads:/app/uploads  # For uploaded files
+      - ./logs:/app/logs        # For logs
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+      # Add your API keys here or use .env file
+      # - DEEPSEEK_API_KEY=your_key_here
+      # - SILICON_API_KEY=your_key_here
+      # - TELEAI_API_KEY=your_key_here
+      # - TELEAI_USERNAME=your_username_here
+    command: >
+      bash -c "
+        export PYTHONPATH=/app:\$$PYTHONPATH &&
+        python3 resumix/server.py &
+        streamlit run resumix/main.py --server.port=8501 --server.address=0.0.0.0
+      "
+    restart: unless-stopped
+
+volumes:
+  uploads:
+  logs:

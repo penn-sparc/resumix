@@ -12,10 +12,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     GLOG_v=1
 
 
-# 使用国内源加速构建（可选）
-RUN echo "deb http://mirrors.aliyun.com/debian bullseye main contrib non-free" > /etc/apt/sources.list && \
-    echo "deb http://mirrors.aliyun.com/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
-    echo "deb http://mirrors.aliyun.com/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list
+# Use standard Debian sources
+RUN echo "deb http://deb.debian.org/debian bullseye main contrib non-free" > /etc/apt/sources.list && \
+    echo "deb http://deb.debian.org/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
+    echo "deb http://security.debian.org/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list
 
 # 安装系统依赖
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -32,11 +32,11 @@ COPY . /app
 RUN pip install --upgrade pip \
     && pip install poetry \
     && poetry config virtualenvs.create false \
+    && poetry lock \
     && poetry install --no-interaction --no-ansi
 
 # 暴露 Streamlit 默认端口
 EXPOSE 8501
 
-# 启动 Streamlit 应用
-# CMD ["streamlit", "run", "resumix/main.py", "--server.port=8501", "--server.address=0.0.0.0"]
-CMD ["sleep", "infinity"]
+# 启动应用服务
+CMD bash -c "export PYTHONPATH=/app:\$PYTHONPATH && python3 resumix/server.py & streamlit run resumix/main.py --server.port=8501 --server.address=0.0.0.0"

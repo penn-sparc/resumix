@@ -56,6 +56,30 @@ RESUMIX is a tool for generating resumes in various formats. It allows users to 
    ```bash
    export PYTHONPATH=$(pwd):$PYTHONPATH && python3 resumix/server.py
    ```
+
+### 🐳 Docker Deployment (Recommended)
+
+For easy deployment, use the provided management scripts:
+
+```bash
+# Start the application
+./start.sh
+
+# Check status
+./status.sh
+
+# Stop the application
+./stop.sh
+
+# Restart the application
+./restart.sh
+```
+
+**Access the application:**
+- **Frontend (Streamlit)**: http://localhost:8501
+- **Backend API (FastAPI)**: http://localhost:8000
+
+See `DOCKER_SETUP.md` for detailed Docker deployment instructions.
 ### Troubleshooting
 
 If you encounter import errors:

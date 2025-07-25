@@ -23,7 +23,7 @@ class ComparePage:
         if "skip_mask" not in st.session_state:
             st.session_state["skip_mask"] = set()
         self.skip_mask = st.session_state["skip_mask"]
-        self.skip_mask.clear()
+        # self.skip_mask.clear()
 
     def render(self):
         # 检查是否满足所有前置条件
@@ -131,6 +131,10 @@ class ComparePage:
                     # 将 Future 对象存储到 futures 字典中
                     futures[future] = section_name
                     self.skip_mask.add(section_name)  # 标记该段已被处理
+                else:
+                    logger.info(
+                        f"Skipping section {section_name} as it is already processed."
+                    )
 
         with st.spinner("🔄 Generating polished versions..."):
             for future in as_completed(futures):

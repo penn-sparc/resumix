@@ -1,0 +1,32 @@
+[
+  {
+    "text": "Developed a distributed microservices backend using Golang and gRPC, achieving 99.9% uptime and supporting over 10 million daily requests."
+  },
+  {
+    "text": "Deployed and managed Kubernetes clusters for staging and production environments, ensuring seamless CI/CD integration and blue-green releases."
+  },
+  {
+    "text": "Built RESTful and gRPC APIs for internal services, including authentication, task scheduling, and data ingestion modules."
+  },
+  {
+    "text": "Implemented monitoring and logging solutions using Prometheus and Grafana to improve system observability and reliability."
+  },
+  {
+    "text": "Collaborated with product managers and frontend engineers to deliver scalable features under Agile development practices."
+  },
+  {
+    "text": "Designed a message queue architecture using Kafka and Redis Stream to decouple services and improve throughput under high concurrency."
+  },
+  {
+    "text": "Proficient in Golang, Docker, Kubernetes, MySQL, Redis, and Git; experienced in cloud-native backend system development."
+  },
+  {
+    "text": "Job Requirement: Strong experience with Go or Java backend development; familiarity with container orchestration platforms like Kubernetes."
+  },
+  {
+    "text": "Job Requirement: Ability to design and implement high-concurrency systems, optimize service latency, and handle distributed transactions."
+  },
+  {
+    "text": "Job Requirement: Knowledge of microservices, API gateway, service mesh (e.g., Istio), and gRPC-based service-to-service communication."
+  }
+]

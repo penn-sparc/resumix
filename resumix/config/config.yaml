@@ -36,6 +36,11 @@ sentence_transformer:
   use_model: "paraphrase-multilingual-MiniLM-L12-v2"
   directory: "resumix/models/sentence_transformer"
 
+
+rag:
+  index_path: "resumix/data/index.json"
+  data_path: "resumix/data/data.json"
+
   # use_easyocr: True
   # use_paddle: False
   # easyocr:

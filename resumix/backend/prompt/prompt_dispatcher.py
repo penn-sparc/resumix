@@ -111,4 +111,43 @@ class PromptDispatcher:
             CV_TEXT=content, TECH_STACK=tech_stacks_str, JOB_POSITION=job_positions_str
         )
 
+    def get_rag_prompt(
+        self,
+        section: SectionBase,
+        tech_stacks: List[str],
+        job_positions: List[str],
+        retrieved_context: str,
+    ) -> str:
+        prompt = f"""
+You are a professional resume rewriting assistant with deep understanding of technical hiring expectations.
+
+Your task is twofold:
+1. ✍️ If the resume section is relevant to the target job and tech stack, rewrite it to better showcase achievements, technical skills, and impact.
+2. 📚 If the resume section does not sufficiently reflect the required skills or experience, suggest **what knowledge or experience the candidate should gain or highlight**, based on the job requirements and reference materials.
+
+---
+
+## 🎯 Target Job Positions:
+{', '.join(job_positions)}
+
+## 🧰 Relevant Tech Stack:
+{', '.join(tech_stacks)}
+
+## 📚 Reference Context (retrieved from job descriptions or exemplary resumes):
+{retrieved_context.strip()}
+
+---
+
+Now process the following resume section accordingly.
+
+## 📝 Original Resume Section:
+{section.raw_text.strip()}
+
+---
+
+## ✨ Your Output Should Include:
+- ✨ Rewritten Resume Section (if applicable)
+- 📌 Suggestions for knowledge, tools, or experience the candidate can learn to better match the job (if needed)
+"""
+
         return prompt

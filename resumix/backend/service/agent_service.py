@@ -16,4 +16,4 @@ class AgentService(BaseService):
     def optimize_resume(
         self, sections: List[SectionBase], tech_stacks: List[str], job_positions: List[str]
     ) -> str:
-        return self.rewriter.rewrite_section(sections, tech_stacks, job_positions)
+        return self.rewriter.rewrite_section_rag(sections, tech_stacks, job_positions)

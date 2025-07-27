@@ -4,7 +4,7 @@ from resumix.backend.section_parser.jd_vector_parser import JDVectorParser
 from resumix.shared.utils.logger import logger
 from resumix.shared.utils.url_fetcher import UrlFetcher
 import streamlit as st
-from config.config import Config
+from resumix.config.config import Config
 import easyocr
 from resumix.shared.utils.i18n import LANGUAGES
 from paddleocr import PaddleOCR

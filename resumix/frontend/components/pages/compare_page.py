@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Import for PDF generation
 from resumix.shared.utils.generator_utils import GeneratorUtils
-from resumix.backend.resume_generator.pdf_generator import generate_pdf_resume
+from resumix.backend.resume_generator.generator import generate_pdf_resume
 import tempfile
 import os
 from pathlib import Path
@@ -380,6 +380,15 @@ class ComparePage:
         logger.info("Starting PDF export process")
         
         try:
+            # Setup LaTeX environment for Windows (add MikTeX and Perl to PATH)
+            current_env = os.environ.copy()
+            miktex_path = "C:\\Program Files\\MiKTeX 2.9\\miktex\\bin\\x64"
+            perl_path = "C:\\Strawberry\\perl\\bin"
+            
+            for path in [miktex_path, perl_path]:
+                if path not in os.environ.get('PATH', ''):
+                    os.environ['PATH'] = os.environ.get('PATH', '') + os.pathsep + path
+            
             # Gather final sections
             final_sections = self._gather_final_sections()
             
@@ -397,11 +406,20 @@ class ComparePage:
             
             logger.info(f"Generating PDF at {pdf_path}")
             
-            # Generate PDF using the existing generator
-            generate_pdf_resume(resume_data, output_path=pdf_path)
+            # Generate PDF using the existing generator (unchanged!)
+            try:
+                generate_pdf_resume(resume_data, output_path=pdf_path)
+            except Exception as e:
+                # The original generator might "fail" due to Unicode warnings but still create the PDF
+                logger.warning(f"Generator reported error but PDF may still be created: {e}")
             
-            # Return the path to the generated PDF
-            return f"{pdf_path}.pdf"
+            # Check if PDF was actually created (it usually is, despite warnings)
+            pdf_file = f"{pdf_path}.pdf"
+            if os.path.exists(pdf_file):
+                logger.info(f"PDF successfully created at {pdf_file}")
+                return pdf_file
+            else:
+                raise Exception("PDF file was not created")
             
         except Exception as e:
             logger.error(f"Failed to export PDF: {e}")

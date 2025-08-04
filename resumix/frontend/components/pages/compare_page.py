@@ -85,16 +85,16 @@ class ComparePage:
         futures = {}
         with ThreadPoolExecutor(max_workers=6) as executor:
             for section_name, section_obj in sections.items():
-
+                # Only skip if json_text is already populated
                 if section_obj.json_text is not None:
-                    logger.info(f"section_obj.json_text: {section_obj.json_text}")
+                    logger.info(f"Skipping format for {section_name} - json_text already populated")
                     continue
 
-                if section_name not in self.skip_mask:
-                    future = executor.submit(
-                        format_section_api, section_obj, jd_content
-                    )
-                    futures[future] = section_name
+                logger.info(f"Formatting section {section_name}")
+                future = executor.submit(
+                    format_section_api, section_obj, jd_content
+                )
+                futures[future] = section_name
 
         with st.spinner("🔄 Generating polished versions..."):
             for future in as_completed(futures):
@@ -130,21 +130,21 @@ class ComparePage:
         # 使用 ThreadPoolExecutor 并发重写简历各部分
         with ThreadPoolExecutor(max_workers=6) as executor:
             for section_name, section_obj in sections.items():
-                if section_name not in self.skip_mask:
-                    logger.info(section_name)
-                    logger.info(self.skip_mask)
-                    logger.warning(f"redo {section_name}")
-                    # 将任务提交到 executor 中
-                    future = executor.submit(
-                        compare_section_api, section_obj, jd_content
-                    )
-                    # 将 Future 对象存储到 futures 字典中
-                    futures[future] = section_name
-                    self.skip_mask.add(section_name)  # 标记该段已被处理
-                else:
-                    logger.info(
-                        f"Skipping section {section_name} as it is already processed."
-                    )
+                # Only skip if both json_text and rewritten_text are populated
+                if (section_obj.json_text is not None and 
+                    section_obj.rewritten_text is not None):
+                    logger.info(f"Skipping section {section_name} - both json_text and rewritten_text are populated")
+                    continue
+                
+                # Process the section if it's not fully complete
+                logger.info(f"Processing section {section_name}")
+                logger.info(f"json_text present: {section_obj.json_text is not None}")
+                logger.info(f"rewritten_text present: {section_obj.rewritten_text is not None}")
+                
+                future = executor.submit(
+                    compare_section_api, section_obj, jd_content
+                )
+                futures[future] = section_name
 
         with st.spinner("🔄 Generating polished versions..."):
             for future in as_completed(futures):
@@ -184,6 +184,12 @@ class ComparePage:
         self, sections: Dict[str, SectionBase], jd_content: str
     ):
         for section_name, section_obj in sections.items():
+            # Ensure sections have at least some content for rendering
+            if section_obj.json_text is None:
+                section_obj.json_text = section_obj.raw_text or "⚠️ No content available"
+            if section_obj.rewritten_text is None:
+                section_obj.rewritten_text = section_obj.raw_text or "⚠️ No content available"
+                
             st.divider()
             st.markdown(f"### 📝 {section_name.replace('_', ' ').title()}")
 
@@ -262,7 +268,9 @@ class ComparePage:
                 # 如果选择了右侧版本（重写文本）
                 final = right_version
                 # 将 rewritten_text 设置为 raw_text
-                self.skip_mask.remove(section_name)
+                # Remove from skip_mask if it exists (safe operation)
+                if section_name in self.skip_mask:
+                    self.skip_mask.remove(section_name)
 
                 original_section = SessionUtils.get_resume_sections()[section_name]
                 new_section = copy.deepcopy(original_section)
@@ -283,7 +291,7 @@ class ComparePage:
             session[f"{section_name}_final_version"] = final
             st.success(f"✅ {section_name} polishing completed!")
 
-            self.rerun()
+            st.rerun()
 
     def _get_section_current_versions(self, section_name):
         sections = SessionUtils.get_resume_sections()
@@ -426,14 +434,17 @@ class ComparePage:
             raise
 
     def _render_export_section(self):
-        """Render minimal export section - just the export button when ready."""
+        """Render export section - always visible with different states based on readiness."""
+        st.divider()
+        st.markdown("### 📄 Export Resume")
+        
         # Check export readiness
         is_ready, message = self._check_export_readiness()
         
         if is_ready:
-            st.divider()
+            st.success(f"✅ {message}")
             
-            # Simple export button
+            # Export button when ready
             if st.button("📄 Export Final Resume PDF", type="primary"):
                 try:
                     with st.spinner("Generating PDF..."):
@@ -455,3 +466,41 @@ class ComparePage:
                 except Exception as e:
                     st.error(f"Export failed: {str(e)}")
                     logger.error(f"PDF generation error: {e}")
+        else:
+            # Show current status and disabled button
+            st.info(f"📋 {message}")
+            
+            # Disabled export button with helpful message
+            st.button(
+                "📄 Export Final Resume PDF", 
+                type="secondary", 
+                disabled=True, 
+                help="Complete all section selections to enable export"
+            )
+            
+            # Show progress
+            if "comparison_session" in st.session_state:
+                session = st.session_state.comparison_session
+                sections = SessionUtils.get_resume_sections()
+                
+                completed_count = 0
+                total_count = len(sections)
+                
+                for section_name in sections.keys():
+                    final_version_key = f"{section_name}_final_version"
+                    if final_version_key in session:
+                        completed_count += 1
+                
+                if total_count > 0:
+                    progress = completed_count / total_count
+                    st.progress(progress, text=f"Progress: {completed_count}/{total_count} sections completed")
+                    
+                    # Show which sections are remaining
+                    pending_sections = []
+                    for section_name in sections.keys():
+                        final_version_key = f"{section_name}_final_version"
+                        if final_version_key not in session:
+                            pending_sections.append(section_name.replace('_', ' ').title())
+                    
+                    if pending_sections:
+                        st.caption(f"Remaining sections: {', '.join(pending_sections)}")

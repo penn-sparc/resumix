@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import hashlib
 import base64
 import time
+import json
 
 from resumix.config.llm_config import LLMConfig
 
@@ -229,6 +230,44 @@ class LLMClient:
             .get("content", "⚠️ Model did not return a result.")
         )
 
+    def _call_bedrock_api(self, prompt: str) -> str:
+        """
+        Call AWS Bedrock Claude API.
+        """
+        try:
+            import boto3
+            
+            bedrock = boto3.client(
+                service_name='bedrock-runtime',
+                region_name=LLM_CONFIG.get("region", "us-east-1")
+            )
+            
+            body = json.dumps({
+                "anthropic_version": "bedrock-2023-05-31",
+                "max_tokens": 2000,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
+            })
+            
+            response = bedrock.invoke_model(
+                body=body,
+                modelId=self.model_name,
+                accept='application/json',
+                contentType='application/json'
+            )
+            
+            response_body = json.loads(response.get('body').read())
+            return response_body.get('content', [{}])[0].get('text', '⚠️ Model did not return a result.')
+            
+        except ImportError:
+            return "❌ Error: boto3 not installed. Run: pip install boto3"
+        except Exception as e:
+            return f"❌ Error calling Bedrock: {e}"
+
     def generate(self, prompt: str) -> str:
         """
         调用 LLM 生成文本。
@@ -248,6 +287,9 @@ class LLMClient:
             if LLM_CONFIG.get("type") == "deepseek":
                 logger.info("Using DeepSeek API")
                 return self._call_deepseek_api(prompt)
+            elif LLM_CONFIG.get("type") == "bedrock":
+                logger.info("Using AWS Bedrock")
+                return self._call_bedrock_api(prompt)
             elif LLM_CONFIG.get("type") == "silicon":
                 logger.info("Using Silicon API")
                 return self._call_silicon_api(prompt)
@@ -260,3 +302,4 @@ class LLMClient:
 
         except Exception as e:
             return f"❌ Error calling model: {e}"
+

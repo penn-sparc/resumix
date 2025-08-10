@@ -292,6 +292,49 @@ files = [
 ]
 
 [[package]]
+name = "boto3"
+version = "1.40.1"
+description = "The AWS SDK for Python"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "boto3-1.40.1-py3-none-any.whl", hash = "sha256:7c007d5c8ee549e9fcad0927536502da199b27891006ef515330f429aca9671f"},
+    {file = "boto3-1.40.1.tar.gz", hash = "sha256:985ed4bf64729807f870eadbc46ad98baf93096917f7194ec39d743ff75b3f1d"},
+]
+
+[package.dependencies]
+botocore = ">=1.40.1,<1.41.0"
+jmespath = ">=0.7.1,<2.0.0"
+s3transfer = ">=0.13.0,<0.14.0"
+
+[package.extras]
+crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
+
+[[package]]
+name = "botocore"
+version = "1.40.1"
+description = "Low-level, data-driven core of boto 3."
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "botocore-1.40.1-py3-none-any.whl", hash = "sha256:e039774b55fbd6fe59f0f4fea51d156a2433bd4d8faa64fc1b87aee9a03f415d"},
+    {file = "botocore-1.40.1.tar.gz", hash = "sha256:bdf30e2c0e8cdb939d81fc243182a6d1dd39c416694b406c5f2ea079b1c2f3f5"},
+]
+
+[package.dependencies]
+jmespath = ">=0.7.1,<2.0.0"
+python-dateutil = ">=2.1,<3.0.0"
+urllib3 = [
+    {version = ">=1.25.4,<1.27", markers = "python_version < \"3.10\""},
+    {version = ">=1.25.4,<2.2.0 || >2.2.0,<3", markers = "python_version >= \"3.10\""},
+]
+
+[package.extras]
+crt = ["awscrt (==0.23.8)"]
+
+[[package]]
 name = "bs4"
 version = "0.0.2"
 description = "Dummy package for Beautiful Soup (beautifulsoup4)"
@@ -734,53 +777,11 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "faiss-cpu"
-version = "1.8.0.post1"
-description = "A library for efficient similarity search and clustering of dense vectors."
-optional = false
-python-versions = ">=3.8"
-groups = ["main"]
-markers = "python_version < \"3.12\""
-files = [
-    {file = "faiss_cpu-1.8.0.post1-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:fd84721eb599aa1da19b1b36345bb8705a60bb1d2887bbbc395a29e3d36a1a62"},
-    {file = "faiss_cpu-1.8.0.post1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:b78ff9079d15fd0f156bf5dd8a2975a8abffac1854a86ece263eec1500a2e836"},
-    {file = "faiss_cpu-1.8.0.post1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9de25c943d1789e35fe06a20884c88cd32aedbb1a33bb8da2238cdea7bd9633f"},
-    {file = "faiss_cpu-1.8.0.post1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:adae0f1b144e7216da696f14bc4991ca4300c94baaa59247c3d322588e661c95"},
-    {file = "faiss_cpu-1.8.0.post1-cp310-cp310-win_amd64.whl", hash = "sha256:00345290680a444a4b4cb2d98a3844bb5c401a2160fee547c7631d759fd2ec3e"},
-    {file = "faiss_cpu-1.8.0.post1-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:8d4bade10cb63e9f9ff261751edd7eb097b1f4bf30be4d0d25d6f688559d795e"},
-    {file = "faiss_cpu-1.8.0.post1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:20bd43eca3b7d77e71ea56b7a558cc28e900d8abff417eb285e2d92e95d934d4"},
-    {file = "faiss_cpu-1.8.0.post1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:8542a87743a7f94ac656fd3e9592ad57e58b04d961ad2fe654a22a8ca59defdb"},
-    {file = "faiss_cpu-1.8.0.post1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ed46928de3dc20170b10fec89c54075a11383c2aaf4f119c63e0f6ae5a507d74"},
-    {file = "faiss_cpu-1.8.0.post1-cp311-cp311-win_amd64.whl", hash = "sha256:4fa5fc8ea210b919aa469e27d6687e50052db906e7fec3f2257178b1384fa18b"},
-    {file = "faiss_cpu-1.8.0.post1-cp312-cp312-macosx_10_14_x86_64.whl", hash = "sha256:96aec0d08a3099883af3a9b6356cfe736e8bd879318a940a27e9d1ae6f33d788"},
-    {file = "faiss_cpu-1.8.0.post1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:92b06147fa84732ecdc965922e8ef50dc7011ef8be65821ff4abb2118cb5dce0"},
-    {file = "faiss_cpu-1.8.0.post1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:709ef9394d1148aef70dbe890edbde8c282a4a2e06a8b69ab64f65e90f5ba572"},
-    {file = "faiss_cpu-1.8.0.post1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:327a9c30971bf72cd8392b15eb4aff5d898c453212eae656dfaa3ba555b9ca0c"},
-    {file = "faiss_cpu-1.8.0.post1-cp312-cp312-win_amd64.whl", hash = "sha256:8756f1d93faba56349883fa2f5d47fe36bb2f11f789200c6b1c691ef805485f2"},
-    {file = "faiss_cpu-1.8.0.post1-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:f4a3045909c447bf1955b70083891e80f2c87c5427f20cae25245e08ec5c9e52"},
-    {file = "faiss_cpu-1.8.0.post1-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:8842b7fc921ca1fafdb0845f2ba029e79df04eebae72ab135239f93478a9b7a2"},
-    {file = "faiss_cpu-1.8.0.post1-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9d5a9799634e32c3862d5436d1e78112ed9a38f319e4523f5916e55d86adda8f"},
-    {file = "faiss_cpu-1.8.0.post1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2a70923b0fbbb40f647e20bcbcbfd472277e6d84bb23ff12d2a94b6841806b55"},
-    {file = "faiss_cpu-1.8.0.post1-cp38-cp38-win_amd64.whl", hash = "sha256:ce652df3c4dd50c88ac9235d072f30ce60694dc422c5f523bbbcab320e8f3097"},
-    {file = "faiss_cpu-1.8.0.post1-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:83ef04b17b19189dd6601a941bdf4bfa9de0740dbcd80305aeba51a1b1955f80"},
-    {file = "faiss_cpu-1.8.0.post1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:c50c8697077470ede7f1939ef8dc8a846ec19cf1893b543f6b67f9af03b0a122"},
-    {file = "faiss_cpu-1.8.0.post1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:98ce428a7a67fe5c64047280e5e12a8dbdecf7002f9d127b26cf1db354e9fe76"},
-    {file = "faiss_cpu-1.8.0.post1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5f3b36b80380bae523e3198cfb4a137867055945ce7bf10d18fe9f0284f2fb47"},
-    {file = "faiss_cpu-1.8.0.post1-cp39-cp39-win_amd64.whl", hash = "sha256:4fcc67a2353f08a20c1ab955de3cde14ef3b447761b26244a5aa849c15cbc9b3"},
-    {file = "faiss_cpu-1.8.0.post1.tar.gz", hash = "sha256:5686af34414678c3d49c4fa8d774df7156e9cb48d7029071e56230e74b01cc13"},
-]
-
-[package.dependencies]
-numpy = ">=1.0,<2.0"
-packaging = "*"
-
-[[package]]
-name = "faiss-cpu"
 version = "1.11.0.post1"
 description = "A library for efficient similarity search and clustering of dense vectors."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "python_version >= \"3.12\""
 files = [
     {file = "faiss_cpu-1.11.0.post1-cp310-cp310-macosx_13_0_x86_64.whl", hash = "sha256:e079d44ea22919f6477fea553b05854c68838ab553e1c6b1237437a8becdf89d"},
     {file = "faiss_cpu-1.11.0.post1-cp310-cp310-macosx_14_0_arm64.whl", hash = "sha256:4ded0c91cb67f462ae00a4d339718ea2fbb23eedbf260c3a07de77c32c23205a"},
@@ -1234,7 +1235,7 @@ description = "Fast transfer of large files with the Hugging Face Hub."
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_machine == \"x86_64\" or platform_machine == \"amd64\" or platform_machine == \"arm64\" or platform_machine == \"aarch64\" or platform_system == \"Linux\" and platform_machine == \"aarch64\""
+markers = "platform_machine == \"x86_64\" or platform_machine == \"amd64\" or platform_machine == \"arm64\" or platform_machine == \"aarch64\" or platform_machine == \"aarch64\" and platform_system == \"Linux\""
 files = [
     {file = "hf_xet-1.1.3-cp37-abi3-macosx_10_12_x86_64.whl", hash = "sha256:c3b508b5f583a75641aebf732853deb058953370ce8184f5dabc49f803b0819b"},
     {file = "hf_xet-1.1.3-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:b788a61977fbe6b5186e66239e2a329a3f0b7e7ff50dad38984c0c74f44aeca1"},
@@ -1551,6 +1552,18 @@ files = [
     {file = "jiter-0.10.0-cp39-cp39-win32.whl", hash = "sha256:5f51e048540dd27f204ff4a87f5d79294ea0aa3aa552aca34934588cf27023cf"},
     {file = "jiter-0.10.0-cp39-cp39-win_amd64.whl", hash = "sha256:1b28302349dc65703a9e4ead16f163b1c339efffbe1049c30a44b001a2a4fff9"},
     {file = "jiter-0.10.0.tar.gz", hash = "sha256:07a7142c38aacc85194391108dc91b5b57093c978a9932bd86a36862759d9500"},
+]
+
+[[package]]
+name = "jmespath"
+version = "1.0.1"
+description = "JSON Matching Expressions"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980"},
+    {file = "jmespath-1.0.1.tar.gz", hash = "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"},
 ]
 
 [[package]]
@@ -2722,51 +2735,11 @@ xvfbwrapper = ["xvfbwrapper"]
 
 [[package]]
 name = "numpy"
-version = "1.24.4"
-description = "Fundamental package for array computing in Python"
-optional = false
-python-versions = ">=3.8"
-groups = ["main"]
-markers = "python_version < \"3.12\""
-files = [
-    {file = "numpy-1.24.4-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:c0bfb52d2169d58c1cdb8cc1f16989101639b34c7d3ce60ed70b19c63eba0b64"},
-    {file = "numpy-1.24.4-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:ed094d4f0c177b1b8e7aa9cba7d6ceed51c0e569a5318ac0ca9a090680a6a1b1"},
-    {file = "numpy-1.24.4-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:79fc682a374c4a8ed08b331bef9c5f582585d1048fa6d80bc6c35bc384eee9b4"},
-    {file = "numpy-1.24.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7ffe43c74893dbf38c2b0a1f5428760a1a9c98285553c89e12d70a96a7f3a4d6"},
-    {file = "numpy-1.24.4-cp310-cp310-win32.whl", hash = "sha256:4c21decb6ea94057331e111a5bed9a79d335658c27ce2adb580fb4d54f2ad9bc"},
-    {file = "numpy-1.24.4-cp310-cp310-win_amd64.whl", hash = "sha256:b4bea75e47d9586d31e892a7401f76e909712a0fd510f58f5337bea9572c571e"},
-    {file = "numpy-1.24.4-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:f136bab9c2cfd8da131132c2cf6cc27331dd6fae65f95f69dcd4ae3c3639c810"},
-    {file = "numpy-1.24.4-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:e2926dac25b313635e4d6cf4dc4e51c8c0ebfed60b801c799ffc4c32bf3d1254"},
-    {file = "numpy-1.24.4-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:222e40d0e2548690405b0b3c7b21d1169117391c2e82c378467ef9ab4c8f0da7"},
-    {file = "numpy-1.24.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7215847ce88a85ce39baf9e89070cb860c98fdddacbaa6c0da3ffb31b3350bd5"},
-    {file = "numpy-1.24.4-cp311-cp311-win32.whl", hash = "sha256:4979217d7de511a8d57f4b4b5b2b965f707768440c17cb70fbf254c4b225238d"},
-    {file = "numpy-1.24.4-cp311-cp311-win_amd64.whl", hash = "sha256:b7b1fc9864d7d39e28f41d089bfd6353cb5f27ecd9905348c24187a768c79694"},
-    {file = "numpy-1.24.4-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:1452241c290f3e2a312c137a9999cdbf63f78864d63c79039bda65ee86943f61"},
-    {file = "numpy-1.24.4-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:04640dab83f7c6c85abf9cd729c5b65f1ebd0ccf9de90b270cd61935eef0197f"},
-    {file = "numpy-1.24.4-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a5425b114831d1e77e4b5d812b69d11d962e104095a5b9c3b641a218abcc050e"},
-    {file = "numpy-1.24.4-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:dd80e219fd4c71fc3699fc1dadac5dcf4fd882bfc6f7ec53d30fa197b8ee22dc"},
-    {file = "numpy-1.24.4-cp38-cp38-win32.whl", hash = "sha256:4602244f345453db537be5314d3983dbf5834a9701b7723ec28923e2889e0bb2"},
-    {file = "numpy-1.24.4-cp38-cp38-win_amd64.whl", hash = "sha256:692f2e0f55794943c5bfff12b3f56f99af76f902fc47487bdfe97856de51a706"},
-    {file = "numpy-1.24.4-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:2541312fbf09977f3b3ad449c4e5f4bb55d0dbf79226d7724211acc905049400"},
-    {file = "numpy-1.24.4-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:9667575fb6d13c95f1b36aca12c5ee3356bf001b714fc354eb5465ce1609e62f"},
-    {file = "numpy-1.24.4-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f3a86ed21e4f87050382c7bc96571755193c4c1392490744ac73d660e8f564a9"},
-    {file = "numpy-1.24.4-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d11efb4dbecbdf22508d55e48d9c8384db795e1b7b51ea735289ff96613ff74d"},
-    {file = "numpy-1.24.4-cp39-cp39-win32.whl", hash = "sha256:6620c0acd41dbcb368610bb2f4d83145674040025e5536954782467100aa8835"},
-    {file = "numpy-1.24.4-cp39-cp39-win_amd64.whl", hash = "sha256:befe2bf740fd8373cf56149a5c23a0f601e82869598d41f8e188a0e9869926f8"},
-    {file = "numpy-1.24.4-pp38-pypy38_pp73-macosx_10_9_x86_64.whl", hash = "sha256:31f13e25b4e304632a4619d0e0777662c2ffea99fcae2029556b17d8ff958aef"},
-    {file = "numpy-1.24.4-pp38-pypy38_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:95f7ac6540e95bc440ad77f56e520da5bf877f87dca58bd095288dce8940532a"},
-    {file = "numpy-1.24.4-pp38-pypy38_pp73-win_amd64.whl", hash = "sha256:e98f220aa76ca2a977fe435f5b04d7b3470c0a2e6312907b37ba6068f26787f2"},
-    {file = "numpy-1.24.4.tar.gz", hash = "sha256:80f5e3a4e498641401868df4208b74581206afbee7cf7b8329daae82676d9463"},
-]
-
-[[package]]
-name = "numpy"
 version = "1.26.4"
 description = "Fundamental package for array computing in Python"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "python_version >= \"3.12\""
 files = [
     {file = "numpy-1.26.4-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:9ff0f4f29c51e2803569d7a51c2304de5554655a60c5d776e35b4a41413830d0"},
     {file = "numpy-1.26.4-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:2e4ee3380d6de9c9ec04745830fd9e2eccb3e6cf790d39d7b98ffd19b0dd754a"},
@@ -3239,18 +3212,18 @@ files = [
 
 [[package]]
 name = "paddleocr"
-version = "3.0.1"
-description = "Awesome OCR toolkit based on PaddlePaddle"
+version = "3.1.0"
+description = "Awesome multilingual OCR and document parsing toolkits based on PaddlePaddle"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "paddleocr-3.0.1-py3-none-any.whl", hash = "sha256:c0002dfe17fca06148dbb5bcfc78d1710c48e7ee1ea006c0fe0678c29c731d42"},
-    {file = "paddleocr-3.0.1.tar.gz", hash = "sha256:43b0505c0423dc4dc88648f10afe25b17d9e7254f8cf670ee5b435528a0381d4"},
+    {file = "paddleocr-3.1.0-py3-none-any.whl", hash = "sha256:4845b9c1734af2aced7a6fb9bf9f456c7764665a10ebc820ebcef1a5480b4236"},
+    {file = "paddleocr-3.1.0.tar.gz", hash = "sha256:c42ba6876cc1f5237e1d14cb69fc6aa45cbbe6b714ecd87cec54c097a0334f77"},
 ]
 
 [package.dependencies]
-paddlex = {version = "3.0.1", extras = ["ie", "multimodal", "ocr"]}
+paddlex = {version = ">=3.1.0", extras = ["ie", "multimodal", "ocr", "trans"]}
 PyYAML = ">=6"
 typing-extensions = ">=4.12"
 
@@ -3307,66 +3280,66 @@ typing-extensions = "*"
 
 [[package]]
 name = "paddlex"
-version = "3.0.1"
+version = "3.1.3"
 description = "Low-code development tool based on PaddlePaddle."
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "paddlex-3.0.1-py3-none-any.whl", hash = "sha256:35901b82b3c0852dce107eef1ead418a55f0716b4f926a416ebb6be664d8a93f"},
+    {file = "paddlex-3.1.3-py3-none-any.whl", hash = "sha256:86d752dbace266bbb3be2c871158f32a5dc43e03b5347070757bade34ed6ad1c"},
 ]
 
 [package.dependencies]
+beautifulsoup4 = {version = "*", optional = true, markers = "extra == \"trans\""}
 chardet = "*"
 colorlog = "*"
-einops = {version = "*", optional = true, markers = "extra == \"multimodal\""}
+einops = {version = "*", optional = true, markers = "extra == \"multimodal\" or extra == \"ocr\""}
 filelock = "*"
-ftfy = {version = "*", optional = true, markers = "extra == \"multimodal\" or extra == \"ie\" or extra == \"ocr\""}
-GPUtil = ">=1.4"
-imagesize = {version = "*", optional = true, markers = "extra == \"ie\" or extra == \"ocr\""}
-Jinja2 = {version = "*", optional = true, markers = "extra == \"multimodal\""}
-langchain = {version = "0.2.17", optional = true, markers = "extra == \"ie\""}
-langchain-community = {version = "0.2.17", optional = true, markers = "extra == \"ie\""}
+ftfy = {version = "*", optional = true, markers = "extra == \"multimodal\" or extra == \"ie\" or extra == \"trans\" or extra == \"ocr\""}
+GPUtil = {version = ">=1.4", optional = true, markers = "extra == \"multimodal\""}
+huggingface_hub = "*"
+imagesize = {version = "*", optional = true, markers = "extra == \"ie\" or extra == \"trans\" or extra == \"ocr\""}
+Jinja2 = {version = "*", optional = true, markers = "extra == \"multimodal\" or extra == \"ocr\""}
+langchain = {version = ">=0.2", optional = true, markers = "extra == \"ie\""}
+langchain-community = {version = ">=0.2", optional = true, markers = "extra == \"ie\""}
 langchain-core = {version = "*", optional = true, markers = "extra == \"ie\""}
-langchain-openai = {version = "0.1.25", optional = true, markers = "extra == \"ie\""}
-lxml = {version = "*", optional = true, markers = "extra == \"ie\" or extra == \"ocr\""}
-numpy = [
-    {version = "1.24.4", markers = "python_version < \"3.12\""},
-    {version = "1.26.4", markers = "python_version >= \"3.12\""},
-]
-openai = {version = "1.63.2", optional = true, markers = "extra == \"ie\""}
-opencv-contrib-python = {version = "4.10.0.84", optional = true, markers = "extra == \"multimodal\" or extra == \"ie\" or extra == \"ocr\""}
-openpyxl = {version = "*", optional = true, markers = "extra == \"ie\" or extra == \"ocr\""}
+langchain-openai = {version = ">=0.1", optional = true, markers = "extra == \"ie\""}
+lxml = {version = "*", optional = true, markers = "extra == \"ie\" or extra == \"trans\" or extra == \"ocr\""}
+numpy = ">=1.24"
+openai = {version = ">=1.63", optional = true, markers = "extra == \"ie\" or extra == \"trans\""}
+opencv-contrib-python = {version = "4.10.0.84", optional = true, markers = "extra == \"multimodal\" or extra == \"ie\" or extra == \"trans\" or extra == \"ocr\""}
+openpyxl = {version = "*", optional = true, markers = "extra == \"ie\" or extra == \"trans\" or extra == \"ocr\""}
 packaging = "*"
-pandas = "<=1.5.3"
+pandas = ">=1.3"
 pillow = "*"
-premailer = {version = "*", optional = true, markers = "extra == \"ie\" or extra == \"ocr\""}
+premailer = {version = "*", optional = true, markers = "extra == \"ie\" or extra == \"trans\" or extra == \"ocr\""}
 prettytable = "*"
 py-cpuinfo = "*"
-pyclipper = {version = "*", optional = true, markers = "extra == \"ie\" or extra == \"ocr\""}
+pyclipper = {version = "*", optional = true, markers = "extra == \"ie\" or extra == \"trans\" or extra == \"ocr\""}
 pydantic = ">=2"
-pypdfium2 = {version = ">=4", optional = true, markers = "extra == \"multimodal\" or extra == \"ie\" or extra == \"ocr\""}
+pypdfium2 = {version = ">=4", optional = true, markers = "extra == \"multimodal\" or extra == \"ie\" or extra == \"trans\" or extra == \"ocr\""}
 PyYAML = "6.0.2"
-regex = {version = "*", optional = true, markers = "extra == \"multimodal\""}
+regex = {version = "*", optional = true, markers = "extra == \"multimodal\" or extra == \"ocr\""}
 requests = "*"
 "ruamel.yaml" = "*"
-scikit-learn = {version = "*", optional = true, markers = "extra == \"ie\" or extra == \"ocr\""}
-shapely = {version = "*", optional = true, markers = "extra == \"ie\" or extra == \"ocr\""}
-tiktoken = {version = "*", optional = true, markers = "extra == \"multimodal\""}
-tokenizers = {version = "0.19.1", optional = true, markers = "extra == \"ie\" or extra == \"ocr\""}
+scikit-learn = {version = "*", optional = true, markers = "extra == \"ie\" or extra == \"trans\" or extra == \"ocr\""}
+shapely = {version = "*", optional = true, markers = "extra == \"ie\" or extra == \"trans\" or extra == \"ocr\""}
+tiktoken = {version = "*", optional = true, markers = "extra == \"multimodal\" or extra == \"ocr\""}
+tokenizers = {version = ">=0.19", optional = true, markers = "extra == \"ie\" or extra == \"trans\" or extra == \"ocr\""}
 typing-extensions = "*"
 ujson = "*"
 
 [package.extras]
-all = ["Jinja2", "aiohttp (>=3.9)", "bce-python-sdk (>=0.9)", "chinese-calendar", "decord (==0.6.0) ; (platform_machine == \"x86_64\" or platform_machine == \"AMD64\") and sys_platform != \"darwin\"", "einops", "faiss-cpu", "fastapi (>=0.110)", "filetype (>=1.2)", "ftfy", "imagesize", "joblib", "langchain (==0.2.17)", "langchain-community (==0.2.17)", "langchain-core", "langchain-openai (==0.1.25)", "lxml", "matplotlib", "openai (==1.63.2)", "opencv-contrib-python (==4.10.0.84)", "openpyxl", "premailer", "pyclipper", "pycocotools", "pypdfium2 (>=4)", "regex", "scikit-image", "scikit-learn", "shapely", "soundfile", "starlette (>=0.36)", "tiktoken", "tokenizers (==0.19.1)", "tqdm", "uvicorn (>=0.16)", "yarl (>=1.9)"]
-base = ["Jinja2", "chinese-calendar", "decord (==0.6.0) ; (platform_machine == \"x86_64\" or platform_machine == \"AMD64\") and sys_platform != \"darwin\"", "einops", "faiss-cpu", "ftfy", "imagesize", "joblib", "langchain (==0.2.17)", "langchain-community (==0.2.17)", "langchain-core", "langchain-openai (==0.1.25)", "lxml", "matplotlib", "openai (==1.63.2)", "opencv-contrib-python (==4.10.0.84)", "openpyxl", "premailer", "pyclipper", "pycocotools", "pypdfium2 (>=4)", "regex", "scikit-image", "scikit-learn", "shapely", "soundfile", "tiktoken", "tokenizers (==0.19.1)", "tqdm"]
-cv = ["faiss-cpu", "matplotlib", "opencv-contrib-python (==4.10.0.84)", "pycocotools", "pypdfium2 (>=4)", "scikit-image"]
-ie = ["ftfy", "imagesize", "langchain (==0.2.17)", "langchain-community (==0.2.17)", "langchain-core", "langchain-openai (==0.1.25)", "lxml", "openai (==1.63.2)", "opencv-contrib-python (==4.10.0.84)", "openpyxl", "premailer", "pyclipper", "pypdfium2 (>=4)", "scikit-learn", "shapely", "tokenizers (==0.19.1)"]
-multimodal = ["Jinja2", "einops", "ftfy", "opencv-contrib-python (==4.10.0.84)", "pypdfium2 (>=4)", "regex", "tiktoken"]
-ocr = ["ftfy", "imagesize", "lxml", "opencv-contrib-python (==4.10.0.84)", "openpyxl", "premailer", "pyclipper", "pypdfium2 (>=4)", "scikit-learn", "shapely", "tokenizers (==0.19.1)"]
+all = ["GPUtil (>=1.4)", "Jinja2", "aiohttp (>=3.9)", "bce-python-sdk (>=0.9)", "beautifulsoup4", "chinese-calendar", "decord (==0.6.0) ; (platform_machine == \"x86_64\" or platform_machine == \"AMD64\") and sys_platform != \"darwin\"", "einops", "faiss-cpu", "fastapi (>=0.110)", "filetype (>=1.2)", "ftfy", "imagesize", "joblib", "langchain (>=0.2)", "langchain-community (>=0.2)", "langchain-core", "langchain-openai (>=0.1)", "lxml", "matplotlib", "openai (>=1.63)", "opencv-contrib-python (==4.10.0.84)", "openpyxl", "premailer", "pyclipper", "pycocotools (<=2.0.8)", "pypdfium2 (>=4)", "regex", "scikit-image", "scikit-learn", "shapely", "soundfile", "starlette (>=0.36)", "tiktoken", "tokenizers (>=0.19)", "tqdm", "uvicorn (>=0.16)", "yarl (>=1.9)"]
+base = ["GPUtil (>=1.4)", "Jinja2", "beautifulsoup4", "chinese-calendar", "decord (==0.6.0) ; (platform_machine == \"x86_64\" or platform_machine == \"AMD64\") and sys_platform != \"darwin\"", "einops", "faiss-cpu", "ftfy", "imagesize", "joblib", "langchain (>=0.2)", "langchain-community (>=0.2)", "langchain-core", "langchain-openai (>=0.1)", "lxml", "matplotlib", "openai (>=1.63)", "opencv-contrib-python (==4.10.0.84)", "openpyxl", "premailer", "pyclipper", "pycocotools (<=2.0.8)", "pypdfium2 (>=4)", "regex", "scikit-image", "scikit-learn", "shapely", "soundfile", "tiktoken", "tokenizers (>=0.19)", "tqdm"]
+cv = ["faiss-cpu", "matplotlib", "opencv-contrib-python (==4.10.0.84)", "pycocotools (<=2.0.8)", "pypdfium2 (>=4)", "scikit-image"]
+ie = ["ftfy", "imagesize", "langchain (>=0.2)", "langchain-community (>=0.2)", "langchain-core", "langchain-openai (>=0.1)", "lxml", "openai (>=1.63)", "opencv-contrib-python (==4.10.0.84)", "openpyxl", "premailer", "pyclipper", "pypdfium2 (>=4)", "scikit-learn", "shapely", "tokenizers (>=0.19)"]
+multimodal = ["GPUtil (>=1.4)", "Jinja2", "einops", "ftfy", "opencv-contrib-python (==4.10.0.84)", "pypdfium2 (>=4)", "regex", "tiktoken"]
+ocr = ["Jinja2", "einops", "ftfy", "imagesize", "lxml", "opencv-contrib-python (==4.10.0.84)", "openpyxl", "premailer", "pyclipper", "pypdfium2 (>=4)", "regex", "scikit-learn", "shapely", "tiktoken", "tokenizers (>=0.19)"]
 plugins = ["aiohttp (>=3.9)", "bce-python-sdk (>=0.9)", "fastapi (>=0.110)", "filetype (>=1.2)", "starlette (>=0.36)", "uvicorn (>=0.16)", "yarl (>=1.9)"]
 serving = ["aiohttp (>=3.9)", "bce-python-sdk (>=0.9)", "fastapi (>=0.110)", "filetype (>=1.2)", "starlette (>=0.36)", "uvicorn (>=0.16)", "yarl (>=1.9)"]
 speech = ["Jinja2", "ftfy", "regex", "soundfile", "tqdm"]
+trans = ["beautifulsoup4", "ftfy", "imagesize", "lxml", "openai (>=1.63)", "opencv-contrib-python (==4.10.0.84)", "openpyxl", "premailer", "pyclipper", "pypdfium2 (>=4)", "scikit-learn", "shapely", "tokenizers (>=0.19)"]
 ts = ["chinese-calendar", "joblib", "matplotlib", "scikit-learn"]
 video = ["decord (==0.6.0) ; (platform_machine == \"x86_64\" or platform_machine == \"AMD64\") and sys_platform != \"darwin\"", "opencv-contrib-python (==4.10.0.84)"]
 
@@ -4832,6 +4805,24 @@ files = [
     {file = "ruamel.yaml.clib-0.2.12-cp39-cp39-win_amd64.whl", hash = "sha256:040ae85536960525ea62868b642bdb0c2cc6021c9f9d507810c0c604e66f5a7b"},
     {file = "ruamel.yaml.clib-0.2.12.tar.gz", hash = "sha256:6c8fbb13ec503f99a91901ab46e0b07ae7941cd527393187039aec586fdfd36f"},
 ]
+
+[[package]]
+name = "s3transfer"
+version = "0.13.1"
+description = "An Amazon S3 Transfer Manager"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "s3transfer-0.13.1-py3-none-any.whl", hash = "sha256:a981aa7429be23fe6dfc13e80e4020057cbab622b08c0315288758d67cabc724"},
+    {file = "s3transfer-0.13.1.tar.gz", hash = "sha256:c3fdba22ba1bd367922f27ec8032d6a1cf5f10c934fb5d68cf60fd5a23d936cf"},
+]
+
+[package.dependencies]
+botocore = ">=1.37.4,<2.0a.0"
+
+[package.extras]
+crt = ["botocore[crt] (>=1.37.4,<2.0a.0)"]
 
 [[package]]
 name = "safetensors"
@@ -6438,11 +6429,30 @@ files = [
 
 [[package]]
 name = "urllib3"
+version = "1.26.20"
+description = "HTTP library with thread-safe connection pooling, file post, and more."
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
+groups = ["main"]
+markers = "python_version == \"3.9\" or platform_system == \"Linux\" and platform_machine == \"aarch64\" and python_version < \"3.10\""
+files = [
+    {file = "urllib3-1.26.20-py2.py3-none-any.whl", hash = "sha256:0ed14ccfbf1c30a9072c7ca157e4319b70d65f623e91e7b32fadb2853431016e"},
+    {file = "urllib3-1.26.20.tar.gz", hash = "sha256:40c2dc0c681e47eb8f90e7e27bf6ff7df2e677421fd46756da1161c39ca70d32"},
+]
+
+[package.extras]
+brotli = ["brotli (==1.0.9) ; os_name != \"nt\" and python_version < \"3\" and platform_python_implementation == \"CPython\"", "brotli (>=1.0.9) ; python_version >= \"3\" and platform_python_implementation == \"CPython\"", "brotlicffi (>=0.8.0) ; (os_name != \"nt\" or python_version >= \"3\") and platform_python_implementation != \"CPython\"", "brotlipy (>=0.6.0) ; os_name == \"nt\" and python_version < \"3\""]
+secure = ["certifi", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "ipaddress ; python_version == \"2.7\"", "pyOpenSSL (>=0.14)", "urllib3-secure-extra"]
+socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
+
+[[package]]
+name = "urllib3"
 version = "2.4.0"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
+markers = "python_version >= \"3.10\""
 files = [
     {file = "urllib3-2.4.0-py3-none-any.whl", hash = "sha256:4e16665048960a0900c702d4a66415956a584919c03361cac9f1df5c5dd7e813"},
     {file = "urllib3-2.4.0.tar.gz", hash = "sha256:414bc6535b787febd7567804cc015fee39daab8ad86268f1310a9250697de466"},
@@ -6669,4 +6679,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9.12,<4.0"
-content-hash = "7f04ff73238f8ded88c5ad5c511147e67468614ef5232c6e8fc596af104ad01d"
+content-hash = "a3d41e8cdfa7e1d5ddaee48de654f928b910a25b2fb48f90edb9009dc2e9c42a"

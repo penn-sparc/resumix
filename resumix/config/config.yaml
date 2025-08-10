@@ -7,7 +7,7 @@ backend:
   port: 8000
 
 llm:
-  use_model: "local"
+  use_model: "bedrock"
   deepseek:
     model: "deepseek-chat"
     url: "https://api.deepseek.com/v1/chat/completions"
@@ -22,19 +22,22 @@ llm:
   silicon:
     model: "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B"
     url: "https://api.siliconflow.cn/v1/chat/completions"
+  bedrock:
+    model: "anthropic.claude-3-haiku-20240307-v1:0"
+    region: "us-east-1"
 
 ocr:
   use_model: "paddleocr"
   easyocr:
     model: "easyocr"
-    directory: "resumix/models/easyocr"
+    directory: "resumix/shared/model/easyocr"
     gpu: False
   paddle:
     model: "paddleocr"
 
 sentence_transformer:
   use_model: "paraphrase-multilingual-MiniLM-L12-v2"
-  directory: "resumix/models/sentence_transformer"
+  directory: "resumix/shared/model/sentence_transformer"
 
 
 rag:
@@ -44,5 +47,5 @@ rag:
   # use_easyocr: True
   # use_paddle: False
   # easyocr:
-  #   directory: "resumix/models/easyocr"
+  #   directory: "resumix/shared/model/easyocr"
   #   gpu: False

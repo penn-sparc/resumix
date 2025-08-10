@@ -55,6 +55,13 @@ class LLMConfig:
                 "model": CONFIG.LLM.SILICON.MODEL,
                 "type": "silicon",
             }
+        elif CONFIG.LLM.USE_MODEL == "bedrock":
+            logger.info("Using AWS Bedrock configuration")
+            return {
+                "model": CONFIG.LLM.BEDROCK.MODEL,
+                "region": CONFIG.LLM.BEDROCK.REGION,
+                "type": "bedrock",
+            } 
         elif CONFIG.LLM.USE_MODEL == "teleai":
             logger.info("Using TeleAI API configuration")
             api_key = os.getenv("TELEAI_API_KEY")

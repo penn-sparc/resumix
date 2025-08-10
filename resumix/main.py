@@ -1,7 +1,32 @@
 # from paddleocr import PaddleOCR
 import streamlit as st
 import concurrent.futures
+import threading
 from pathlib import Path
+from loguru import logger
+
+from langchain.agents import initialize_agent, AgentType
+from streamlit_option_menu import option_menu
+
+# Resumix imports
+from resumix.config.config import Config
+from resumix.backend.tools.tool import tool_list
+from resumix.shared.utils.llm_client import LLMWrapper, LLMClient
+from resumix.backend.rewriter.resume_rewriter import ResumeRewriter
+from resumix.shared.utils.session_utils import SessionUtils
+from resumix.shared.utils.i18n import LANGUAGES
+
+# Import card components
+from resumix.frontend.components.cards.analysis_card import AnalysisCard
+from resumix.frontend.components.cards.polish_card import PolishCard, polish_card
+from resumix.frontend.components.cards.agent_card import AgentCard
+from resumix.frontend.components.cards.compare_card import CompareCard
+
+# Import page components
+from resumix.frontend.components.pages.score_page import ScorePage
+from resumix.frontend.components.pages.agent_page import AgentPage
+from resumix.frontend.components.pages.compare_page import ComparePage
+from resumix.frontend.components.pages.parsing_page import ParsingPage
 
 # Initialize session state
 if "lang" not in st.session_state:
@@ -9,55 +34,37 @@ if "lang" not in st.session_state:
 if "resumix_started" not in st.session_state:
     st.session_state.resumix_started = False
 
-import concurrent.futures
-from pathlib import Path
-from langchain.agents import initialize_agent, AgentType
-from resumix.backend.tools.tool import tool_list
-from resumix.shared.utils.llm_client import LLMWrapper, LLMClient
-from resumix.backend.rewriter.resume_rewriter import ResumeRewriter
-
-from config.config import Config
-
-from streamlit_option_menu import option_menu
-
-# Import card components
-from resumix.frontend.components.cards.analysis_card import AnalysisCard
-from resumix.frontend.components.cards.polish_card import PolishCard, polish_card
-from resumix.frontend.components.cards.agent_card import AgentCard
-from resumix.frontend.components.cards.compare_card import CompareCard
-from resumix.frontend.components.pages.score_page import ScorePage
-from resumix.frontend.components.pages.agent_page import AgentPage
-from resumix.frontend.components.pages.compare_page import ComparePage
-from resumix.frontend.components.pages.parsing_page import ParsingPage
-
-# Import utilities
-from resumix.shared.utils.llm_client import LLMClient, LLMWrapper
-from resumix.shared.utils.session_utils import SessionUtils
-
-from resumix.shared.utils.i18n import LANGUAGES
-from loguru import logger
-from resumix.config.config import Config
-from langchain.agents import initialize_agent, AgentType
-
-import threading
-
 # Config setup
 CONFIG = Config().config
 CURRENT_DIR = Path(__file__).resolve().parent
 ASSET_DIR = CURRENT_DIR / "assets" / "logo.png"
 
-T = LANGUAGES[st.session_state.lang]
+# Get language translations (with fallback)
+def get_translations():
+    """Get current language translations with fallback"""
+    lang = st.session_state.get("lang", "en")
+    return LANGUAGES.get(lang, LANGUAGES["en"])
 
-# Initialize LLM and agent
-llm_model = LLMClient()
-agent = initialize_agent(
-    tools=tool_list,
-    llm=LLMWrapper(client=llm_model),
-    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-    verbose=True,
-    handle_parsing_errors=True,
-    max_iterations=5,
-)
+T = get_translations()
+
+# Initialize LLM and agent only when needed (cached for performance)
+@st.cache_resource
+def get_llm_model():
+    """Initialize LLM client with caching"""
+    return LLMClient()
+
+@st.cache_resource  
+def get_agent():
+    """Initialize agent with caching"""
+    llm_model = get_llm_model()
+    return initialize_agent(
+        tools=tool_list,
+        llm=LLMWrapper(client=llm_model),
+        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        verbose=True,
+        handle_parsing_errors=True,
+        max_iterations=5,
+    )
 
 
 # Page configuration
@@ -397,7 +404,7 @@ else:
         jd_url = st.session_state.get("jd_url", "")
         if jd_url and jd_url.strip():
             try:
-                threading.thread(target=SessionUtils.get_jd_sections).start()
+                threading.Thread(target=SessionUtils.get_jd_sections).start()
             except Exception as e:
                 # JD parsing failed, use fallback
                 jd_content = f"Job description URL provided: {jd_url} (parsing failed)"
@@ -411,7 +418,7 @@ else:
             parsing_page.render()
         elif selected_tab == tab_names[1]:  # Polish
             with st.container():
-                polish_card(text, llm_model)
+                polish_card(text, get_llm_model())
 
         elif selected_tab == tab_names[2]:  # Agent
             agent_page = AgentPage()

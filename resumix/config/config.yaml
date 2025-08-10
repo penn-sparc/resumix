@@ -7,7 +7,7 @@ backend:
   port: 8000
 
 llm:
-  use_model: "bedrock"
+  use_model: "deepseek"
   deepseek:
     model: "deepseek-chat"
     url: "https://api.deepseek.com/v1/chat/completions"
@@ -27,7 +27,7 @@ llm:
     region: "us-east-1"
 
 ocr:
-  use_model: "paddleocr"
+  use_model: "easyocr"
   easyocr:
     model: "easyocr"
     directory: "resumix/shared/model/easyocr"

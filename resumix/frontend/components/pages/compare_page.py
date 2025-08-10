@@ -4,11 +4,18 @@ from resumix.shared.section.section_base import SectionBase
 from resumix.frontend.components.cards.compare_card import CompareCard
 from resumix.frontend.api.api import compare_section_api, format_section_api
 from loguru import logger
-from typing import Dict
+from typing import Dict, Tuple
 import copy
 import json
 from resumix.shared.utils.i18n import LANGUAGES
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+# Import for PDF generation
+from resumix.shared.utils.generator_utils import GeneratorUtils
+from resumix.backend.resume_generator.generator import generate_pdf_resume
+import tempfile
+import os
+from pathlib import Path
 
 
 class ComparePage:
@@ -51,6 +58,9 @@ class ComparePage:
             self._format_sections(sections, jd_content)
             self._ensure_sections_are_rewritten(sections, jd_content)
             self._render_section_comparisons(sections, jd_content)
+            
+            # Render export section at the bottom
+            self._render_export_section()
 
     def _check_prerequisites(self):
         if not st.session_state.get("resume_text") or not st.session_state.get(
@@ -75,16 +85,16 @@ class ComparePage:
         futures = {}
         with ThreadPoolExecutor(max_workers=6) as executor:
             for section_name, section_obj in sections.items():
-
+                # Only skip if json_text is already populated
                 if section_obj.json_text is not None:
-                    logger.info(f"section_obj.json_text: {section_obj.json_text}")
+                    logger.info(f"Skipping format for {section_name} - json_text already populated")
                     continue
 
-                if section_name not in self.skip_mask:
-                    future = executor.submit(
-                        format_section_api, section_obj, jd_content
-                    )
-                    futures[future] = section_name
+                logger.info(f"Formatting section {section_name}")
+                future = executor.submit(
+                    format_section_api, section_obj, jd_content
+                )
+                futures[future] = section_name
 
         with st.spinner("🔄 Generating polished versions..."):
             for future in as_completed(futures):
@@ -120,21 +130,21 @@ class ComparePage:
         # 使用 ThreadPoolExecutor 并发重写简历各部分
         with ThreadPoolExecutor(max_workers=6) as executor:
             for section_name, section_obj in sections.items():
-                if section_name not in self.skip_mask:
-                    logger.info(section_name)
-                    logger.info(self.skip_mask)
-                    logger.warning(f"redo {section_name}")
-                    # 将任务提交到 executor 中
-                    future = executor.submit(
-                        compare_section_api, section_obj, jd_content
-                    )
-                    # 将 Future 对象存储到 futures 字典中
-                    futures[future] = section_name
-                    self.skip_mask.add(section_name)  # 标记该段已被处理
-                else:
-                    logger.info(
-                        f"Skipping section {section_name} as it is already processed."
-                    )
+                # Only skip if both json_text and rewritten_text are populated
+                if (section_obj.json_text is not None and 
+                    section_obj.rewritten_text is not None):
+                    logger.info(f"Skipping section {section_name} - both json_text and rewritten_text are populated")
+                    continue
+                
+                # Process the section if it's not fully complete
+                logger.info(f"Processing section {section_name}")
+                logger.info(f"json_text present: {section_obj.json_text is not None}")
+                logger.info(f"rewritten_text present: {section_obj.rewritten_text is not None}")
+                
+                future = executor.submit(
+                    compare_section_api, section_obj, jd_content
+                )
+                futures[future] = section_name
 
         with st.spinner("🔄 Generating polished versions..."):
             for future in as_completed(futures):
@@ -174,6 +184,12 @@ class ComparePage:
         self, sections: Dict[str, SectionBase], jd_content: str
     ):
         for section_name, section_obj in sections.items():
+            # Ensure sections have at least some content for rendering
+            if section_obj.json_text is None:
+                section_obj.json_text = section_obj.raw_text or "⚠️ No content available"
+            if section_obj.rewritten_text is None:
+                section_obj.rewritten_text = section_obj.raw_text or "⚠️ No content available"
+                
             st.divider()
             st.markdown(f"### 📝 {section_name.replace('_', ' ').title()}")
 
@@ -252,7 +268,9 @@ class ComparePage:
                 # 如果选择了右侧版本（重写文本）
                 final = right_version
                 # 将 rewritten_text 设置为 raw_text
-                self.skip_mask.remove(section_name)
+                # Remove from skip_mask if it exists (safe operation)
+                if section_name in self.skip_mask:
+                    self.skip_mask.remove(section_name)
 
                 original_section = SessionUtils.get_resume_sections()[section_name]
                 new_section = copy.deepcopy(original_section)
@@ -273,7 +291,7 @@ class ComparePage:
             session[f"{section_name}_final_version"] = final
             st.success(f"✅ {section_name} polishing completed!")
 
-            self.rerun()
+            st.rerun()
 
     def _get_section_current_versions(self, section_name):
         sections = SessionUtils.get_resume_sections()
@@ -297,3 +315,192 @@ class ComparePage:
                 "type": "polished_v" + str(self.versions[section_name]["version"]),
                 "version": self.versions[section_name]["version"] + 1,
             }
+
+    def _check_export_readiness(self) -> Tuple[bool, str]:
+        """
+        Check if all sections have final versions selected and ready for export.
+        
+        Returns:
+            tuple: (is_ready, message)
+        """
+        if "comparison_session" not in st.session_state:
+            return False, "Comparison session not started"
+        
+        session = st.session_state.comparison_session
+        sections = SessionUtils.get_resume_sections()
+        
+        completed_sections = []
+        pending_sections = []
+        
+        for section_name in sections.keys():
+            final_version_key = f"{section_name}_final_version"
+            if final_version_key in session:
+                completed_sections.append(section_name)
+            else:
+                pending_sections.append(section_name)
+        
+        if pending_sections:
+            return False, f"Please complete selection for: {', '.join(pending_sections)}"
+        
+        if not completed_sections:
+            return False, "No sections have been processed yet"
+            
+        return True, f"Ready to export! {len(completed_sections)} sections completed"
+
+    def _gather_final_sections(self) -> Dict[str, SectionBase]:
+        """
+        Gather all sections with their final selected versions.
+        
+        Note: The existing _handle_section_choice logic already updates section objects
+        to contain the user's final selected content, so we just need to collect
+        the completed sections.
+        
+        Returns:
+            Dict mapping section names to their final selected SectionBase objects
+        """
+        logger.info("Gathering final selected sections for export")
+        
+        session = st.session_state.comparison_session
+        sections = SessionUtils.get_resume_sections()
+        final_sections = {}
+        
+        for section_name, section_obj in sections.items():
+            final_version_key = f"{section_name}_final_version"
+            
+            if final_version_key in session:
+                # The section object already contains the user's final selected content
+                # thanks to the existing _handle_section_choice logic
+                final_sections[section_name] = section_obj
+                logger.info(f"Added {section_name} to final sections")
+            else:
+                logger.warning(f"No final version selected for {section_name}, skipping")
+        
+        logger.info(f"Gathered {len(final_sections)} final sections for export")
+        return final_sections
+
+    def _export_resume_pdf(self) -> str:
+        """
+        Export the final selected resume sections as a PDF.
+        
+        Returns:
+            str: Path to the generated PDF file
+        """
+        logger.info("Starting PDF export process")
+        
+        try:
+            # Setup LaTeX environment for Windows (add MikTeX and Perl to PATH)
+            current_env = os.environ.copy()
+            miktex_path = "C:\\Program Files\\MiKTeX 2.9\\miktex\\bin\\x64"
+            perl_path = "C:\\Strawberry\\perl\\bin"
+            
+            for path in [miktex_path, perl_path]:
+                if path not in os.environ.get('PATH', ''):
+                    os.environ['PATH'] = os.environ.get('PATH', '') + os.pathsep + path
+            
+            # Gather final sections
+            final_sections = self._gather_final_sections()
+            
+            if not final_sections:
+                raise ValueError("No final sections available for export")
+            
+            # Convert to generator format using GeneratorUtils
+            logger.info("Converting sections to generator format")
+            resume_data = GeneratorUtils.convert_sections_to_generator_format(final_sections)
+            
+            # Create temporary file for PDF output
+            temp_dir = tempfile.mkdtemp()
+            pdf_filename = "resumix_final_resume"
+            pdf_path = os.path.join(temp_dir, pdf_filename)
+            
+            logger.info(f"Generating PDF at {pdf_path}")
+            
+            # Generate PDF using the existing generator (unchanged!)
+            try:
+                generate_pdf_resume(resume_data, output_path=pdf_path)
+            except Exception as e:
+                # The original generator might "fail" due to Unicode warnings but still create the PDF
+                logger.warning(f"Generator reported error but PDF may still be created: {e}")
+            
+            # Check if PDF was actually created (it usually is, despite warnings)
+            pdf_file = f"{pdf_path}.pdf"
+            if os.path.exists(pdf_file):
+                logger.info(f"PDF successfully created at {pdf_file}")
+                return pdf_file
+            else:
+                raise Exception("PDF file was not created")
+            
+        except Exception as e:
+            logger.error(f"Failed to export PDF: {e}")
+            raise
+
+    def _render_export_section(self):
+        """Render export section - always visible with different states based on readiness."""
+        st.divider()
+        st.markdown("### 📄 Export Resume")
+        
+        # Check export readiness
+        is_ready, message = self._check_export_readiness()
+        
+        if is_ready:
+            st.success(f"✅ {message}")
+            
+            # Export button when ready
+            if st.button("📄 Export Final Resume PDF", type="primary"):
+                try:
+                    with st.spinner("Generating PDF..."):
+                        pdf_path = self._export_resume_pdf()
+                        
+                    # Provide download
+                    if os.path.exists(pdf_path):
+                        with open(pdf_path, "rb") as pdf_file:
+                            st.download_button(
+                                label="⬇️ Download Resume PDF",
+                                data=pdf_file.read(),
+                                file_name="my_final_resume.pdf",
+                                mime="application/pdf"
+                            )
+                        st.success("✅ PDF generated successfully!")
+                    else:
+                        st.error("PDF generation failed")
+                        
+                except Exception as e:
+                    st.error(f"Export failed: {str(e)}")
+                    logger.error(f"PDF generation error: {e}")
+        else:
+            # Show current status and disabled button
+            st.info(f"📋 {message}")
+            
+            # Disabled export button with helpful message
+            st.button(
+                "📄 Export Final Resume PDF", 
+                type="secondary", 
+                disabled=True, 
+                help="Complete all section selections to enable export"
+            )
+            
+            # Show progress
+            if "comparison_session" in st.session_state:
+                session = st.session_state.comparison_session
+                sections = SessionUtils.get_resume_sections()
+                
+                completed_count = 0
+                total_count = len(sections)
+                
+                for section_name in sections.keys():
+                    final_version_key = f"{section_name}_final_version"
+                    if final_version_key in session:
+                        completed_count += 1
+                
+                if total_count > 0:
+                    progress = completed_count / total_count
+                    st.progress(progress, text=f"Progress: {completed_count}/{total_count} sections completed")
+                    
+                    # Show which sections are remaining
+                    pending_sections = []
+                    for section_name in sections.keys():
+                        final_version_key = f"{section_name}_final_version"
+                        if final_version_key not in session:
+                            pending_sections.append(section_name.replace('_', ' ').title())
+                    
+                    if pending_sections:
+                        st.caption(f"Remaining sections: {', '.join(pending_sections)}")

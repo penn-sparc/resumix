@@ -39,13 +39,16 @@ CONFIG = Config().config
 CURRENT_DIR = Path(__file__).resolve().parent
 ASSET_DIR = CURRENT_DIR / "assets" / "logo.png"
 
+
 # Get language translations (with fallback)
 def get_translations():
     """Get current language translations with fallback"""
     lang = st.session_state.get("lang", "en")
     return LANGUAGES.get(lang, LANGUAGES["en"])
 
+
 T = get_translations()
+
 
 # Initialize LLM and agent only when needed (cached for performance)
 @st.cache_resource
@@ -53,7 +56,8 @@ def get_llm_model():
     """Initialize LLM client with caching"""
     return LLMClient()
 
-@st.cache_resource  
+
+@st.cache_resource
 def get_agent():
     """Initialize agent with caching"""
     llm_model = get_llm_model()
@@ -416,19 +420,19 @@ else:
         if selected_tab == tab_names[0]:  # Analysis
             parsing_page = ParsingPage()
             parsing_page.render()
-        elif selected_tab == tab_names[1]:  # Polish
-            with st.container():
-                polish_card(text, get_llm_model())
+        # elif selected_tab == tab_names[1]:  # Polish
+        #     with st.container():
+        #         polish_card(text, get_llm_model())
 
-        elif selected_tab == tab_names[2]:  # Agent
+        elif selected_tab == tab_names[1]:  # Agent
             agent_page = AgentPage()
             agent_page.render()
 
-        elif selected_tab == tab_names[3]:  # Score
+        elif selected_tab == tab_names[2]:  # Score
             score_page = ScorePage()
             score_page.render()
 
-        elif selected_tab == tab_names[4]:  # Compare
+        elif selected_tab == tab_names[3]:  # Compare
             compare_page = ComparePage()
             compare_page.render()
 

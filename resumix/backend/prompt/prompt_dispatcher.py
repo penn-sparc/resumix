@@ -108,8 +108,13 @@ class PromptDispatcher:
         content = section.raw_text
 
         prompt = TECHSTACK_TAILORING_PROMPT.format(
-            CV_TEXT=content, TECH_STACK=tech_stacks_str, JOB_POSITION=job_positions_str
+            CV_TEXT=content,
+            TECH_STACK=tech_stacks_str,
+            JOB_POSITION=job_positions_str,
+            RESUME_SECTION=section.name,
         )
+
+        return prompt
 
     def get_rag_prompt(
         self,
@@ -118,36 +123,20 @@ class PromptDispatcher:
         job_positions: List[str],
         retrieved_context: str,
     ) -> str:
-        prompt = f"""
-You are a professional resume rewriting assistant with deep understanding of technical hiring expectations.
+        tech_stacks_str = ", ".join(tech_stacks)
+        job_positions_str = ", ".join(job_positions)
 
-Your task is twofold:
-1. ✍️ If the resume section is relevant to the target job and tech stack, rewrite it to better showcase achievements, technical skills, and impact.
-2. 📚 If the resume section does not sufficiently reflect the required skills or experience, suggest **what knowledge or experience the candidate should gain or highlight**, based on the job requirements and reference materials.
+        logger.info(section)
+        logger.info(type(section))
 
----
+        content = section.raw_text
 
-## 🎯 Target Job Positions:
-{', '.join(job_positions)}
-
-## 🧰 Relevant Tech Stack:
-{', '.join(tech_stacks)}
-
-## 📚 Reference Context (retrieved from job descriptions or exemplary resumes):
-{retrieved_context.strip()}
-
----
-
-Now process the following resume section accordingly.
-
-## 📝 Original Resume Section:
-{section.raw_text.strip()}
-
----
-
-## ✨ Your Output Should Include:
-- ✨ Rewritten Resume Section (if applicable)
-- 📌 Suggestions for knowledge, tools, or experience the candidate can learn to better match the job (if needed)
-"""
+        prompt = TECHSTACK_TAILORING_PROMPT.format(
+            CV_TEXT=content,
+            TECH_STACK=tech_stacks_str,
+            JOB_POSITION=job_positions_str,
+            RESUME_SECTION=section.name.title(),
+            RETRIEVED_CONTEXT=retrieved_context,
+        )
 
         return prompt

@@ -7,7 +7,7 @@ backend:
   port: 8000
 
 llm:
-  use_model: "deepseek"
+  use_model: "local"
   deepseek:
     model: "deepseek-chat"
     url: "https://api.deepseek.com/v1/chat/completions"
@@ -27,7 +27,7 @@ llm:
     region: "us-east-1"
 
 ocr:
-  use_model: "easyocr"
+  use_model: "paddleocr"
   easyocr:
     model: "easyocr"
     directory: "resumix/shared/model/easyocr"
@@ -38,7 +38,6 @@ ocr:
 sentence_transformer:
   use_model: "paraphrase-multilingual-MiniLM-L12-v2"
   directory: "resumix/shared/model/sentence_transformer"
-
 
 rag:
   index_path: "resumix/data/index.json"

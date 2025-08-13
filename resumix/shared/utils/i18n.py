@@ -14,15 +14,13 @@ LANGUAGES = {
         "logged_in": "Logged in",
         "logout": "Logout",
         "please_upload": "Please upload a resume PDF file to get started.",
-        "tabs": ["Parsing", "Polish", "Agent", "Score", "Compare"],
-        
+        "tabs": ["Parsing", "Polish", "Score", "Compare"],
         # Analysis Card
         "analysis": {
             "please_upload": "📄 Please upload a resume to begin analysis",
             "sections_detected": "Detected Resume Sections:",
             "section_content": "Section content:",
         },
-        
         # Polish Card
         "polish": {
             "please_upload": "✨ Please upload a resume to begin polishing",
@@ -33,7 +31,6 @@ LANGUAGES = {
             "polishing_sections": "✨ **Polishing {count} sections:** {sections}",
             "ai_polishing": "AI is polishing {section}...",
         },
-        
         # Compare Card
         "compare": {
             "original": "Original",
@@ -66,7 +63,7 @@ LANGUAGES = {
             "render_error": "❌ Unable to display original content: {section}",
             "polish_render_error": "❌ Rendering error: {error}",
             "comment_sidebar": "Side-by-side comparison of original resume and AI-polished version",
-            "comment_description": "Each section will be automatically optimized based on job description"
+            "comment_description": "Each section will be automatically optimized based on job description",
         },
     },
     "zh": {
@@ -83,15 +80,13 @@ LANGUAGES = {
         "logged_in": "已登录",
         "logout": "退出登录",
         "please_upload": "请上传 PDF 格式简历开始使用。",
-        "tabs": ["简历解析", "推荐优化", "智能代理", "简历评分", "简历对比"],
-        
+        "tabs": ["简历解析", "简历润色", "简历评分", "简历对比"],
         # Analysis Card
         "analysis": {
             "please_upload": "📄 请上传简历开始分析",
             "sections_detected": "检测到的简历章节：",
             "section_content": "章节内容：",
         },
-        
         # Polish Card
         "polish": {
             "please_upload": "✨ 请上传简历开始润色",
@@ -102,7 +97,6 @@ LANGUAGES = {
             "polishing_sections": "✨ **正在润色 {count} 个章节：** {sections}",
             "ai_polishing": "AI正在润色 {section}...",
         },
-        
         # Compare Card
         "compare": {
             "original": "原文",
@@ -135,7 +129,7 @@ LANGUAGES = {
             "render_error": "❌ 无法显示原始内容: {section}",
             "polish_render_error": "❌ 渲染出错：{error}",
             "comment_sidebar": "原始简历与AI润色版本的并排比较",
-            "comment_description": "每个部分都会根据岗位描述自动优化"
+            "comment_description": "每个部分都会根据岗位描述自动优化",
         },
     },
 }

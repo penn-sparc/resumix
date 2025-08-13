@@ -15,7 +15,7 @@ CONFIG = Config().config
 class AgentCard(BaseCard):
     def __init__(
         self,
-        title: str = "AI Agent Assistant",
+        title: str = "Resume Polisher",
         icon: str = "🤖",
         comment: Optional[str] = None,
         additional_content: Optional[str] = None,
@@ -41,145 +41,10 @@ class AgentCard(BaseCard):
     def set_sections(self, sections: Dict[str, SectionBase]):
         self.sections = sections
 
-    # def parse_resume_sections(self, text: str) -> Dict[str, SectionBase]:
-    #     """
-    #     Parse the resume text into structured sections.
-
-    #     Args:
-    #         text: Raw resume text to parse
-
-    #     Returns:
-    #         Dictionary of section names to SectionBase objects
-    #     """
-    #     try:
-    #         logger.info("Parsing resume text for agent processing")
-    #         self.sections = self.parser.parse_resume(text)
-    #         return self.sections
-    #     except Exception as e:
-    #         logger.error(f"Failed to parse resume for agent: {e}")
-    #         st.error(f"❌ Resume parsing failed: {e}")
-    #         return {}
-
-    #     def create_optimization_prompt(
-    #         self, section_name: str, section_content: str, jd_content: str
-    #     ) -> str:
-    #         """
-    #         Create an optimization prompt for the AI agent.
-
-    #         Args:
-    #             section_name: Name of the resume section
-    #             section_content: Content of the section
-    #             jd_content: Job description content
-
-    #         Returns:
-    #             Formatted prompt for the agent
-    #         """
-    #         prompt = f"""你是一个简历优化助手。请参考以下岗位描述，并优化简历内容：
-
-    #             岗位描述：{jd_content}
-
-    #             简历原文：
-    # \"\"\"{section_content}\"\"\"
-
-    # 请按照如下格式作答：
-    # Thought: ...
-    # Action: local_llm_generate
-    # Action Input: \"\"\"优化后的内容\"\"\"
-    # """
-    #         return prompt
-
-    #     def render_agent_response(self, result: str):
-    #         """
-    #         Render the agent's response.
-
-    #         Args:
-    #             result: Agent response to display
-    #         """
-    #         try:
-    #             st.chat_message("Resumix").write(result)
-    #         except Exception as e:
-    #             logger.error(f"Failed to render agent response: {e}")
-    #             st.warning("Could not display agent response")
-
-    # def render_section_optimization(
-    #     self, section_name: str, section_obj: SectionBase, jd_content: str, agent
-    # ):
-    #     """
-    #     Render optimization for a single resume section.
-
-    #     Args:
-    #         section_name: Name of the section
-    #         section_obj: SectionBase object containing section data
-    #         jd_content: Job description content
-    #         agent: AI agent instance
-    #     """
-    #     try:
-    #         st.subheader(f"🔧 Optimizing: {section_name.upper()}")
-
-    #         # # Get section content
-    #         # content = getattr(section_obj, "original_lines", None)
-    #         # if content:
-    #         #     content = "\n".join(content)
-    #         # else:
-    #         #     content = section_obj.raw_text or "\n".join(section_obj.lines)
-
-    #         # Create and run optimization prompt
-    #         with st.spinner(f"AI is optimizing {section_name}..."):
-
-    #             # payload = TechOptimizeRquest(
-    #             #     section_name=section,
-
-    #             #     jd_text=,
-    #             #     tech_stack=
-
-    #             prompt = self.create_optimization_prompt(
-    #                 section_name, content, jd_content
-    #             )
-    #             result = agent.run(prompt)
-    #             self.render_agent_response(result)
-
-    #     except Exception as e:
-    #         logger.error(f"Failed to optimize section {section_name}: {e}")
-    #         st.error(f"❌ Failed to optimize {section_name}: {e}")
-
-    # def render_agent_interaction(self, text: str, jd_content: str, agent):
-    #     """
-    #     Main agent interaction rendering logic.
-    #     This incorporates the logic from agent_module.py
-
-    #     Args:
-    #         text: Resume text to process
-    #         jd_content: Job description content
-    #         agent: AI agent instance
-    #     """
-    #     logger.info(
-    #         "Handling AI Agent with provided resume text and job description content."
-    #     )
-
-    #     # Parse resume sections
-    #     sections = self.parse_resume_sections(text)
-
-    #     if not sections:
-    #         st.warning("Unable to parse resume sections for optimization.")
-    #         return
-
-    #     # Show overview
-    #     st.info(
-    #         f"🤖 **Ready to optimize {len(sections)} sections:** {', '.join(sections.keys())}"
-    #     )
-    #     st.divider()
-
-    #     # Process each section with the agent
-    #     for section_name, section_obj in sections.items():
-    #         self.render_section_optimization(
-    #             section_name, section_obj, jd_content, agent
-    #         )
-    #         st.divider()
-
     def _render_tech_stack_selection(self):
         """Render technology stack selection interface"""
         selected_tech_stacks = st.segmented_control(
-            "🛠️ 选择你掌握的技术栈",
+            "🛠️ Select the technology stack directions you want to refine",
             options=[
                 "PyTorch",
                 "TensorFlow",
@@ -202,7 +67,7 @@ class AgentCard(BaseCard):
     def _render_job_position_selection(self):
         """Render job position selection interface"""
         selected_job_positions = st.segmented_control(
-            "💼 选择你期望的职位类型",
+            "💼 Select your preferred job positions",
             options=[
                 "Backend",
                 "Frontend",
@@ -212,6 +77,8 @@ class AgentCard(BaseCard):
                 "Data Scientist",
                 "AI Engineer",
                 "ML Engineer",
+                "Game Developer",
+                "Product Manager",
             ],
             selection_mode="multi",
         )
@@ -240,31 +107,6 @@ class AgentCard(BaseCard):
         Render the main agent card content with clean text hierarchy.
         """
         pass
-        # try:
-        #     st.markdown("### 🤖 AI Assistant")
-        #     st.markdown("Get personalized resume advice and suggestions")
-
-        #     # Simple option selections
-        #     st.markdown("#### 🛠️ Technology Preferences")
-        #     selected_tech_stacks = self.render_tech_stack_selection()
-
-        #     st.markdown("#### 💼 Target Positions")
-        #     selected_job_positions = self.render_job_position_selection()
-
-        #     if selected_tech_stacks or selected_job_positions:
-        #         st.markdown("#### 💡 Recommendations")
-        #         st.info(
-        #             f"Based on your selections, consider highlighting experience with: {', '.join(selected_tech_stacks[:3])}"
-        #         )
-
-        # except Exception as e:
-        #     logger.error(f"Failed to render agent card body: {e}")
-        #     st.error("Could not display AI assistant interface")
-
-    # def render_comment(self):
-    #     """Render the comment section"""
-    #     if self.comment:
-    #         st.markdown(f"*🤖 {self.comment}*")
 
     def process(
         self,
@@ -272,16 +114,21 @@ class AgentCard(BaseCard):
         tech_stacks: List[str],
         job_positions: List[str],
     ):
+        selected_sections = ["experience", "projects"]
         for section in sections.values():
-            self.process_section(section, tech_stacks, job_positions)
-            st.divider()
+            logger.info(f"Processing section: {section.name}")
+            if section.name in selected_sections:
+                logger.info(f"Start process: {section.name}")
+                self.process_section(section, tech_stacks, job_positions)
+                st.divider()
 
     def process_section(
         self, section: SectionBase, tech_stacks: List[str], job_positions: List[str]
     ):
         with st.spinner(f"AI is optimizing {section.name}..."):
             result = process_section_api(section, tech_stacks, job_positions)
-            st.chat_message("Resumix").write(result)
+            rewritten_text = result["rewritten_text"]
+            st.chat_message("Resumix").write(rewritten_text)
 
     def render(self):
         """
@@ -294,8 +141,16 @@ class AgentCard(BaseCard):
 
         tech_stacks, job_positions = self._render_options()
 
-        logger.info(type(self.sections))
-        self.process(self.sections, tech_stacks, job_positions)
+        with st.form("agent_process_form", clear_on_submit=False):
+            submitted = st.form_submit_button(
+                "Start Process", type="primary", use_container_width=True
+            )
+
+        if submitted:
+            with st.spinner("Processing..."):
+                logger.info(type(self.sections))
+                self.process(self.sections, tech_stacks, job_positions)
+            st.success("Success ✅")
 
 
 def agent_card(text: str):

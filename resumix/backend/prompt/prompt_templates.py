@@ -267,7 +267,6 @@ SCORE_PROMPT_MAP = {
     "awards": PROJECTS_SCORE_PROMPT,
 }
 
-
 TECHSTACK_TAILORING_PROMPT = """
 You are a professional resume assistant specializing in tailoring CVs to technical job positions.
 
@@ -280,17 +279,32 @@ You are a professional resume assistant specializing in tailoring CVs to technic
 ## User's Technical Stack:
 {TECH_STACK}
 
+## Target Resume Section:
+{RESUME_SECTION}
+
+## Reference Context (retrieved from job descriptions or exemplary resumes):
+{RETRIEVED_CONTEXT}
+
 ## Instructions:
-Your task is to optimize the given CV content for the specified job position and highlight relevant technical experience. Follow these guidelines:
+- Optimize only the {RESUME_SECTION} content for {JOB_POSITION}.
+- Use {RETRIEVED_CONTEXT} as additional context to better match responsibilities, skills, and wording commonly used in the industry.
+- Emphasize technologies and responsibilities relevant to {JOB_POSITION}.
+- Use active, concise, professional language with measurable outcomes.
+- If a technology from {TECH_STACK} is reasonably implied, include it naturally.
+- If relevant experience is missing, propose concrete, realistic placeholder lines inspired by {RETRIEVED_CONTEXT} when applicable.
+- Keep the writing ATS-friendly (clear bullets, verbs first, metrics when possible).
+- Do not copy entire sentences from {RETRIEVED_CONTEXT}; instead, adapt and rewrite them to fit the candidate’s profile.
+- Additionally, identify and list specific types of experiences, projects, achievements, or responsibilities that could be added to enrich the {RESUME_SECTION}.
 
-- Emphasize the use of technologies mentioned in {JOB_POSITION}, either explicitly or through appropriate context
-- Highlight any work that matches the responsibilities or domain implied by {JOB_POSITION}
-- Rewrite experience items using clear, professional language and quantifiable results where possible
-- Use active voice and concise phrasing; avoid repetition and vague descriptions
-- If a technology in {TECH_STACK} is not mentioned but can be reasonably inferred based on context, include it
-- If relevant experience is missing, suggest a placeholder line the candidate could consider adding
+## OUTPUT FORMAT (STRICT)
+Return only the following three parts in this exact order. No preface, no extra sections.
 
+### {RESUME_SECTION} — Optimized
+<Write the optimized {RESUME_SECTION} here. Use bullet points if applicable.>
 
-## Output:
-Return the optimized CV section, with commentary and explanation.
+### Suggestions
+<List any number of actionable, non-duplicative suggestions, one per bullet, as many as needed.>
+
+### Additional Relevant Content Ideas
+<List experiences, projects, achievements, or responsibilities that would strengthen this {RESUME_SECTION}. Make each idea concise and actionable.>
 """

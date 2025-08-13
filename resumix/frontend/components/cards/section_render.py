@@ -20,6 +20,8 @@ class SectionRender:
             # data = json.loads(section_json)
         except json.JSONDecodeError:
             st.warning("⚠️ JSON 解析失败，原始数据如下：")
+            logger.error("⚠️ JSON 解析失败，原始数据如下：")
+            logger.error(section_json)
             st.code(section_json)
             return
 

@@ -46,7 +46,7 @@ def compare_resume(req: BaseRequest):
             raise Exception("Section is required")
 
         result = service.compare_resume(section_obj, jd_content)
-
+        logger.info(f"Rewritten section: {result}")
         json = {"rewritten_text": result}
 
         return BaseResponse(data=json)

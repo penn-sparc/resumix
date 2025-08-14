@@ -19,8 +19,13 @@ class ResumeRewriter(BaseRewriter):
         self, section: SectionBase, jd_text: str = "", prompt_mode=PromptMode.DEFAULT
     ) -> str:
         # 获取针对该 section 的 prompt
-        prompt = PromptDispatcher().get_prompt(section, prompt_mode)
-        logger.info(f"Rewriting section '{section.name}' with LLM...")
+        
+        
+        if prompt_mode == PromptMode.TAILOR:
+            prompt = PromptDispatcher().get_section_tailoring_prompt(section, jd_text)
+        else:
+            prompt = PromptDispatcher().get_prompt(section, prompt_mode)
+            logger.info(f"Rewriting section '{section.name}' with LLM...")
 
         # 调用 LLM 接口
         rewritten_text = self.llm(prompt)

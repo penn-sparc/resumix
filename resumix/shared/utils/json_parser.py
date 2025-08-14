@@ -1,7 +1,7 @@
 import json
 import re
 import ast
-from typing import Union, Dict
+from typing import Union, Dict, Any
 from loguru import logger
 
 
@@ -46,9 +46,13 @@ class JsonParser:
         # 删除对象或数组中的尾部逗号： {"a": 1,} -> {"a": 1}
         cleaned = re.sub(r",\s*([\]}])", r"\1", cleaned)
 
+        logger.info(f"cleaned: {cleaned}")
+
         # 解析 JSON：先 json 再 ast
         try:
-            return json.loads(cleaned)
+            result = json.loads(cleaned)
+            logger.info(f"JSON 解析成功: {result}")
+            return result
         except json.JSONDecodeError as e_json:
             logger.warning(
                 f"[json.loads] 解析失败: {e_json}, 尝试 fallback ast.literal_eval"
@@ -57,4 +61,26 @@ class JsonParser:
                 return ast.literal_eval(cleaned)
             except Exception as e_ast:
                 logger.error(f"[ast.literal_eval] 解析仍失败: {e_ast}")
-                return None
+                return {}
+
+    @staticmethod
+    def _strip_markdown_code_fence(text: str) -> str:
+        # 清除 markdown code block 头尾
+        lines = text.strip().splitlines()
+        if lines and lines[0].strip().startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].strip().startswith("```"):
+            lines = lines[:-1]
+        return "\n".join(lines).strip()
+
+    @staticmethod
+    def parse_string(section_json: str) -> Dict[str, Any]:
+        try:
+            section_json = JsonParser._strip_markdown_code_fence(section_json)
+            logger.info(f"Section JSON: {section_json}")
+            data = JsonParser.parse(section_json)
+            return data
+        except json.JSONDecodeError:
+            logger.error("⚠️ JSON 解析失败，原始数据如下：")
+            logger.error(section_json)
+            return {}

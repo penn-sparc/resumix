@@ -65,7 +65,7 @@ def generate_pdf_resume(json_resume, output_path="resume"):
 
     # 输出 PDF
     doc.generate_pdf(output_path, clean_tex=False)
-    print(f"[SUCCESS] 简历已生成：{output_path}.pdf")
+    (f"[SUCCESS] 简历已生成：{output_path}.pdf")
 
 
 if __name__ == "__main__":

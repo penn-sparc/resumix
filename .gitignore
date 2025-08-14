@@ -76,3 +76,5 @@ test.pdf
 resumix/config/config.yaml
 
 resumix/models/
+
+resumix/backend/resume_generator/resume

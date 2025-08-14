@@ -1,3 +1,5 @@
+from resumix.backend.prompt.prompt_schema import SCHEMA, INSTRUCTION, EXAMPLE
+
 SYSTEM_PROMPT = "You are a smart assistant to career advisors at the Harvard Extension School. You will reply with JSON only."
 
 TAILORING_PROMPT = """
@@ -16,7 +18,7 @@ Your task is to rewrite the given CV. Follow these guidelines:
 
 Improved CV:
 """
-BASICS_PROMPT = """
+BASICS_PROMPT = f"""
 You are going to write a JSON resume section for an applicant applying for job posts.
 
 Consider the following CV:
@@ -24,25 +26,12 @@ Consider the following CV:
 
 Now consider the following TypeScript Interface for the JSON schema:
 
-interface Basics {
-    name: string;
-    email: string;
-    phone: string;
-    website: string;
-    address: string;
-}
-
-Instructions:
-- Return only valid JSON matching the schema above.
-- Do NOT include markdown code blocks, comments, or explanations.
-- Prefix the output with exactly: Final Answer:
-- Return in a single line.
-
-Example output:
-Final Answer: {"name": "John Doe", "email": "john@example.com", "phone": "1234567890", "website": "https://example.com", "address": "123 Main St"}
+{SCHEMA["basics"]}
+{INSTRUCTION["basics"]}
+{EXAMPLE["basics"]}
 """
 
-EDUCATION_PROMPT = """
+EDUCATION_PROMPT = f"""
 You are going to write a JSON resume section for an applicant applying for job posts.
 
 Consider the following CV:
@@ -50,32 +39,12 @@ Consider the following CV:
 
 Now consider the following TypeScript Interface for the JSON schema:
 
-interface EducationItem {
-    institution: string;
-    area: string;
-    additionalAreas: string[];
-    studyType: string;
-    startDate: string;
-    endDate: string;
-    score: string;
-    location: string;
-}
-
-interface Education {
-    education: EducationItem[];
-}
-
-Instructions:
-- Return only valid JSON matching the schema above.
-- Do NOT include markdown code blocks, comments, or explanations.
-- Prefix the output with exactly: Final Answer:
-- Return in a single line.
-
-Example output:
-Final Answer: {"education":[{"institution":"Harvard University","area":"Computer Science","additionalAreas":[],"studyType":"Bachelor","startDate":"2015-09","endDate":"2019-06","score":"3.9/4.0","location":"Cambridge, MA"}]}
+{SCHEMA["education"]}
+{INSTRUCTION["education"]}
+{EXAMPLE["education"]}
 """
 
-WORK_PROMPT = """
+WORK_PROMPT = f"""
 You are going to write a JSON resume section for an applicant applying for job posts.
 
 Consider the following CV:
@@ -83,33 +52,12 @@ Consider the following CV:
 
 Now consider the following TypeScript Interface for the JSON schema:
 
-interface WorkItem {
-    company: string;
-    position: string;
-    startDate: string;
-    endDate: string;
-    location: string;
-    highlights: string[];
-}
-
-interface Work {
-    work: WorkItem[];
-}
-
-Instructions:
-- Write only the work experience section (exclude projects).
-- Use STAR methodology in highlights (Situation, Task, Action, Result).
-- Follow Harvard Extension School Resume standards.
-- Return only valid JSON matching the schema above.
-- Do NOT include markdown code blocks, comments, or explanations.
-- Prefix the output with exactly: Final Answer:
-- Return in a single line.
-
-Example output:
-Final Answer: {"work":[{"company":"Google","position":"Software Engineer","startDate":"2020-01","endDate":"2022-12","location":"Mountain View, CA","highlights":["Led redesign of search interface, improving user engagement by 15%.","Implemented A/B testing pipeline reducing experimentation time by 30%."]}]}
+{SCHEMA["experience"]}
+{INSTRUCTION["experience"]}
+{EXAMPLE["experience"]}
 """
 
-PROJECTS_PROMPT = """
+PROJECTS_PROMPT = f"""
 You are going to write a JSON resume section for an applicant applying for job posts.
 
 Consider the following CV:
@@ -117,29 +65,12 @@ Consider the following CV:
 
 Now consider the following TypeScript Interface for the JSON schema:
 
-interface ProjectItem {
-    name: string;
-    description: string;
-    keywords: string[];
-    url: string;
-}
-
-interface Projects {
-    projects: ProjectItem[];
-}
-
-Instructions:
-- Include only projects present in the CV.
-- Return only valid JSON matching the schema above.
-- Do NOT include markdown code blocks, comments, or explanations.
-- Prefix the output with exactly: Final Answer:
-- Return in a single line.
-
-Example output:
-Final Answer: {"projects":[{"name":"Resume AI","description":"Built a resume parser using NLP and LLM.","keywords":["NLP","LLM","Python"],"url":"https://github.com/example/resume-ai"}]}
+{SCHEMA["projects"]}
+{INSTRUCTION["projects"]}
+{EXAMPLE["projects"]}
 """
 
-SKILLS_PROMPT = """
+SKILLS_PROMPT = f"""
 You are going to write a JSON resume section for an applicant applying for job posts.
 
 Consider the following CV:
@@ -151,25 +82,9 @@ type OtherSkills = string;
 
 Now consider the following TypeScript Interface for the JSON schema:
 
-interface SkillItem {
-    name: HardSkills | SoftSkills | OtherSkills;
-    keywords: string[];
-}
-
-interface Skills {
-    skills: SkillItem[];
-}
-
-Instructions:
-- Include up to the top 4 relevant skills present in the CV.
-- Prioritize those related to work and education background.
-- Return only valid JSON matching the schema above.
-- Do NOT include markdown code blocks, comments, or explanations.
-- Prefix the output with exactly: Final Answer:
-- Return in a single line.
-
-Example output:
-Final Answer: {"skills":[{"name":"Programming Languages","keywords":["Python","C++"]},{"name":"Frameworks","keywords":["React","PyTorch"]}]}
+{SCHEMA["skills"]}
+{INSTRUCTION["skills"]}
+{EXAMPLE["skills"]}
 """
 
 AWARDS_PROMPT = """
@@ -180,26 +95,9 @@ Consider the following CV:
 
 Now consider the following TypeScript Interface for the JSON schema:
 
-interface AwardItem {
-    title: string;
-    date: string;
-    awarder: string;
-    summary: string;
-}
-
-interface Awards {
-    awards: AwardItem[];
-}
-
-Instructions:
-- Include only awards, certifications, and recognitions present in the CV.
-- Return only valid JSON matching the schema above.
-- Do NOT include markdown code blocks, comments, or explanations.
-- Prefix the output with exactly: Final Answer:
-- Return in a single line.
-
-Example output:
-Final Answer: {"awards":[{"title":"AWS Certified Solutions Architect","date":"2023","awarder":"Amazon Web Services","summary":"Professional cloud architecture certification"}]}
+{SCHEMA["awards"]}
+{INSTRUCTION["awards"]}
+{EXAMPLE["basics"]}
 """
 
 PROMPT_MAP = {

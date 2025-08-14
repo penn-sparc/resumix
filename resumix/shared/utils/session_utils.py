@@ -99,7 +99,7 @@ class SessionUtils:
         return st.session_state.jd_content
 
     @staticmethod
-    @st.cache_data(show_spinner="提取简历段落")
+    # @st.cache_data(show_spinner="提取简历段落")
     def get_resume_sections():
         if "resume_sections" not in st.session_state:
             text = SessionUtils.get_resume_text()

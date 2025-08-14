@@ -5,14 +5,16 @@ import os
 import sys
 import time
 
+import subprocess
+
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from resumix.backend.resume_generator.doc_utils import escape_for_latex
 
 BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resume")
 
-os.chdir(BASE_DIR)
+# os.chdir(BASE_DIR)
 
-TEMPLATE_NAME = "Plush"
+TEMPLATE_NAME = "Simple"
 
 ENV = os.environ.copy()
 ENV["TECTONIC_CACHE"] = os.path.join(os.path.dirname(__file__), "tectonic_cache")
@@ -214,12 +216,90 @@ def get_final_section_ordering(section_ordering):
     return final_ordering
 
 
-if __name__ == "__main__":
+def generate_pdf(
+    json_resume: dict,
+    output_path: str,
+    template_name: str = TEMPLATE_NAME,
+    tex_filename: str = None,
+    prelim_section_ordering=None,
+) -> str:
+    
+    """
+    渲染 LaTeX 并用 tectonic 编译 PDF，输出到 output_path（必须是 *.pdf）。
+    - 使用唯一的 .tex 文件名，避免并发/历史文件干扰
+    - 不修改全局 CWD；subprocess.run(..., cwd=BASE_DIR, env=ENV)
+    - 编译后原子替换到 output_path
+    """
+    import time
     import subprocess
+
+    tmpl = template_name or TEMPLATE_NAME
+    section_order = prelim_section_ordering or []
+
+    # 0) 规范化输出：确保以 .pdf 结尾
+    output_path = os.path.abspath(output_path)
+    if not output_path.lower().endswith(".pdf"):
+        output_path = output_path + ".pdf"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    # 1) 生成唯一的 .tex 文件名，避免相互覆盖
+    if tex_filename:
+        tex_file = tex_filename
+    else:
+        tex_file = f"{tmpl}-resume-{int(time.time()*1000)}.tex"
+
+    tex_path = os.path.join(BASE_DIR, tex_file)
+
+    # 2) 渲染 .tex
+    latex_content = generate_latex(
+        template_name=tmpl,
+        json_resume=json_resume,
+        prelim_section_ordering=section_order,
+    )
+    os.makedirs(BASE_DIR, exist_ok=True)
+    with open(tex_path, "w", encoding="utf-8") as f:
+        f.write(latex_content)
+    print(f"[INFO] LaTeX 写入: {tex_path}")
+
+    # 3) 编译（在 BASE_DIR 下执行）
+    if tmpl not in template_commands:
+        raise RuntimeError(f"Unknown template_name: {tmpl}")
+    command = template_commands[tmpl](tex_file=os.path.basename(tex_path))
+    subprocess.run(command, check=True, cwd=BASE_DIR, env=ENV)
+    print("[SUCCESS] tectonic 编译完成")
+
+    # 4) 找到此次编译生成的 PDF（与 .tex 同名）
+    compiled_pdf = os.path.join(
+        BASE_DIR, os.path.splitext(os.path.basename(tex_path))[0] + ".pdf"
+    )
+
+    # 兜底：部分模板可能产出固定名
+    if not os.path.exists(compiled_pdf) or os.path.getsize(compiled_pdf) == 0:
+        fallback = os.path.join(BASE_DIR, "resume.pdf")
+        if os.path.exists(fallback) and os.path.getsize(fallback) > 0:
+            compiled_pdf = fallback
+        else:
+            listing = "\n".join(sorted(os.listdir(BASE_DIR)))
+            raise RuntimeError(
+                "PDF 未按预期生成。\n"
+                f"尝试: {compiled_pdf}\n"
+                f"工作目录: {BASE_DIR}\n目录内容:\n{listing}"
+            )
+
+    # 5) 原子替换到目标 output_path（避免拷贝旧文件）
+    tmp_out = output_path + ".tmp"
+    with open(compiled_pdf, "rb") as src, open(tmp_out, "wb") as dst:
+        dst.write(src.read())
+    os.replace(tmp_out, output_path)
+
+    return output_path
+
+
+if __name__ == "__main__":
 
     json_resume = json_resume = {
         "basics": {
-            "name": "Zhang San",
+            "name": "Zhang S",
             "address": "123 Tsinghua Road, Beijing, China",
             "email": "zhangsan@example.com",
             "phone": "+86 123-4567-8901",
@@ -274,27 +354,33 @@ if __name__ == "__main__":
         ],
     }
 
-    # 调用 Jinja2 渲染生成 LaTeX 内容
-    latex_content = generate_latex(
-        template_name=TEMPLATE_NAME,
+    generate_pdf(
         json_resume=json_resume,
-        prelim_section_ordering=[],  # 可自定义顺序
+        template_name=TEMPLATE_NAME,
+        output_path="resume.pdf",
     )
 
-    # 将 LaTeX 内容写入 resume.tex
+    # # 调用 Jinja2 渲染生成 LaTeX 内容
+    # latex_content = generate_latex(
+    #     template_name=TEMPLATE_NAME,
+    #     json_resume=json_resume,
+    #     prelim_section_ordering=[],  # 可自定义顺序
+    # )
 
-    with open(TEX_PATH, "w", encoding="utf-8") as f:
-        f.write(latex_content)
-    print(f"[INFO] LaTeX 源码已写入: {TEX_PATH}")
+    # # 将 LaTeX 内容写入 resume.tex
 
-    # 编译为 PDF
-    try:
-        print(f"[INFO] 开始使用 tectonic 编译 PDF... {TEMPLATE_NAME}")
-        command = template_commands[TEMPLATE_NAME](tex_file=TEX_FILENAME)
+    # with open(TEX_PATH, "w", encoding="utf-8") as f:
+    #     f.write(latex_content)
+    # print(f"[INFO] LaTeX 源码已写入: {TEX_PATH}")
 
-        print(ENV)
-        subprocess.run(command, check=True, env=ENV)
-        print("[SUCCESS] PDF 编译完成，输出为 resume.pdf")
-    except subprocess.CalledProcessError as e:
-        print("[ERROR] PDF 编译失败：")
-        print(e)
+    # # 编译为 PDF
+    # try:
+    #     print(f"[INFO] 开始使用 tectonic 编译 PDF... {TEMPLATE_NAME}")
+    #     command = template_commands[TEMPLATE_NAME](tex_file=TEX_FILENAME)
+
+    #     print(ENV)
+    #     subprocess.run(command, check=True, env=ENV)
+    #     print("[SUCCESS] PDF 编译完成，输出为 resume.pdf")
+    # except subprocess.CalledProcessError as e:
+    #     print("[ERROR] PDF 编译失败：")
+    #     print(e)

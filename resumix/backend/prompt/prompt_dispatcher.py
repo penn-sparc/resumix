@@ -5,6 +5,7 @@ from resumix.backend.prompt.prompt_templates import (
     TECHSTACK_TAILORING_PROMPT,
     TAILORING_PROMPT,
 )
+from resumix.backend.prompt.tailor_prompt_templates import TAILOR_PROMPT_MAP
 from resumix.shared.section.section_base import SectionBase
 from enum import Enum
 from typing import List
@@ -55,7 +56,7 @@ class PromptDispatcher:
         placeholder = "<CV_TEXT>"
 
         if mode == PromptMode.TAILOR:
-            prompt_for_tailoring = self.get_tailoring_prompt(section.raw_text)
+            prompt_for_tailoring = self.get_tailoring_prompt(section, section.raw_text)
             prompt = prompt.replace(placeholder, prompt_for_tailoring)
 
             return prompt_for_tailoring + prompt
@@ -87,6 +88,14 @@ class PromptDispatcher:
             )
 
         return prompt
+
+    def get_section_tailoring_prompt(self, section:SectionBase, jd_text:str) -> str:
+        prompt = TAILOR_PROMPT_MAP.get(section.name)
+        if not prompt:
+            raise ValueError(f"No tailoring prompt found for section: {section.name}")
+        prompt = prompt.replace("<CV_TEXT>", section.raw_text.strip())
+        prompt = prompt.replace("<JD_TEXT>", jd_text)
+        return prompt 
 
     def get_tailoring_prompt(self, full_cv: str) -> str:
         """

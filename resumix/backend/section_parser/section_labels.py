@@ -4,7 +4,7 @@ from typing import Dict, List, Union
 
 
 class SectionLabels:
-    """封装多语言简历段落标签及关键词匹配"""
+    """封装多语言resume段落标签及关键词匹配"""
 
     # 支持的语言版本
     SUPPORTED_LANGUAGES = ["en", "zh"]
@@ -38,7 +38,7 @@ class SectionLabels:
                 "职业经历",
                 "实习经历",
                 "项目经验",
-                "实习岗位",
+                "实习job",
                 "全职工作",
             ],
             "projects": ["项目经历", "个人项目", "项目经验", "开发项目", "工程实践"],

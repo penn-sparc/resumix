@@ -47,7 +47,7 @@ class UrlFetcher:
                     return text
                 else:
                     logger.warning(
-                        "[WebExtract] readability 提取内容为空或过短 (trafilatura 已被临时禁用)"
+                        "[WebExtract] readability 提取content为空或过短 (trafilatura 已被临时禁用)"
                     )
             except Exception as e:
                 logger.warning(f"[WebExtract] readability 提取失败: {e}")

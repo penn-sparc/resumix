@@ -10,10 +10,10 @@ class JDSectionLabels:
 
     LABELS: Dict[str, Dict[str, List[str]]] = {
         "zh": {
-            "overview": ["职位描述", "岗位介绍", "组织介绍", "职位信息", "职位概况"],
-            "responsibilities": ["岗位职责", "工作内容", "日常任务", "工作职责"],
+            "overview": ["职位描述", "job介绍", "组织介绍", "职位信息", "职位概况"],
+            "responsibilities": ["job职责", "工作content", "日常任务", "工作职责"],
             "requirements_basic": [
-                "岗位要求",
+                "job要求",
                 "任职要求",
                 "基本要求",
                 "资质要求",

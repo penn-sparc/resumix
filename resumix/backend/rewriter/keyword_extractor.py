@@ -129,7 +129,7 @@ class KeywordExtractor:
         custom_dict: List[str] = None,
     ) -> List[Tuple[str, float]]:
         """
-        从 JD 中提取与简历语义最相关的句子的关键词。
+        从 JD 中提取与resume语义最相关的句子的关键词。
         """
 
         jd_sentences = [s.strip() for s in jd_text.split("\n") if s.strip()]

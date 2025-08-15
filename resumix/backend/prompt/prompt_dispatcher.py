@@ -70,7 +70,7 @@ class PromptDispatcher:
         jd_section_preferred: SectionBase,
     ) -> str:
         """
-        用于评分的 prompt 构造
+        用于score的 prompt 构造
         """
         prompt = SCORE_PROMPT_MAP[section.name]
         placeholder = "<CV_TEXT>"
@@ -99,7 +99,7 @@ class PromptDispatcher:
 
     def get_tailoring_prompt(self, full_cv: str) -> str:
         """
-        用于整体润色的 prompt 构造
+        用于整体polish的 prompt 构造
         """
         prompt = self.prompt_templates["tailor"]
         return prompt.replace("<CV_TEXT>", full_cv.strip())

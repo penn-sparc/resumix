@@ -63,7 +63,7 @@ class TechRewriter(BaseRewriter):
         self, section: SectionBase, tech_stacks: List[str], job_positions: List[str]
     ) -> SectionBase:
         """
-        使用 RAG 模式重写简历段落
+        使用 RAG 模式重写resume段落
         """
         logger.info(
             f"🔍 RAG rewriting section '{section.name}' using tech stacks {tech_stacks} and positions {job_positions}."
@@ -80,7 +80,7 @@ class TechRewriter(BaseRewriter):
             f"📚 Retrieved {len(retrieved_contexts)} context items for section '{section.name}'."
         )
 
-        # 2. 拼接上下文信息为检索内容
+        # 2. 拼接上下文信息为检索content
         context_str = "\n---\n".join(retrieved_contexts)
 
         # 3. 构造增强型 prompt

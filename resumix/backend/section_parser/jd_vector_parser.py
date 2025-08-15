@@ -43,7 +43,7 @@ class JDVectorParser(BaseParser):
                 raise ValueError("LLM返回值不是字典类型")
 
             if not any(llm_sections.values()):
-                raise ValueError("LLM返回内容为空")
+                raise ValueError("LLM返回content为空")
 
             structured_sections = {}
 
@@ -63,7 +63,7 @@ class JDVectorParser(BaseParser):
                         raise TypeError(f"段落 {tag} 类型非法：{type(content)}")
 
                     if not text:
-                        raise ValueError(f"段落 {tag} 内容为空")
+                        raise ValueError(f"段落 {tag} content为空")
 
                     line_list = self.normalize_text(text, keep_blank=True)
                     raw_text = "\n".join(line_list)
@@ -77,21 +77,21 @@ class JDVectorParser(BaseParser):
                     structured_sections[tag_key] = section_obj
                 except Exception as e_section:
                     logger.warning(
-                        f"[JDVectorParser] 段落处理失败: {tag} - {e_section}"
+                        f"[JDVectorParser] 段落processing失败: {tag} - {e_section}"
                     )
 
             if structured_sections:
                 logger.info("[JDVectorParser] Parsed sections with LLM")
                 return structured_sections
             else:
-                raise ValueError("所有段落处理失败，无有效结构")
+                raise ValueError("所有段落processing失败，无有效结构")
 
         except Exception as e:
             #            import traceback
-            logger.info(f"[JDVectorParser] LLM 解析失败: {e}")
+            logger.info(f"[JDVectorParser] LLM parsing失败: {e}")
             # logger.debug(traceback.format_exc())
 
-        # fallback：向量结构解析
+        # fallback：向量结构parsing
         try:
             line_list = self.normalize_text(jd_text, keep_blank=True)
             section_lines = self.detect_sections(line_list)
@@ -112,9 +112,9 @@ class JDVectorParser(BaseParser):
             return structured_sections
         except Exception as e:
             import traceback
-            logger.error(f"[JDVectorParser] fallback 向量解析也失败: {e}")
+            logger.error(f"[JDVectorParser] fallback 向量parsing也失败: {e}")
             logger.debug(traceback.format_exc())
-            return {"overview": SectionBase(name="overview", raw_text="❌ 无法解析 JD 内容。")}
+            return {"overview": SectionBase(name="overview", raw_text="❌ 无法parsing JD content。")}
 
     def parse_and_store(self, jd_text: str, job_id: str = None) -> Dict[str, SectionBase]:
         """
@@ -215,7 +215,7 @@ class JDVectorParser(BaseParser):
 
             if not text_lines:
                 logger.warning(
-                    "[JD Fetcher] 抓取结果为空，可能被反爬或内容为 JS 渲染。"
+                    "[JD Fetcher] 抓取result为空，可能被反爬或content为 JS render。"
                 )
 
             return "\n".join(text_lines)
@@ -225,7 +225,7 @@ class JDVectorParser(BaseParser):
             return ""
 
         except Exception as e:
-            logger.error(f"[JD Fetcher] 抓取解析异常: {e}")
+            logger.error(f"[JD Fetcher] 抓取parsing异常: {e}")
             return ""
 
     PROMPT = """
@@ -270,14 +270,14 @@ Parse the input job description into a structured format. Each section of the co
             cleaned = clean_json(response)
 
             if not cleaned:
-                raise ValueError("LLM 返回为空或内容无效")
+                raise ValueError("LLM 返回为空或content无效")
 
             parsed = json.loads(cleaned)
 
             if not isinstance(parsed, dict):
                 raise TypeError(f"LLM 返回 JSON 类型错误: {type(parsed)}")
 
-            logger.info(f"[JDVectorParser] LLM JSON解析成功，字段数: {len(parsed)}")
+            logger.info(f"[JDVectorParser] LLM JSONparsing成功，字段数: {len(parsed)}")
             return parsed
 
         except json.JSONDecodeError as je:

@@ -8,7 +8,7 @@ from resumix.shared.utils.json_parser import JsonParser
 class ScoreModule:
     def __init__(self):
         """
-        初始化评分模块。
+        初始化scoremodule。
 
         参数：
             llm: LLM 客户端实例
@@ -23,10 +23,10 @@ class ScoreModule:
         jd_section_preferred: SectionBase,
     ) -> dict:
         """
-        根据简历和岗位描述评分。
+        根据resume和job描述score。
 
         返回：
-            评分结果字典（包括 relevance, coverage 等指标）
+            scoreresult字典（包括 relevance, coverage 等指标）
         """
         prompt = self.prompt_dispatcher.get_score_prompt(
             resume_section, jd_section_basic, jd_section_preferred
@@ -43,19 +43,19 @@ class ScoreModule:
             return result
         except Exception as e:
             logger.warning(
-                f"[ScoreModule] LLM 评分结果解析失败: {e}, 原始响应: {response}"
+                f"[ScoreModule] LLM scoreresultparsing失败: {e}, 原始响应: {response}"
             )
-            return {"error": "无法解析评分结果", "raw": response}
+            return {"error": "无法parsingscoreresult", "raw": response}
 
 
 if __name__ == "__main__":
     score_module = ScoreModule()
 
-    # 示例简历和岗位描述
+    # 示例resume和job描述
     resume_section = SectionBase(name="experience", raw_text="工作经历示例文本")
-    jd_section_basic = SectionBase(name="basic", raw_text="岗位基本要求示例文本")
+    jd_section_basic = SectionBase(name="basic", raw_text="job基本要求示例文本")
     jd_section_preferred = SectionBase(
-        name="preferred", raw_text="岗位优先条件示例文本"
+        name="preferred", raw_text="job优先条件示例文本"
     )
 
     score_result = score_module.score_resume(

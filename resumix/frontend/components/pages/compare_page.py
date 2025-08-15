@@ -19,7 +19,7 @@ import os
 from pathlib import Path
 
 
-# 顶层 worker，必须放在模块作用域，multiprocessing 才能 pickle 到
+# 顶层 worker，必须放在module作用域，multiprocessing 才能 pickle 到
 def _pdf_worker(resume_data, pdf_base_no_ext):
     import os
 
@@ -61,7 +61,7 @@ class ComparePage:
             return
 
         sections = self.sections
-        jd_content = self._get_jd_content()  # 获取职位描述内容
+        jd_content = self._get_jd_content()  # 获取职位描述content
 
         # filter_sections = {}
         # filtered_sections = {}
@@ -88,7 +88,7 @@ class ComparePage:
         #         st.session_state.comparison_session["comparison_started"] = True
         #         st.rerun()
         # else:
-        # 开始处理和显示每个部分的比较结果
+        # 开始processing和显示每个部分的比较result
         # if not st.session_state.comparison_session["sections_ready"]:
         st.session_state.comparison_session["sections_ready"] = True
         self._format_sections(sections, jd_content)
@@ -176,7 +176,7 @@ class ComparePage:
 
         logger.info("Ensuring all sections are rewritten with compare_section_api")
         futures = {}
-        # 使用 ThreadPoolExecutor 并发重写简历各部分
+        # 使用 ThreadPoolExecutor 并发重写resume各部分
         with ThreadPoolExecutor(max_workers=6) as executor:
             for section_name, section_obj in sections.items():
                 # Only skip if both json_text and rewritten_text are populated
@@ -206,7 +206,7 @@ class ComparePage:
                 try:
                     result = future.result()
 
-                    # 获取重写文本，处理为空的情况
+                    # 获取重写文本，processing为空的情况
                     rewritten_text = result.get("rewritten_text", None)
                     if rewritten_text is None:
                         logger.error(
@@ -272,7 +272,7 @@ class ComparePage:
                 # )
                 CompareCard()._render_polished_section(section_name, section_obj)
 
-            # 渲染用户选择的按钮
+            # render用户选择的按钮
             choice = self._render_version_choice_buttons(
                 section_name, left_version, right_version
             )
@@ -416,14 +416,14 @@ class ComparePage:
         """
         导出时强制使用右侧（polished）版本：
         优先 rewritten_text（右侧） -> 其次 json_text -> 再次 raw_text。
-        最终把 chosen 文本回填到 json_text/rewritten_text，保证生成器统一读取的是右侧效果。
+        最终把 chosen 文本回填到 json_text/rewritten_text，保证generate器统一读取的是右侧效果。
         """
         logger.info("Gathering sections (RIGHT-side polished) for export")
 
         # sections = SessionUtils.get_resume_sections()
 
         for name, sec in sections.items():
-            # 确保每个 section 都有 raw_text，避免导出时出现空内容
+            # 确保每个 section 都有 raw_text，避免导出时出现空content
             logger.info(f"Processing section {name} for export")
             logger.info(f"re: {sec.rewritten_text}")
             logger.info(f"json: {sec.json_text}")
@@ -488,13 +488,13 @@ class ComparePage:
         logger.info("Starting PDF export process")
 
         try:
-            # 1) 收集最终内容（右侧 polished）
+            # 1) 收集最终content（右侧 polished）
             # final_sections = self._gather_final_sections(sections=sections)
             final_sections = sections
             if not final_sections:
                 raise ValueError("No final sections available for export")
 
-            # 2) 转换为生成器需要的数据结构
+            # 2) 转换为generate器需要的数据结构
             logger.info("Converting sections to generator format")
             resume_data = GeneratorUtils.convert_sections_to_generator_format(
                 final_sections
@@ -504,12 +504,12 @@ class ComparePage:
                 f"resume_data: {json.dumps(resume_data, ensure_ascii=False, indent=2)}"
             )
 
-            # 3) 生成临时输出目录和无扩展名的 base 路径
+            # 3) generate临时输出目录和无扩展名的 base 路径
             temp_dir = tempfile.mkdtemp(prefix="resumix_export_")
             pdf_base = os.path.join(temp_dir, "resumix_final_resume")  # 不带 .pdf
             logger.info(f"Generating PDF at {pdf_base}")
 
-            # 4) 使用多进程生成 PDF（macOS/Linux，去掉所有 Windows 兼容）
+            # 4) 使用多进程generate PDF（macOS/Linux，去掉所有 Windows 兼容）
             from multiprocessing import get_context
 
             ctx = get_context("spawn")  # 更稳妥，避免 fork 带来的库状态问题
@@ -544,7 +544,7 @@ class ComparePage:
                 logger.info(f"PDF successfully created at {pdf_file}")
                 return pdf_file
 
-            # 兜底：有的生成器/模板可能输出为固定名
+            # 兜底：有的generate器/模板可能输出为固定名
             alt = os.path.join(temp_dir, "resume.pdf")
             if os.path.exists(alt) and os.path.getsize(alt) > 0:
                 logger.info(f"PDF created at alternate path {alt}")

@@ -14,7 +14,7 @@ def build_faiss_index(
 ):
     # 1. 加载语料
 
-    # 🌟 打印出路径是怎么解析的
+    # 🌟 打印出路径是怎么parsing的
     print(f"📂 当前工作目录: {Path.cwd()}")
     print(f"📄 尝试保存 data.json 到: {Path(data_save_path).resolve()}")
     print(f"📄 尝试保存 index.json 到: {Path(index_save_path).resolve()}")

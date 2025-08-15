@@ -39,8 +39,8 @@ class ComparePage:
             st.warning(error)
             return
 
-        sections = SessionUtils.get_resume_sections()  # 获取简历各个部分
-        jd_content = self._get_jd_content()  # 获取职位描述内容
+        sections = SessionUtils.get_resume_sections()  # 获取resume各个部分
+        jd_content = self._get_jd_content()  # 获取职位描述content
 
         # 初始话 comparison_session
         if "comparison_session" not in st.session_state:
@@ -54,7 +54,7 @@ class ComparePage:
                 st.session_state.comparison_session["comparison_started"] = True
                 st.rerun()
         else:
-            # 开始处理和显示每个部分的比较结果
+            # 开始processing和显示每个部分的比较result
             self._format_sections(sections, jd_content)
             self._ensure_sections_are_rewritten(sections, jd_content)
             self._render_section_comparisons(sections, jd_content)
@@ -127,7 +127,7 @@ class ComparePage:
     ):
 
         futures = {}
-        # 使用 ThreadPoolExecutor 并发重写简历各部分
+        # 使用 ThreadPoolExecutor 并发重写resume各部分
         with ThreadPoolExecutor(max_workers=6) as executor:
             for section_name, section_obj in sections.items():
                 # Only skip if both json_text and rewritten_text are populated
@@ -157,7 +157,7 @@ class ComparePage:
                 try:
                     result = future.result()
 
-                    # 获取重写文本，处理为空的情况
+                    # 获取重写文本，processing为空的情况
                     rewritten_text = result.get("rewritten_text", None)
                     if rewritten_text is None:
                         logger.error(
@@ -223,7 +223,7 @@ class ComparePage:
                 # )
                 CompareCard()._render_polished_section(section_name, section_obj)
 
-            # 渲染用户选择的按钮
+            # render用户选择的按钮
             choice = self._render_version_choice_buttons(
                 section_name, left_version, right_version
             )

@@ -18,7 +18,7 @@ class OCRUtils:
 
         参数：
             ocr_model: 已初始化的 OCR 模型（PaddleOCR 或 EasyOCR 的 reader）。
-            dpi: 渲染 PDF 图像的分辨率。
+            dpi: render PDF 图像的分辨率。
             keep_images: 是否保留中间图像文件（调试用）。
         """
         self.ocr_model = ocr_model
@@ -41,7 +41,7 @@ class OCRUtils:
     @timeit()
     def preprocess_image(self, image_path: str) -> str:
         """
-        预处理图像以提高 OCR 准确性
+        预processing图像以提高 OCR 准确性
         """
         try:
             # 读取图像
@@ -53,31 +53,31 @@ class OCRUtils:
             # 转换为灰度图
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-            # 降噪处理
+            # 降噪processing
             denoised = cv2.medianBlur(gray, 3)
 
-            # 增强对比度 - 使用CLAHE (Contrast Limited Adaptive Histogram Equalization)
+            # 增强comparison度 - 使用CLAHE (Contrast Limited Adaptive Histogram Equalization)
             clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
             enhanced = clahe.apply(denoised)
 
-            # 锐化处理
+            # 锐化processing
             kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
             sharpened = cv2.filter2D(enhanced, -1, kernel)
 
-            # 二值化处理 - 使用自适应阈值
+            # 二值化processing - 使用自适应阈值
             binary = cv2.adaptiveThreshold(
                 sharpened, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
             )
 
-            # 保存预处理后的图像
+            # 保存预processing后的图像
             processed_path = image_path.replace(".png", "_processed.png")
             cv2.imwrite(processed_path, binary)
 
-            logger.info(f"图像预处理完成: {processed_path}")
+            logger.info(f"图像预processing完成: {processed_path}")
             return processed_path
 
         except Exception as e:
-            logger.warning(f"图像预处理失败，使用原图像: {e}")
+            logger.warning(f"图像预processing失败，使用原图像: {e}")
             return image_path
 
     @timeit()
@@ -117,7 +117,7 @@ class OCRUtils:
             else:
                 raise ValueError(f"不支持的 OCR 后端类型：{self.backend}")
         finally:
-            # 清理预处理后的图像文件
+            # 清理预processing后的图像文件
             if processed_image_path != image_path and not self.keep_images:
                 self._cleanup_temp_file(processed_image_path)
 
@@ -143,7 +143,7 @@ class OCRUtils:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
             content = pdf_file.read()
             if not content:
-                raise ValueError("上传的 PDF 文件内容为空。")
+                raise ValueError("upload的 PDF 文件content为空。")
             temp_file.write(content)
             temp_pdf_path = temp_file.name
         logger.info(f"[阶段] PDF 已保存为临时文件: {temp_pdf_path}")
@@ -164,7 +164,7 @@ class OCRUtils:
     def _process_pages(self, doc, max_pages: int) -> str:
         full_text = ""
         for i in range(min(len(doc), max_pages)):
-            logger.info(f"[阶段] 处理第 {i+1} 页")
+            logger.info(f"[阶段] processing第 {i+1} 页")
             page = doc.load_page(i)
 
             pix = self._render_page_to_image(page)

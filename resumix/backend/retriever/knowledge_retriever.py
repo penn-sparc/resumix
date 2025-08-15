@@ -36,7 +36,7 @@ class KnowledgeRetriever:
         self, section, tech_stacks: List[str], job_positions: List[str], top_k=5
     ) -> List[str]:
         """
-        给定简历段落、技术栈、岗位名称，检索相关上下文
+        给定resume段落、技术栈、job名称，检索相关上下文
         """
         # 1. 构造查询语句（可以更复杂）
 

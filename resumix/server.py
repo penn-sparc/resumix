@@ -7,10 +7,10 @@ import uvicorn
 
 app = FastAPI()
 
-# CORS允许跨源请求（如Streamlit前端请求FastAPI）
+# CORS allows cross-origin requests (such as Streamlit frontend requesting FastAPI)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 或限制为 ["http://localhost:8501"]
+    allow_origins=["*"],  # or restrict to ["http://localhost:8501"]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

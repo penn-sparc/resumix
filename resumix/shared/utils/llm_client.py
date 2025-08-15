@@ -29,14 +29,14 @@ class LLMWrapper(BaseLLM):
 
     def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
         """
-        调用 LLM 生成文本。
+        调用 LLM generate文本。
 
         参数：
             prompt: 输入提示文本
             stop: 可选的停止符列表
 
         返回：
-            LLM 生成的字符串。
+            LLM generate的字符串。
         """
         logger.info(f"Calling LLM with prompt: {prompt[:50]}...")
         return self.client(prompt)
@@ -54,7 +54,7 @@ class LLMWrapper(BaseLLM):
         **kwargs,
     ) -> LLMResult:
         """
-        批量生成文本（Agent 使用）
+        批量generate文本（Agent 使用）
         """
         generations = [[Generation(text=self._call(p))] for p in prompts]
         return LLMResult(generations=generations)
@@ -90,13 +90,13 @@ class LLMClient:
 
     def __call__(self, prompt: str) -> str:
         """
-        调用 LLM 生成文本。
+        调用 LLM generate文本。
 
         参数：
             prompt: 输入提示文本
 
         返回：
-            LLM 生成的字符串或错误信息。
+            LLM generate的字符串或错误信息。
         """
         logger.info(f"Calling: {prompt[:50]}")
         return self.generate(prompt)
@@ -134,13 +134,13 @@ class LLMClient:
 
     def _call_local_llm(self, prompt: str) -> str:
         """
-        调用本地 LLM 生成文本。
+        调用本地 LLM generate文本。
 
         参数：
             prompt: 输入提示文本
 
         返回：
-            LLM 生成的字符串或错误信息。
+            LLM generate的字符串或错误信息。
         """
         payload = {
             "model": self.model_name,
@@ -270,13 +270,13 @@ class LLMClient:
 
     def generate(self, prompt: str) -> str:
         """
-        调用 LLM 生成文本。
+        调用 LLM generate文本。
 
         参数：
             prompt: 输入提示文本
 
         返回：
-            LLM 生成的        logger.info(f"Raw string for signature: {raw_string}")
+            LLM generate的        logger.info(f"Raw string for signature: {raw_string}")
                 loger.ggger.info()                logger.info("Using DeepSeek API")
                 logger.info()                logger.info("Using TeleAI API")
                 logger.info()                logger.info("Using Local LLM")。

@@ -26,7 +26,7 @@ TEX_PATH = os.path.join(BASE_DIR, TEX_FILENAME)
 
 template_commands = {
     name: lambda tex_file: [
-        "tectonic",
+        "pdflatex",
         tex_file,
         "-Z",
         "continue-on-errors",
@@ -40,7 +40,7 @@ template_commands = {
 
 # template_commands = {
 #     "Simple": [
-#         "tectonic",
+#         "pdflatex",
 #         "-X",
 #         "compile",
 #         "-Z",
@@ -52,7 +52,7 @@ template_commands = {
 #         TEX_FILENAME,
 #     ],
 #     "Awesome": [
-#         "tectonic",
+#         "pdflatex",
 #         "-X",
 #         "compile",
 #         "-Z",
@@ -64,7 +64,7 @@ template_commands = {
 #         TEX_FILENAME,
 #     ],
 #     "BGJC": [
-#         "tectonic",
+#         "pdflatex",
 #         "-X",
 #         "compile",
 #         "-Z",
@@ -76,7 +76,7 @@ template_commands = {
 #         TEX_FILENAME,
 #     ],
 #     "Deedy": [
-#         "tectonic",
+#         "pdflatex",
 #         "-X",
 #         "compile",
 #         "-Z",
@@ -88,7 +88,7 @@ template_commands = {
 #         TEX_FILENAME,
 #     ],
 #     "Modern": [
-#         "tectonic",
+#         "pdflatex",
 #         "-X",
 #         "compile",
 #         "-Z",
@@ -100,7 +100,7 @@ template_commands = {
 #         TEX_FILENAME,
 #     ],
 #     "Plush": [
-#         "tectonic",
+#         "pdflatex",
 #         "-X",
 #         "compile",
 #         "-Z",
@@ -112,7 +112,7 @@ template_commands = {
 #         TEX_FILENAME,
 #     ],
 #     "Alta": [
-#         "tectonic",
+#         "pdflatex",
 #         "-X",
 #         "compile",
 #         "-Z",
@@ -225,7 +225,7 @@ def generate_pdf(
 ) -> str:
     
     """
-    渲染 LaTeX 并用 tectonic 编译 PDF，输出到 output_path（必须是 *.pdf）。
+    render LaTeX 并用 tectonic 编译 PDF，输出到 output_path（必须是 *.pdf）。
     - 使用唯一的 .tex 文件名，避免并发/历史文件干扰
     - 不修改全局 CWD；subprocess.run(..., cwd=BASE_DIR, env=ENV)
     - 编译后原子替换到 output_path
@@ -242,7 +242,7 @@ def generate_pdf(
         output_path = output_path + ".pdf"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    # 1) 生成唯一的 .tex 文件名，避免相互覆盖
+    # 1) generate唯一的 .tex 文件名，避免相互覆盖
     if tex_filename:
         tex_file = tex_filename
     else:
@@ -250,7 +250,7 @@ def generate_pdf(
 
     tex_path = os.path.join(BASE_DIR, tex_file)
 
-    # 2) 渲染 .tex
+    # 2) render .tex
     latex_content = generate_latex(
         template_name=tmpl,
         json_resume=json_resume,
@@ -268,7 +268,7 @@ def generate_pdf(
     subprocess.run(command, check=True, cwd=BASE_DIR, env=ENV)
     print("[SUCCESS] tectonic 编译完成")
 
-    # 4) 找到此次编译生成的 PDF（与 .tex 同名）
+    # 4) 找到此次编译generate的 PDF（与 .tex 同名）
     compiled_pdf = os.path.join(
         BASE_DIR, os.path.splitext(os.path.basename(tex_path))[0] + ".pdf"
     )
@@ -281,9 +281,9 @@ def generate_pdf(
         else:
             listing = "\n".join(sorted(os.listdir(BASE_DIR)))
             raise RuntimeError(
-                "PDF 未按预期生成。\n"
+                "PDF 未按预期generate。\n"
                 f"尝试: {compiled_pdf}\n"
-                f"工作目录: {BASE_DIR}\n目录内容:\n{listing}"
+                f"工作目录: {BASE_DIR}\n目录content:\n{listing}"
             )
 
     # 5) 原子替换到目标 output_path（避免拷贝旧文件）
@@ -360,14 +360,14 @@ if __name__ == "__main__":
         output_path="resume.pdf",
     )
 
-    # # 调用 Jinja2 渲染生成 LaTeX 内容
+    # # 调用 Jinja2 rendergenerate LaTeX content
     # latex_content = generate_latex(
     #     template_name=TEMPLATE_NAME,
     #     json_resume=json_resume,
     #     prelim_section_ordering=[],  # 可自定义顺序
     # )
 
-    # # 将 LaTeX 内容写入 resume.tex
+    # # 将 LaTeX content写入 resume.tex
 
     # with open(TEX_PATH, "w", encoding="utf-8") as f:
     #     f.write(latex_content)

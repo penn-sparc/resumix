@@ -49,14 +49,14 @@ class ParsingPage(BasePage):
             CompareCard()._render_json_section(section_name, section_obj)
 
     def _render_sections(self, sections: Dict[str, SectionBase]):
-        containers = {}  # section_name -> st.empty() 容器
-        section_names = list(sections.keys())  # 保证顺序
+        containers = {}  # section_name -> st.empty() container
+        section_names = list(sections.keys())  # preserve order
 
-        # Step 1: 先顺序创建容器
+        # Step 1: 先顺序创建container
         for section_name in section_names:
             containers[section_name] = st.empty()
 
-        # Step 2: 并发处理所有 section 的渲染数据（例如解析 JSON、格式化内容等）
+        # Step 2: 并发processing所有 section 的render数据（例如parsing JSON、格式化content等）
         def render_func(name: str, obj: SectionBase):
             return name, CompareCard()._render_json_section(
                 name, obj
@@ -70,7 +70,7 @@ class ParsingPage(BasePage):
                     section_name
                 )
 
-            # Step 3: 等待结果，并按 section_name 取容器填充
+            # Step 3: 等待result，并按 section_name 取container填充
             for future in as_completed(futures):
                 section_name, content_html = future.result()
                 with containers[section_name]:

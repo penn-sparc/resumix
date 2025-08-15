@@ -154,7 +154,7 @@ class PolishCard(BaseCard):
                 st.divider()
             except Exception as e:
                 logger.error(f"Failed to process section {section_name}: {e}")
-                st.error(f"❌ 处理章节失败: {section_name}")
+                st.error(f"❌ processingsection失败: {section_name}")
 
     def render_tech_stack_selection(self):
         """Render technology stack selection interface"""
@@ -366,7 +366,7 @@ def polish_card(text: str, llm_model: Callable):
 
         except Exception as e:
             logger.error(f"Failed to process section {section_name}: {e}")
-            st.error(f"❌ 处理章节失败: {section_name}")
+            st.error(f"❌ processingsection失败: {section_name}")
 
     # Store all results in session state
     if polish_results:

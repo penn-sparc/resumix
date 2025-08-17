@@ -17,9 +17,9 @@ def compare_section_api(section: SectionBase, jd_content: str):
         url=CONFIG.BACKEND.HOST + "/compare/section", json=payload, timeout=60
     )
 
-    logger.info(response.json())
+    # logger.info(response.json())
 
-    logger.info(type(response.json().get("data", {})))
+    # logger.info(type(response.json().get("data", {})))
 
     return response.json().get("data", {})
 
@@ -50,12 +50,12 @@ def format_section_api(section: SectionBase, jd_content: str):
         logger.info(f"🧾 Section type: {type(section)}")
 
         # ✅ 这里只打印 section_dict，而不是 section 本体
-        try:
-            logger.info(
-                f"🧾 Section dict preview: {json.dumps(section_dict, indent=2, ensure_ascii=False)}"
-            )
-        except Exception as e:
-            logger.warning(f"⚠️ Failed to json.dumps section_dict: {e}")
+        # try:
+        #     logger.info(
+        #         f"🧾 Section dict preview: {json.dumps(section_dict, indent=2, ensure_ascii=False)}"
+        #     )
+        # except Exception as e:
+        #     logger.warning(f"⚠️ Failed to json.dumps section_dict: {e}")
 
         payload = {
             "data": {
@@ -67,23 +67,23 @@ def format_section_api(section: SectionBase, jd_content: str):
         check_serializability(payload)
 
         # ✅ 只打印真正是 dict 的 payload，不要含任何对象
-        try:
-            logger.info(
-                f"📦 Payload preview: {json.dumps(payload, indent=2, ensure_ascii=False)}"
-            )
-        except Exception as e:
-            logger.warning(f"⚠️ Failed to json.dumps payload: {e}")
+        # try:
+        #     logger.info(
+        #         f"📦 Payload preview: {json.dumps(payload, indent=2, ensure_ascii=False)}"
+        #     )
+        # except Exception as e:
+        #     logger.warning(f"⚠️ Failed to json.dumps payload: {e}")
 
         # ✅ 发送请求
         response = requests.post(
             url=CONFIG.BACKEND.HOST + "/compare/format", json=payload, timeout=60
         )
 
-        logger.info(f"✅ Response status code: {response.status_code}")
-        logger.info(f"📨 Response content: {response.text}")
+        # logger.info(f"✅ Response status code: {response.status_code}")
+        # logger.info(f"📨 Response content: {response.text}")
 
         response_data = response.json().get("data", {})
-        logger.info(f"📦 Parsed data type: {type(response_data)}")
+        # logger.info(f"📦 Parsed data type: {type(response_data)}")
 
         return response_data
 

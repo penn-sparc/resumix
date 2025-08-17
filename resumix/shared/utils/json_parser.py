@@ -15,7 +15,7 @@ class JsonParser:
         如果均失败，返回 None。
         """
 
-        logger.info(f"Parsing JSON: {response}")
+        # logger.info(f"Parsing JSON: {response}")
 
         if not isinstance(response, str):
             logger.warning("LLM 响应不是字符串")
@@ -46,12 +46,12 @@ class JsonParser:
         # 删除对象或数组中的尾部逗号： {"a": 1,} -> {"a": 1}
         cleaned = re.sub(r",\s*([\]}])", r"\1", cleaned)
 
-        logger.info(f"cleaned: {cleaned}")
+        # logger.info(f"cleaned: {cleaned}")
 
         # 解析 JSON：先 json 再 ast
         try:
             result = json.loads(cleaned)
-            logger.info(f"JSON 解析成功: {result}")
+            # logger.info(f"JSON 解析成功: {result}")
             return result
         except json.JSONDecodeError as e_json:
             logger.warning(

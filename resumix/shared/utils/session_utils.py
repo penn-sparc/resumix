@@ -12,7 +12,7 @@ from paddleocr import PaddleOCR
 CONFIG = Config().config
 
 
-@st.cache_data(show_spinner="正在提取简历文本...")
+@st.cache_data(show_spinner="Extracting Resume Text...")
 def extract_text_from_pdf(file):
     logger.info("Extracting text from PDF file...")
 
@@ -65,7 +65,7 @@ def extract_job_description(jd_url):
 
 class SessionUtils:
     @staticmethod
-    @st.cache_data(show_spinner="提取简历文本")
+    @st.cache_data(show_spinner="Execting Resume Text...")
     def get_resume_text():
         if "resume_text" not in st.session_state:
             if "uploaded_file" not in st.session_state:

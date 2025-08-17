@@ -163,7 +163,7 @@ class VectorParser:
 
             raw_text = "\n".join(line_list)
 
-            logger.info(f"Parsing section '{section}' with lines: {line_list}")
+            # logger.info(f"Parsing section '{section}' with lines: {line_list}")
 
             cls = SECTION_BASE.get(section)
             if cls:

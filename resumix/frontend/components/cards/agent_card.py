@@ -53,7 +53,7 @@ class AgentCard(BaseCard):
                 "Spark",
                 "Redis",
                 "RabbitMQ",
-                "ONNX",
+                "vLLM",
                 "Kafka",
                 "Elasticsearch",
                 "MySQL",
@@ -137,7 +137,7 @@ class AgentCard(BaseCard):
         logger.info("Rendering AgentCard")
 
         # Use the simplified BaseCard render method
-        super().render()
+        # super().render()
 
         tech_stacks, job_positions = self._render_options()
 
@@ -147,9 +147,9 @@ class AgentCard(BaseCard):
             )
 
         if submitted:
-            with st.spinner("Processing..."):
-                logger.info(type(self.sections))
-                self.process(self.sections, tech_stacks, job_positions)
+            # with st.spinner():
+            logger.info(type(self.sections))
+            self.process(self.sections, tech_stacks, job_positions)
             st.success("Success ✅")
 
 

@@ -12,7 +12,7 @@ from paddleocr import PaddleOCR
 CONFIG = Config().config
 
 
-@st.cache_data(show_spinner="Extracting Resume Text...")
+@st.cache_data(show_spinner="Extracting text from PDF...")
 def extract_text_from_pdf(file):
     logger.info("Extracting text from PDF file...")
 

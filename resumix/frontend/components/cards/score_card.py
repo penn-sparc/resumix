@@ -23,9 +23,7 @@ class ScoreCard(BaseCard):
 
         # Initialize BaseCard with title, icon and comment
         super().__init__(
-            title=f"Score for {section_name}",
-            icon="📊",
-            comment=comment
+            title=f"{section_name.capitalize()}", icon="💯", comment=comment
         )
 
         # Store numeric scores only (filter out non-numeric items)
@@ -60,22 +58,22 @@ class ScoreCard(BaseCard):
             if not self.score_items:
                 st.info("No numeric scores to display")
                 return
-                
+
             labels, values, angles = self._prepare_radar_data()
-            
+
             # Create polar plot properly
             fig = plt.figure(figsize=(3.5, 3.5))
-            ax = fig.add_subplot(111, projection='polar')
-            
+            ax = fig.add_subplot(111, projection="polar")
+
             # Plot the radar chart
-            ax.plot(angles, values, linewidth=2, color='blue')
-            ax.fill(angles, values, alpha=0.25, color='blue')
-            
+            ax.plot(angles, values, linewidth=2, color="blue")
+            ax.fill(angles, values, alpha=0.25, color="blue")
+
             # Set the labels and limits
             ax.set_thetagrids([angle * 180 / np.pi for angle in angles[:-1]], labels)
             ax.set_ylim(0, 10)
-            ax.set_title('Score Radar Chart', pad=20)
-            
+            ax.set_title("Score Radar Chart", pad=20)
+
             st.pyplot(fig, clear_figure=True)
         except Exception as e:
             logger.error(f"Failed to render radar chart: {e}")
@@ -87,7 +85,7 @@ class ScoreCard(BaseCard):
             if not self.score_items:
                 st.info("No scores to display")
                 return
-                
+
             df = pd.DataFrame(
                 {
                     "Dimension": list(self.score_items.keys()),
@@ -95,9 +93,7 @@ class ScoreCard(BaseCard):
                 }
             )
             st.dataframe(
-                df.set_index("Dimension"),
-                use_container_width=True,
-                height=180
+                df.set_index("Dimension"), use_container_width=True, height=180
             )
         except Exception as e:
             logger.error(f"Failed to render score table: {e}")
@@ -105,25 +101,27 @@ class ScoreCard(BaseCard):
 
     def render_comment(self):
         """Render the comment section"""
-        if hasattr(self, 'comment') and self.comment:
+        if hasattr(self, "comment") and self.comment:
             st.markdown(f"📝 **Comment:** {self.comment}")
 
     def render_card_body(self):
         """Main render method that puts everything together - required by BaseCard"""
         logger.info(f"Displaying scores for section: {self.section_name}")
-        
+
         # Check if we have scoring data
         if not self.score_items:
-            st.info("📊 Upload a resume and add a job description to see detailed scoring")
+            st.info(
+                "📊 Upload a resume and add a job description to see detailed scoring"
+            )
             return
-        
+
         # Two-column layout
         col1, col2 = st.columns([1, 2])
-        
+
         with col1:
             st.markdown("#### 📈 Score Visualization")
             self.render_radar_chart()
-            
+
         with col2:
             st.markdown("#### 📋 Score Details")
             self.render_score_table()

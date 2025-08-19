@@ -522,14 +522,14 @@ class ComparePage:
     def _render_export_section(self, sections: Dict[str, SectionBase]):
         """Render export section - always visible with different states based on readiness."""
         st.divider()
-        st.markdown("### 📄 Export Resume")
+        # st.markdown("### 📄 Export Resume")
 
         # Check export readiness
         # is_ready, message = self._check_export_readiness()
-        is_ready, message = True, ""
+        # is_ready, message = True, ""
 
         # if is_ready:
-        st.success(f"✅ {message}")
+        # st.success(f"✅ {message}")
 
         # Export button when ready
         if st.button("📄 Export Final Resume PDF", type="primary"):

@@ -14,7 +14,7 @@ LANGUAGES = {
         "logged_in": "Logged in",
         "logout": "Logout",
         "please_upload": "Please upload a resume PDF file to get started.",
-        "tabs": ["Parsing", "Polish", "Score", "Compare"],
+        "tabs": ["Overview", "Match", "Score", "Compare"],
         # Analysis Card
         "analysis": {
             "please_upload": "📄 Please upload a resume to begin analysis",
@@ -80,7 +80,7 @@ LANGUAGES = {
         "logged_in": "已登录",
         "logout": "退出登录",
         "please_upload": "请上传 PDF 格式简历开始使用。",
-        "tabs": ["简历解析", "简历润色", "简历评分", "简历对比"],
+        "tabs": ["简历概览", "简历匹配", "简历评分", "简历对比"],
         # Analysis Card
         "analysis": {
             "please_upload": "📄 请上传简历开始分析",

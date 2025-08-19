@@ -7,6 +7,7 @@ from loguru import logger
 
 from langchain.agents import initialize_agent, AgentType
 from streamlit_option_menu import option_menu
+import base64
 
 # Resumix imports
 from resumix.config.config import Config
@@ -15,12 +16,6 @@ from resumix.shared.utils.llm_client import LLMWrapper, LLMClient
 from resumix.backend.rewriter.resume_rewriter import ResumeRewriter
 from resumix.shared.utils.session_utils import SessionUtils
 from resumix.shared.utils.i18n import LANGUAGES
-
-# Import card components
-from resumix.frontend.components.cards.analysis_card import AnalysisCard
-from resumix.frontend.components.cards.polish_card import PolishCard, polish_card
-from resumix.frontend.components.cards.agent_card import AgentCard
-from resumix.frontend.components.cards.compare_card import CompareCard
 
 # Import page components
 from resumix.frontend.components.pages.score_page import ScorePage
@@ -38,6 +33,8 @@ if "resumix_started" not in st.session_state:
 CONFIG = Config().config
 CURRENT_DIR = Path(__file__).resolve().parent
 ASSET_DIR = CURRENT_DIR / "assets" / "logo.png"
+FONT_PATH = CURRENT_DIR / "assets" / "Pacifico-1.ttf"
+LOGO_PATH = CURRENT_DIR / "assets" / "logo.png"
 
 
 # Get language translations (with fallback)
@@ -48,6 +45,93 @@ def get_translations():
 
 
 T = get_translations()
+
+
+def _read_base64(p: Path):
+    try:
+        return base64.b64encode(p.read_bytes()).decode("ascii")
+    except Exception:
+        return None
+
+
+def render_hero():
+    # 1) 读取字体与 logo，转 data URI
+    font_b64 = _read_base64(FONT_PATH)
+    logo_b64 = _read_base64(LOGO_PATH)
+
+    # 2) 生成 @font-face（data URI 方式最稳妥，避免 file:// 限制）
+    #    若字体缺失，则不注入 @font-face，仅使用系统字体回退
+    font_face_css = ""
+    if font_b64:
+        font_face_css = f"""
+        @font-face {{
+          font-family: 'MyFont';
+          src: url(data:font/ttf;base64,{font_b64}) format('truetype');
+          font-weight: 400;
+          font-style: normal;
+          font-display: swap;
+        }}
+        """
+
+    # 3) 生成 logo 的 <img> src
+    if logo_b64:
+        logo_src = f"data:image/png;base64,{logo_b64}"
+    else:
+        # 如果没有图片，就用一个 emoji 代替
+        logo_src = "📝"
+
+    # 4) 整块 HTML（单个 st.markdown，保证布局不被拆）
+    st.markdown(
+        f"""
+<style>
+{font_face_css}
+.hero {{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+}}
+.subtitle {{
+  font-size: 1.2rem;
+  color: #64748b;
+  margin: 1rem 0 2rem 0;
+  max-width: 600px;
+  line-height: 1.6;
+}}
+.cta {{
+  background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  color: white;
+  margin-top: 1rem;
+}}
+.resumix-title {{
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0;
+  /* 优先使用本地 MyFont，没加载到就回退到系统无衬线 */
+  font-family: {'MyFont, ' if font_b64 else ''} Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}}
+.logo {{
+  width: 600px;
+  height: auto;
+  margin:0 auto 1rem;
+}}
+</style>
+
+<div class="hero">
+  {"<img class='logo' src='" + logo_src + "' />" if logo_src else "<div style='font-size: 5rem; margin-bottom: 1rem;'>📝</div>"}
+  <p class="subtitle">
+    Your AI-powered resume enhancement platform. Upload your resume and get started with intelligent analysis, polishing, and optimization.
+  </p>
+  <div class="cta"><p style="margin:0; font-weight:500;">👈 Follow the steps in the sidebar to get started</p></div>
+</div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 # Initialize LLM and agent only when needed (cached for performance)
@@ -73,8 +157,8 @@ def get_agent():
 
 # Page configuration
 st.set_page_config(
-    page_title="RESUMIX",
-    page_icon="📄",
+    page_title="Resumix",
+    page_icon="📝",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -351,21 +435,82 @@ with st.sidebar:
 # Main content area - show welcome or cards based on state
 if not st.session_state.resumix_started:
     # Show welcome screen with logo and instructions
-    st.markdown(
-        """
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center;">
-            <div style="font-size: 5rem; margin-bottom: 1rem;">📄</div>
-            <h1 style="font-size: 3rem; font-weight: 700; color: #2d3748; margin: 0; font-family: 'Inter', sans-serif;">RESUMIX</h1>
-            <p style="font-size: 1.2rem; color: #64748b; margin: 1rem 0 2rem 0; max-width: 600px; line-height: 1.6;">
-                Your AI-powered resume enhancement platform. Upload your resume and get started with intelligent analysis, polishing, and optimization.
-            </p>
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem 2rem; border-radius: 12px; color: white; margin-top: 1rem;">
-                <p style="margin: 0; font-weight: 500;">👈 Follow the steps in the sidebar to get started</p>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    # st.markdown(
+    #     """
+    #     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center;">
+    #         <div style="font-size: 5rem; margin-bottom: 1rem;">📝</div>
+    #         <h1 style="font-size: 3rem; font-weight: 700; color: #2d3748; margin: 0; font-family: 'Inter', sans-serif;">Resumix</h1>
+    #         <p style="font-size: 1.2rem; color: #64748b; margin: 1rem 0 2rem 0; max-width: 600px; line-height: 1.6;">
+    #             Your AI-powered resume enhancement platform. Upload your resume and get started with intelligent analysis, polishing, and optimization.
+    #         </p>
+    #         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem 2rem; border-radius: 12px; color: white; margin-top: 1rem;">
+    #             <p style="margin: 0; font-weight: 500;">👈 Follow the steps in the sidebar to get started</p>
+    #         </div>
+    #     </div>
+    #     """,
+    #     unsafe_allow_html=True,
+    # )
+    # st.markdown(
+    #     """
+    # <style>
+    # @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+    # .resumix-title {
+    #     font-family: 'Pacifico', cursive;
+    #     font-size: 3.5rem;
+    #     font-weight: 400;
+    #     color: #2d3748;
+    #     margin: 0;
+    # }
+    # </style>
+
+    # <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center;">
+    #     <div style="font-size: 12rem; margin-bottom: 1rem;">📝</div>
+    #     <h1 class="resumix-title">Resumix</h1>
+    #     <p style="font-size: 1.2rem; color: #64748b; margin: 1rem 0 2rem 0; max-width: 600px; line-height: 1.6;">
+    #         Your AI-powered resume enhancement platform. Upload your resume and get started with intelligent analysis, polishing, and optimization.
+    #     </p>
+    #     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem 2rem; border-radius: 12px; color: white; margin-top: 1rem;">
+    #         <p style="margin: 0; font-weight: 500;">👈 Follow the steps in the sidebar to get started</p>
+    #     </div>
+    # </div>
+    # """,
+    #     unsafe_allow_html=True,
+    # )
+
+    logo_dir = ASSET_DIR.resolve()
+    font_path = (ASSET_DIR / "Pacifico-1.ttf").resolve()
+    assert logo_dir.exists(), f"Logo not found: {logo_dir}"
+    render_hero()
+    # st.markdown(
+    #     """
+    # <style>
+    #   .hero {display:flex; flex-direction:column; align-items:center; justify-content:center;
+    #          min-height:60vh; text-align:center;}
+    #   .subtitle {font-size:1.2rem; color:#64748b; margin:1rem 0 2rem 0; max-width:600px; line-height:1.6;}
+    #   .cta {background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); padding:1.5rem 2rem;
+    #         border-radius:12px; color:white; margin-top:1rem;}
+    #   .resumix-title {font-size:3rem; font-weight:700; color:#2d3748; margin:0; font-family:'Inter',sans-serif;}
+    # </style>
+    # <div class="hero">
+    # """,
+    #     unsafe_allow_html=True,
+    # )
+
+    # st.image(str(logo_dir), width=120)
+
+    # st.markdown(
+    #     """
+    #   <h1 class="resumix-title">Resumix</h1>
+    #   <p class="subtitle">
+    #     Your AI-powered resume enhancement platform. Upload your resume and get started with intelligent analysis, polishing, and optimization.
+    #   </p>
+    #   <div class="cta"><p style="margin:0; font-weight:500;">👈 Follow the steps in the sidebar to get started</p></div>
+    # </div>
+    # """,
+    #     unsafe_allow_html=True,
+    # )
+
 else:
     # Show the main application interface
     # Clean interface - no header, just tabs and content
@@ -380,7 +525,12 @@ else:
     selected_tab = option_menu(
         menu_title=None,
         options=tab_names,
-        icons=["file-text", "pencil", "robot", "bar-chart", "file-earmark-break"],
+        icons=[
+            "file-earmark-text",  # Overview：文档/简历展示
+            "person-check",  # Match：匹配职位/技能
+            "bar-chart-line",  # Score：评分/量化
+            "columns-gap",  # Compare：对比/并排
+        ],
         orientation="horizontal",
         default_index=st.session_state.selected_tab_index,
     )

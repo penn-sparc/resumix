@@ -65,7 +65,7 @@ def extract_job_description(jd_url):
 
 class SessionUtils:
     @staticmethod
-    @st.cache_data(show_spinner="Execting Resume Text...")
+    @st.cache_data(show_spinner="Extracting resume text")
     def get_resume_text():
         if "resume_text" not in st.session_state:
             if "uploaded_file" not in st.session_state:
@@ -85,21 +85,21 @@ class SessionUtils:
         url = st.session_state.get("jd_url", "")
         cached_url = st.session_state.get("jd_cached_url", "")
 
-        # 如果 URL 不存在或没有变化，不重新解析
+        # If URL does not exist or has not changed, do not re-parse
         if "jd_content" not in st.session_state or url != cached_url:
             if not url:
                 logger.info("No JD provided.")
                 return "No job description URL provided."
             logger.info(f"Update JD URL to {url}")
             st.session_state.jd_content = extract_job_description(url)
-            st.session_state.jd_cached_url = url  # 更新缓存 URL
+            st.session_state.jd_cached_url = url  # Update cached URL
         else:
             logger.info("Load JD from cache.")
 
         return st.session_state.jd_content
 
     @staticmethod
-    # @st.cache_data(show_spinner="提取简历段落")
+    # @st.cache_data(show_spinner="Extracting resume sections")
     def get_resume_sections():
         if "resume_sections" not in st.session_state:
             text = SessionUtils.get_resume_text()
@@ -113,9 +113,9 @@ class SessionUtils:
         cached_url = st.session_state.get("jd_cached_url", "").strip()
 
         if not url:
-            logger.warning("[SessionUtils] JD URL 未设置，跳过更新")
-            st.session_state.jd_sections = {"overview": ["⚠️ 未提供岗位描述链接"]}
-            st.session_state.jd_content = "⚠️ 未提供岗位描述链接"
+            logger.warning("[SessionUtils] JD URL not set, skipping update")
+            st.session_state.jd_sections = {"overview": ["⚠️ Job description link not provided"]}
+            st.session_state.jd_content = "⚠️ Job description link not provided"
             return st.session_state.jd_sections
 
         # if (
@@ -123,8 +123,8 @@ class SessionUtils:
         #     and "jd_sections" in st.session_state
         #     and "jd_content" in st.session_state
         # ):
-        #     logger.info(f"[SessionUtils] 当前url: {url}, 缓存url: {url}")
-        #     logger.info("[SessionUtils] JD URL 未变化，使用缓存内容")
+        #     logger.info(f"[SessionUtils] current url: {url}, cached url: {url}")
+        #     logger.info("[SessionUtils] JD URL unchanged, using cached content")
         #     for section in st.session_state.jd_sections.values():
         #         logger.info(f"[SessionUtils] section: {section}")
         #     return st.session_state.jd_sections
@@ -136,14 +136,14 @@ class SessionUtils:
             parser = JDVectorParser()
             st.session_state.jd_sections = parser.parse(jd_text)
 
-            st.session_state.jd_cached_url = url  # 缓存 URL
+            st.session_state.jd_cached_url = url  # Cache URL
 
             return st.session_state.jd_sections
 
         except Exception as e:
-            logger.error(f"[SessionUtils] JD 更新失败: {e}")
-            st.session_state.jd_sections = {"overview": [f"❌ 无法解析 JD 内容：{e}"]}
-            st.session_state.jd_content = f"❌ 无法获取 JD 网页内容：{e}"
+            logger.error(f"[SessionUtils] JD update failed: {e}")
+            st.session_state.jd_sections = {"overview": [f"❌ Unable to parse JD content：{e}"]}
+            st.session_state.jd_content = f"❌ Unable to fetch JD webpage content：{e}"
             return st.session_state.jd_sections
 
     @staticmethod

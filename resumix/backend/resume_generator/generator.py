@@ -65,7 +65,7 @@ def generate_pdf_resume(json_resume, output_path="resume"):
 
     # 输出 PDF
     doc.generate_pdf(output_path, clean_tex=False)
-    (f"[SUCCESS] 简历已生成：{output_path}.pdf")
+    (f"[SUCCESS] resume已generate：{output_path}.pdf")
 
 
 if __name__ == "__main__":
@@ -95,7 +95,7 @@ if __name__ == "__main__":
                 "position": "后端实习生",
                 "startDate": "2022-07",
                 "endDate": "2022-12",
-                "summary": "负责视频推荐系统的服务性能优化与缓存策略设计",
+                "summary": "负责视频推荐系统的服务性能optimization与缓存策略设计",
             }
         ],
         "skills": [
@@ -104,8 +104,8 @@ if __name__ == "__main__":
         ],
         "projects": [
             {
-                "name": "AI 简历优化助手",
-                "description": "基于 RAG 与向量数据库构建的简历内容增强系统，提升匹配度与可读性",
+                "name": "AI resumeoptimization助手",
+                "description": "基于 RAG 与向量数据库构建的resumecontent增强系统，提升匹配度与可读性",
                 "keywords": ["RAG", "FastAPI", "FAISS"],
             }
         ],

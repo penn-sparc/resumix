@@ -94,14 +94,14 @@ ByteDance is committed to creating an inclusive space where employees are valued
 
 
     项目经历
-    2023.01 - 2023.04 智能简历解析平台（个人项目）
+    2023.01 - 2023.04 智能resumeparsing平台（个人项目）
     - 技术栈：Python, PaddleOCR, FastAPI, Sentence-BERT
-    - 设计一套支持中英文简历识别的端到端平台，准确提取教育、项目、技能等结构化信息
+    - 设计一套支持中英文resume识别的端到端平台，准确提取教育、项目、技能等结构化信息
     - 使用嵌入向量和聚类算法，提升 section 匹配准确率至92%
 
     2022.06 - 2022.08 企业内推系统（校内合作项目）
-    - 使用 Django + Vue 实现一套简历内推与岗位推荐平台
-    - 集成 Elasticsearch 实现关键词匹配与倒排索引，实现岗位相似度排序
+    - 使用 Django + Vue 实现一套resume内推与job推荐平台
+    - 集成 Elasticsearch 实现关键词匹配与倒排索引，实现job相似度排序
 
     证书与奖项
     - 2022 年中国软件杯二等奖
@@ -111,12 +111,12 @@ ByteDance is committed to creating an inclusive space where employees are valued
     工作经历
     2021.07 - 至今  字节跳动（北京）  
     后端研发工程师｜推荐系统平台组
-    - 负责用户画像服务模块的优化，提升接口响应速度30%
-    - 基于Redis + Flink 实现行为日志的实时聚合服务，服务日均处理10亿条记录
-    - 推动服务容器化上线，撰写 CI/CD 脚本并部署至Kubernetes集群
+    - 负责用户画像服务module的optimization，提升接口响应速度30%
+    - 基于Redis + Flink 实现行为日志的实时聚合服务，服务日均processing10亿条记录
+    - 推动服务container化上线，撰写 CI/CD 脚本并部署至Kubernetes集群
 
     2020.07 - 2021.06  腾讯实习生  
-    实习岗位：后台开发实习生（云服务部门）
+    实习job：后台开发实习生（云服务部门）
     - 参与搭建内部配置平台，支持10+项目的配置热更新
     - 使用Go开发配置管理服务，结合Etcd实现高可用分布式存储
 """
@@ -126,9 +126,9 @@ ByteDance is committed to creating an inclusive space where employees are valued
 
     resume_text_all = []
 
-    print("=== 解析结果 ===\n")
+    print("=== parsingresult ===\n")
 
-    print(f"共解析出 {len(section_structured)} 个 section：\n")
+    print(f"共parsing出 {len(section_structured)} 个 section：\n")
     for section, obj in section_structured.items():
         print(f"Section: {section}")
         print(obj.raw_text)
@@ -145,7 +145,7 @@ ByteDance is committed to creating an inclusive space where employees are valued
     words = re.findall(r"\b\w+\b", resume_full_text.lower())
     tokens = list(set(words))
 
-    print(f"共解析出 {len(jd_structured)} 个 JD 段落：\n")
+    print(f"共parsing出 {len(jd_structured)} 个 JD 段落：\n")
     for section, lines in jd_structured.items():
         print(f"Section: {section}")
         print("---" * 20)

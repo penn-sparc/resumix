@@ -15,7 +15,7 @@ class SectionBase(BaseModel):
         None  # 限制为 JSON 可序列化结构
     )
 
-    # 自动生成 lines 字段
+    # 自动generate lines 字段
     @field_validator("lines", mode="before")
     @classmethod
     def generate_lines(cls, v, info: FieldValidationInfo):

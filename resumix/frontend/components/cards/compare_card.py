@@ -494,7 +494,7 @@ class CompareCard(BaseCard):
     #             if not getattr(section_obj, "rewritten_text", None)
     #         }
 
-    #     with st.spinner("正在优化简历段落..."):
+    #     with st.spinner("正在optimizationresume段落..."):
     #         for future in as_completed(futures):
     #             section_name = futures[future]
     #             section_obj = sections[section_name]
@@ -502,11 +502,11 @@ class CompareCard(BaseCard):
     #                 result = future.result()
 
     #                 logger.debug(
-    #                     f"Type of rewritten text: {type(result.get('rewritten_text', '⚠️ 无重写内容'))}"
+    #                     f"Type of rewritten text: {type(result.get('rewritten_text', '⚠️ 无重写content'))}"
     #                 )
 
     #                 section_obj.rewritten_text = result.get(
-    #                     "rewritten_text", "⚠️ 无重写内容"
+    #                     "rewritten_text", "⚠️ 无重写content"
     #                 )
     #             except Exception as e:
     #                 logger.error(f"Failed to rewrite section {section_name}: {e}")
@@ -514,7 +514,7 @@ class CompareCard(BaseCard):
     #                     "polishing_failed"
     #                 ].format(error=str(e))
 
-    #     # === 渲染所有对比结果 ===
+    #     # === Render all comparison results ===
     #     for section_name, section_obj in sections.items():
     #         try:
     #             logger.info(f"section rewritten: {section_obj.rewritten_text}")

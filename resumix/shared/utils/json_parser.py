@@ -9,13 +9,13 @@ class JsonParser:
     @staticmethod
     def parse(response: str) -> Union[Dict, None]:
         """
-        安全解析 LLM 响应中的 JSON 字符串。
+        安全parsing LLM 响应中的 JSON 字符串。
 
         优先使用 json.loads，失败时回退至 ast.literal_eval。
         如果均失败，返回 None。
         """
 
-        # logger.info(f"Parsing JSON: {response}")
+        logger.info(f"Parsing JSON: {response}")
 
         if not isinstance(response, str):
             logger.warning("LLM 响应不是字符串")
@@ -46,21 +46,21 @@ class JsonParser:
         # 删除对象或数组中的尾部逗号： {"a": 1,} -> {"a": 1}
         cleaned = re.sub(r",\s*([\]}])", r"\1", cleaned)
 
-        # logger.info(f"cleaned: {cleaned}")
+        logger.info(f"cleaned: {cleaned}")
 
-        # 解析 JSON：先 json 再 ast
+        # parsing JSON：先 json 再 ast
         try:
             result = json.loads(cleaned)
-            # logger.info(f"JSON 解析成功: {result}")
+            logger.info(f"JSON parsing成功: {result}")
             return result
         except json.JSONDecodeError as e_json:
             logger.warning(
-                f"[json.loads] 解析失败: {e_json}, 尝试 fallback ast.literal_eval"
+                f"[json.loads] parsing失败: {e_json}, 尝试 fallback ast.literal_eval"
             )
             try:
                 return ast.literal_eval(cleaned)
             except Exception as e_ast:
-                logger.error(f"[ast.literal_eval] 解析仍失败: {e_ast}")
+                logger.error(f"[ast.literal_eval] parsing仍失败: {e_ast}")
                 return {}
 
     @staticmethod
@@ -81,6 +81,6 @@ class JsonParser:
             data = JsonParser.parse(section_json)
             return data
         except json.JSONDecodeError:
-            logger.error("⚠️ JSON 解析失败，原始数据如下：")
+            logger.error("⚠️ JSON parsing失败，原始数据如下：")
             logger.error(section_json)
             return {}

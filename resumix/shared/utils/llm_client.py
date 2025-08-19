@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import hashlib
 import base64
 import time
+import json
 
 from resumix.config.llm_config import LLMConfig
 
@@ -28,14 +29,14 @@ class LLMWrapper(BaseLLM):
 
     def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
         """
-        调用 LLM 生成文本。
+        调用 LLM generate文本。
 
         参数：
             prompt: 输入提示文本
             stop: 可选的停止符列表
 
         返回：
-            LLM 生成的字符串。
+            LLM generate的字符串。
         """
         logger.info(f"Calling LLM with prompt: {prompt[:50]}...")
         return self.client(prompt)
@@ -53,7 +54,7 @@ class LLMWrapper(BaseLLM):
         **kwargs,
     ) -> LLMResult:
         """
-        批量生成文本（Agent 使用）
+        批量generate文本（Agent 使用）
         """
         generations = [[Generation(text=self._call(p))] for p in prompts]
         return LLMResult(generations=generations)
@@ -89,13 +90,13 @@ class LLMClient:
 
     def __call__(self, prompt: str) -> str:
         """
-        调用 LLM 生成文本。
+        调用 LLM generate文本。
 
         参数：
             prompt: 输入提示文本
 
         返回：
-            LLM 生成的字符串或错误信息。
+            LLM generate的字符串或错误信息。
         """
         logger.info(f"Calling: {prompt[:50]}")
         return self.generate(prompt)
@@ -133,13 +134,13 @@ class LLMClient:
 
     def _call_local_llm(self, prompt: str) -> str:
         """
-        调用本地 LLM 生成文本。
+        调用本地 LLM generate文本。
 
         参数：
             prompt: 输入提示文本
 
         返回：
-            LLM 生成的字符串或错误信息。
+            LLM generate的字符串或错误信息。
         """
         payload = {
             "model": self.model_name,
@@ -229,15 +230,53 @@ class LLMClient:
             .get("content", "⚠️ Model did not return a result.")
         )
 
+    def _call_bedrock_api(self, prompt: str) -> str:
+        """
+        Call AWS Bedrock Claude API.
+        """
+        try:
+            import boto3
+            
+            bedrock = boto3.client(
+                service_name='bedrock-runtime',
+                region_name=LLM_CONFIG.get("region", "us-east-1")
+            )
+            
+            body = json.dumps({
+                "anthropic_version": "bedrock-2023-05-31",
+                "max_tokens": 2000,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
+            })
+            
+            response = bedrock.invoke_model(
+                body=body,
+                modelId=self.model_name,
+                accept='application/json',
+                contentType='application/json'
+            )
+            
+            response_body = json.loads(response.get('body').read())
+            return response_body.get('content', [{}])[0].get('text', '⚠️ Model did not return a result.')
+            
+        except ImportError:
+            return "❌ Error: boto3 not installed. Run: pip install boto3"
+        except Exception as e:
+            return f"❌ Error calling Bedrock: {e}"
+
     def generate(self, prompt: str) -> str:
         """
-        调用 LLM 生成文本。
+        调用 LLM generate文本。
 
         参数：
             prompt: 输入提示文本
 
         返回：
-            LLM 生成的        logger.info(f"Raw string for signature: {raw_string}")
+            LLM generate的        logger.info(f"Raw string for signature: {raw_string}")
                 loger.ggger.info()                logger.info("Using DeepSeek API")
                 logger.info()                logger.info("Using TeleAI API")
                 logger.info()                logger.info("Using Local LLM")。
@@ -248,6 +287,9 @@ class LLMClient:
             if LLM_CONFIG.get("type") == "deepseek":
                 logger.info("Using DeepSeek API")
                 return self._call_deepseek_api(prompt)
+            elif LLM_CONFIG.get("type") == "bedrock":
+                logger.info("Using AWS Bedrock")
+                return self._call_bedrock_api(prompt)
             elif LLM_CONFIG.get("type") == "silicon":
                 logger.info("Using Silicon API")
                 return self._call_silicon_api(prompt)
@@ -260,3 +302,4 @@ class LLMClient:
 
         except Exception as e:
             return f"❌ Error calling model: {e}"
+

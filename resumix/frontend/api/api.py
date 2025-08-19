@@ -96,7 +96,7 @@ def score_section_api(
     payload: Dict[str, Any],
 ) -> Dict[str, Any]:
     """
-    每次调用评分 API 只处理一个 section
+    每次调用score API 只processing一个 section
     """
 
     logger.info("Calling score API")
@@ -113,7 +113,7 @@ def score_section_api(
 
     except requests.exceptions.RequestException as e:
         logger.exception("❌ Failed to call score API")
-        st.error(f"评分服务调用失败: {str(e)}")
+        st.error(f"score服务调用失败: {str(e)}")
 
 
 def process_section_api(

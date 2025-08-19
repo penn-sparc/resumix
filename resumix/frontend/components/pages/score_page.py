@@ -35,7 +35,7 @@ class ScorePage(BasePage):
             if "requirements_basic" not in JD_SECTIONS:
                 for section in JD_SECTIONS.values():
                     st.warning(f"section: {section}")
-                st.warning("❗岗位描述缺少字段 requirements_basic，无法评分分析。")
+                st.warning("❗job描述缺少字段 requirements_basic，无法score分析。")
                 return
 
             with st.spinner("Scoring resume sections..."):
@@ -50,7 +50,7 @@ class ScorePage(BasePage):
                     st.error(f"❌ 请求失败: {e}")
                     return
 
-            st.success("Success ✅")
+            st.success("所有简历段落评分完成 ✅")
 
     def _render_sections(
         self,
@@ -60,7 +60,7 @@ class ScorePage(BasePage):
         max_workers: int = 5,
     ) -> Dict[str, Any]:
         """
-        每次调用评分 API 只处理一个 section，并发执行 + 即时展示
+        每次调用score API 只processing一个 section，并发执行 + 即时展示
         """
         results = {}
 
@@ -90,7 +90,6 @@ class ScorePage(BasePage):
                 return name, {"error": str(e)}
 
         selected = ["experience", "skills", "projects"]
-
         # 使用线程池并发评分
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             future_to_name = {
@@ -115,7 +114,7 @@ class ScorePage(BasePage):
                 except Exception as e:
                     logger.exception(f"❌ Exception in future for {name}")
                     results[name] = {"error": str(e)}
-                    st.error(f"评分服务调用失败（{name}）: {e}")
+                    st.error(f"score服务调用失败（{name}）: {e}")
 
                 finished += 1
                 progress_bar.progress(finished / total)

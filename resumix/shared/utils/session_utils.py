@@ -65,7 +65,7 @@ def extract_job_description(jd_url):
 
 class SessionUtils:
     @staticmethod
-    @st.cache_data(show_spinner="Extracting resume text")
+    @st.cache_data(show_spinner="Extracting resume text...")
     def get_resume_text():
         if "resume_text" not in st.session_state:
             if "uploaded_file" not in st.session_state:
@@ -114,7 +114,9 @@ class SessionUtils:
 
         if not url:
             logger.warning("[SessionUtils] JD URL not set, skipping update")
-            st.session_state.jd_sections = {"overview": ["⚠️ Job description link not provided"]}
+            st.session_state.jd_sections = {
+                "overview": ["⚠️ Job description link not provided"]
+            }
             st.session_state.jd_content = "⚠️ Job description link not provided"
             return st.session_state.jd_sections
 
@@ -142,7 +144,9 @@ class SessionUtils:
 
         except Exception as e:
             logger.error(f"[SessionUtils] JD update failed: {e}")
-            st.session_state.jd_sections = {"overview": [f"❌ Unable to parse JD content：{e}"]}
+            st.session_state.jd_sections = {
+                "overview": [f"❌ Unable to parse JD content：{e}"]
+            }
             st.session_state.jd_content = f"❌ Unable to fetch JD webpage content：{e}"
             return st.session_state.jd_sections
 

@@ -3,5 +3,5 @@ port = 8501
 address = "0.0.0.0"
 
 [browser]
-serverAddress = "resumix.duckdns.org"
+serverAddress = "resumix.ddns.net"
 serverPort = 8501

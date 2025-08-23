@@ -27,13 +27,9 @@ TEX_PATH = os.path.join(BASE_DIR, TEX_FILENAME)
 template_commands = {
     name: lambda tex_file: [
         "pdflatex",
-        tex_file,
-        "-Z",
-        "continue-on-errors",
-        "--untrusted",
-        # "--only-cached",
-        "--outdir",
-        ".",
+        "-interaction=nonstopmode",  # Don't stop on errors
+        "-output-directory=.",       # Output to current directory  
+        tex_file
     ]
     for name in ["Simple", "Awesome", "BGJC", "Deedy", "Modern", "Plush", "Alta"]
 }
@@ -265,8 +261,17 @@ def generate_pdf(
     if tmpl not in template_commands:
         raise RuntimeError(f"Unknown template_name: {tmpl}")
     command = template_commands[tmpl](tex_file=os.path.basename(tex_path))
-    subprocess.run(command, check=True, cwd=BASE_DIR, env=ENV)
-    print("[SUCCESS] tectonic 编译完成")
+    # Try to compile with pdflatex, but don't fail if it returns non-zero (LaTeX errors)
+    try:
+        result = subprocess.run(command, cwd=BASE_DIR, env=ENV, capture_output=True, text=True)
+        if result.returncode == 0:
+            print("[SUCCESS] pdflatex compilation completed successfully")
+        else:
+            print(f"[WARN] pdflatex returned exit code {result.returncode}, but may have still produced PDF")
+            print(f"[DEBUG] stderr: {result.stderr[:500]}")  # Show first 500 chars of error
+    except Exception as e:
+        print(f"[ERROR] Failed to run pdflatex: {e}")
+        raise
 
     # 4) 找到此次编译generate的 PDF（与 .tex 同名）
     compiled_pdf = os.path.join(

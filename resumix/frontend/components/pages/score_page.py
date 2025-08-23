@@ -50,7 +50,7 @@ class ScorePage(BasePage):
                     st.error(f"❌ 请求失败: {e}")
                     return
 
-            st.success("所有简历段落评分完成 ✅")
+            st.success("Success ✅")
 
     def _render_sections(
         self,
@@ -99,7 +99,7 @@ class ScorePage(BasePage):
             }
 
             finished = 0
-            total = len(sections)
+            total = len(selected)
             progress_bar = st.progress(0)
 
             for future in as_completed(future_to_name):

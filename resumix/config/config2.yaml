@@ -1,0 +1,50 @@
+frontend:
+  host: "http://localhost:8501"
+  port: 8501
+
+backend:
+  host: "http://localhost:8000"
+  port: 8000
+
+llm:
+  use_model: "deepseek"
+  deepseek:
+    model: "deepseek-chat"
+    url: "https://api.deepseek.com/v1/chat/completions"
+  local:
+    model: "gemma3:4b"
+    url: "http://localhost:11434/api/generate"
+  docker:
+    model: "gemma3:4b"
+    url: "http://host.docker.internal:11434/api/generate"
+  teleai:
+    url: "https://www.srdcloud.cn/api/acbackend/openchat/v1/chat/completions"
+  silicon:
+    model: "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B"
+    url: "https://api.siliconflow.cn/v1/chat/completions"
+  bedrock:
+    model: "anthropic.claude-3-haiku-20240307-v1:0"
+    region: "us-east-1"
+
+ocr:
+  use_model: "paddleocr"
+  easyocr:
+    model: "easyocr"
+    directory: "resumix/shared/model/easyocr"
+    gpu: False
+  paddle:
+    model: "paddleocr"
+
+sentence_transformer:
+  use_model: "paraphrase-multilingual-MiniLM-L12-v2"
+  directory: "resumix/shared/model/sentence_transformer"
+
+rag:
+  index_path: "resumix/data/index.json"
+  data_path: "resumix/data/data.json"
+
+  # use_easyocr: True
+  # use_paddle: False
+  # easyocr:
+  #   directory: "resumix/shared/model/easyocr"
+  #   gpu: False
